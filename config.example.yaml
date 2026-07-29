@@ -1,0 +1,34 @@
+camera:
+  id: fabrica-cuenca-puerta-principal
+  store_id: fabrica-cuenca
+  source: 0  # webcam index, RTSP URL or video file
+  width: 1280
+  height: 720
+  reconnect_seconds: 5
+
+model:
+  weights: yolo11n.pt
+  confidence: 0.45
+  person_class_id: 0
+  tracker: botsort.yaml
+  device: cpu
+
+counting:
+  # Línea virtual expresada como proporción del ancho/alto del video.
+  line_start: [0.10, 0.52]
+  line_end: [0.90, 0.52]
+  # Cambiar a -1 cuando la orientación física invierta entrada/salida.
+  entry_sign: 1
+  minimum_track_frames: 4
+  crossing_cooldown_seconds: 8
+  stale_track_seconds: 3
+
+integration:
+  endpoint: ""
+  api_key: ""
+  timeout_seconds: 5
+  spool_file: data/pending_events.jsonl
+
+privacy:
+  save_video: false
+  save_images: false
