@@ -1,10 +1,10 @@
 // Tooltip de un equipo al pasar el puntero (escritorio): nombre, estado, instancias y la
 // advertencia de forma y tamaño representativos.
-import { Html } from '@react-three/drei'
 import type { EstadoOperativo } from '../../../domain/live'
 import { ESTADO_ETIQUETA, fmtNum, POR_DEFINIR } from '../../../ui/tokens'
 import { cimaDeEquipo } from '../formas/envolventes'
 import type { Equipo3D } from '../modelo/tipos'
+import { HtmlEscena as Html } from './HtmlEscena'
 
 export function EquipoTooltip({ equipo, estado }: { equipo: Equipo3D; estado: EstadoOperativo }) {
   const pos = cimaDeEquipo(equipo, 1.6)

@@ -1,8 +1,8 @@
 // Botón "!" en la cima de una baliza de alarma: abre el detalle de su referencia. Área táctil de
 // 40 px; el número indica cuántas alarmas activas tiene esa referencia.
-import { Html } from '@react-three/drei'
 import { NIVEL_ALARMA_ETIQUETA } from '../../../ui/tokens'
 import type { Baliza } from '../rutaAlarmasModelo'
+import { HtmlEscena as Html } from './HtmlEscena'
 
 interface Props {
   baliza: Baliza

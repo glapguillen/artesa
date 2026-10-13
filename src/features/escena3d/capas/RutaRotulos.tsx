@@ -1,8 +1,8 @@
 // Rótulos HTML de la ruta activa: número de paso sobre cada zona del recorrido ("1·4" si se
 // repite) y el rótulo de la ruta fijo en la esquina inferior izquierda del lienzo.
-import { Html } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import type { PasoRuta } from '../rutaAlarmasModelo'
+import { HtmlEscena as Html } from './HtmlEscena'
 
 export function PasosRuta({ pasos, color, texto }: { pasos: PasoRuta[]; color: string; texto: string }) {
   return (
