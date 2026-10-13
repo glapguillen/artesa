@@ -18,7 +18,8 @@
       "por_definir": "sin dato"
     },
     "nulos": "null = dato por definir (no inventado); el visor mostrará [POR DEFINIR]",
-    "etapas": "Códigos del flujograma: N0, A1–A4, B1–B5, 1.1–1.9, 2.0–2.6, 3.1–3.8; V = venta (croquis). Cada zona declara sus 'etapas' (asignación razonablemente segura) y 'etapas_hipotesis' (por confirmar); la ubicación de cada etapa se calcula a partir de las zonas."
+    "etapas": "Códigos del flujograma: N0, A1–A4, B1–B5, 1.1–1.9, 2.0–2.6, 3.1–3.8; V = venta (croquis). Cada zona declara sus 'etapas' (asignación razonablemente segura) y 'etapas_hipotesis' (por confirmar); la ubicación de cada etapa se calcula a partir de las zonas.",
+    "rotacion": "rotacion_grados de un equipo: 0 = el largo apunta al este (eje X); 90 = el largo apunta al sur (eje Z). El largo se recorta si no cabe en su zona en esa orientación."
   },
   "planta": {
     "id": "artesa-cuenca",
@@ -2810,7 +2811,7 @@
         47.0,
         79.5
       ],
-      "rotacion_grados": 0,
+      "rotacion_grados": 90,
       "dimensiones": {
         "largo": 20,
         "ancho": null,
@@ -2832,7 +2833,7 @@
         49.5,
         79.5
       ],
-      "rotacion_grados": 0,
+      "rotacion_grados": 90,
       "dimensiones": {
         "largo": 20,
         "ancho": null,

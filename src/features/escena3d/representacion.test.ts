@@ -25,9 +25,9 @@ describe('Representación 3D (panel del equipo)', () => {
 
   it('marca las medidas típicas y el recorte del horno', () => {
     const h = eq('horno-01')
-    expect(textoDimensiones(e3('horno-01'), h.dimensiones)).toBe('Largo 18,7 m · ancho 2 m (típico) · alto 1,9 m (típico)')
+    expect(textoDimensiones(e3('horno-01'), h.dimensiones)).toBe('Largo 18,2 m · ancho 2 m (típico) · alto 1,9 m (típico)')
     expect(textoRecorte(e3('horno-01'), h.dimensiones)).toBe(
-      'Largo según el layout 20 m (aprox.) · dibujado 18,7 m para caber en la zona',
+      'Largo según el layout 20 m (aprox.) · dibujado 18,2 m para caber en la zona',
     )
     expect(textoRecorte(e3('kerajet-01'), eq('kerajet-01').dimensiones)).toBeNull()
     const rep = representacion3D(h, m)

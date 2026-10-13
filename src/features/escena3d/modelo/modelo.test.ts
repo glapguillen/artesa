@@ -4,7 +4,7 @@ import { indexarLayout, zonasDeRuta } from '../../../domain/selectors'
 import type { PlantLayout } from '../../../domain/types'
 import { validarLayout } from '../../../domain/validate'
 import { caminoPorZonas, encuadreCenital, encuadreGeneral, encuadrePara } from './camara'
-import { ajustarLargo, areaConSigno, cantidadEquipo, construirModelo, distribuirEnRect, tramos } from './construirModelo'
+import { ajustarLargo, areaConSigno, cantidadEquipo, construirModelo, distribuirEnRect, largoDisponible, tramos } from './construirModelo'
 
 const raw: unknown = JSON.parse(readFileSync(new URL('../../../../public/plant-layout.json', import.meta.url), 'utf-8'))
 const r = validarLayout(raw)
@@ -53,7 +53,8 @@ describe('construirModelo', () => {
     const h = m.equipos.find((e) => e.id === 'horno-01')!
     expect(h.largoOriginal).toBe(20)
     expect(h.recortado).toBe(true)
-    expect(h.dims.largo).toBeCloseTo(19.5 - 0.8)
+    // Posición z = 79,5 en una zona de 70 a 89,5: caben 19 m centrados, menos 0,4 m por extremo.
+    expect(h.dims.largo).toBeCloseTo(19 - 0.8)
     expect(ajustarLargo(20, 0.5)).toBeGreaterThan(0)
     expect(ajustarLargo(0.3, 0.2)).toBeCloseTo(0.3)
     expect(ajustarLargo(4, 10)).toBe(4)
@@ -64,6 +65,37 @@ describe('construirModelo', () => {
     expect(ids).toContain('torno-roller')
     expect(ids).toContain('rack-secado')
     expect(m.equipos.some((e) => e.zona === 'z-formacion')).toBe(false)
+  })
+
+  it('mantiene la huella rotada de cada instancia dentro de su zona (sin atravesar muros)', () => {
+    for (const e of m.equipos) {
+      const s = m.losas.find((x) => x.id === e.zona)!
+      const xs = s.contorno.map((p) => p[0])
+      const zs = s.contorno.map((p) => p[1])
+      for (const i of e.instancias) {
+        // Eje X local → (cos, -sin); eje Z local → (sin, cos) en el plano x-z (convención three.js).
+        const [c, sn] = [Math.cos(i.rotY), Math.sin(i.rotY)]
+        const L = e.dims.largo / 2
+        const A = e.dims.ancho / 2
+        for (const [u, v] of [[L, A], [L, -A], [-L, A], [-L, -A]] as const) {
+          const x = i.pos[0] + u * c + v * sn
+          const z = i.pos[2] - u * sn + v * c
+          expect(x, `${e.id} x`).toBeGreaterThanOrEqual(Math.min(...xs) - 0.01)
+          expect(x, `${e.id} x`).toBeLessThanOrEqual(Math.max(...xs) + 0.01)
+          expect(z, `${e.id} z`).toBeGreaterThanOrEqual(Math.min(...zs) - 0.01)
+          expect(z, `${e.id} z`).toBeLessThanOrEqual(Math.max(...zs) + 0.01)
+        }
+      }
+    }
+  })
+
+  it('orienta los hornos a lo largo de Z según rotacion_grados', () => {
+    for (const id of ['horno-01', 'horno-02']) {
+      const h = m.equipos.find((e) => e.id === id)!
+      expect(h.instancias[0]!.rotY).toBeCloseTo(Math.PI / 2)
+    }
+    expect(largoDisponible([47, 79.5], 0, { x1: 44.5, z1: 70, x2: 52, z2: 89.5 })).toBeCloseTo(5)
+    expect(largoDisponible([47, 79.5], Math.PI / 2, { x1: 44.5, z1: 70, x2: 52, z2: 89.5 })).toBeCloseTo(19)
   })
 
   it('mantiene las instancias dentro de su zona', () => {
