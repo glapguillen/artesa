@@ -52,9 +52,11 @@ export function fmtPct(v: number | null | undefined, vacio = POR_DEFINIR): strin
   return v === null || v === undefined || Number.isNaN(v) ? vacio : `${nf1.format(v)} %`
 }
 
-/** Hora local HH:MM de un ISO 8601. */
+/** Hora local HH:MM (24 h, reloj de planta) de un ISO 8601. */
 export function fmtHora(iso: string | null | undefined): string {
   if (!iso) return '--:--'
   const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? '--:--' : d.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })
+  return Number.isNaN(d.getTime())
+    ? '--:--'
+    : d.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
 }

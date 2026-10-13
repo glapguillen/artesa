@@ -1,11 +1,14 @@
 // Ajustes de React Flow: colores desde las variables del tema (claro/oscuro) y textos en español.
-import type { AriaLabelConfig, ColorMode, FitViewOptions } from '@xyflow/react'
+import type { AriaLabelConfig, ColorMode, FitViewOptions, ProOptions } from '@xyflow/react'
 import type { CSSProperties } from 'react'
 import type { Tema } from '../../store/usePlantStore'
 
 export const COLOR_MODE: Record<Tema, ColorMode> = { sistema: 'system', claro: 'light', oscuro: 'dark' }
 
 export const ENCUADRE: FitViewOptions = { padding: 0.04 }
+
+/** Se deja visible la atribución de React Flow (licencia MIT). */
+export const PRO_OPTIONS: ProOptions = { hideAttribution: false }
 
 /** Variables --xy-* de React Flow apuntando a los tokens de src/index.css. */
 export const ESTILO_FLUJO = {

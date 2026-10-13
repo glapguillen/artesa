@@ -91,7 +91,7 @@ const CLASIF: ReadonlyArray<Omit<SegmentoClasif, 'valor'>> = [
   { clave: 'tipo_c', etiqueta: 'Tipo C', corta: 'C', color: verde(42) },
   { clave: 'ok_falta_calcomania', etiqueta: 'OK, falta calcomanía', corta: 'Calc.', color: 'var(--c-seleccion)' },
   { clave: 'recuperable', etiqueta: 'Recuperable', corta: 'Recup.', color: 'var(--c-estado-espera)' },
-  { clave: 'desecho', etiqueta: 'Desecho', corta: 'Desecho', color: 'var(--c-estado-detenido)' },
+  { clave: 'desecho', etiqueta: 'Desecho', corta: 'Des.', color: 'var(--c-estado-detenido)' },
 ]
 
 /** Segmentos de la barra apilada; un resultado nuevo en el detalle se agrega al final en gris. */

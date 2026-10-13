@@ -10,7 +10,7 @@ export function ModoPlantaToggle() {
   const modo = usePlantStore((s) => s.modoPlanta)
   const setModo = usePlantStore((s) => s.setModoPlanta)
   return (
-    <div role="group" aria-label="Vista de la planta" className="inline-flex rounded-lg border border-borde bg-surface p-0.5 text-sm">
+    <div role="group" aria-label="Vista de la planta" className="inline-flex w-fit rounded-lg border border-borde bg-surface p-0.5 text-sm">
       {OPCIONES.map((o) => (
         <button
           key={o.id}

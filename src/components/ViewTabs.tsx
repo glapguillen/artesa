@@ -38,6 +38,7 @@ export function ViewTabs() {
             type="button"
             role="tab"
             data-vista={v.id}
+            aria-controls={`vista-${v.id}`}
             aria-selected={activa}
             tabIndex={activa ? 0 : -1}
             onClick={() => setVista(v.id)}

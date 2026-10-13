@@ -6,7 +6,7 @@ Gemelo digital ligero de la planta ARTESA (Cuenca, Ecuador). Muestra en una sola
 - el **Flujograma ARTESA 2025** como diagrama interactivo, con sus etapas, piscinas de WIP, clasificaciones y rutas de decoración R1–R9;
 - una **barra de KPIs**: producción del turno, rendimiento de bizcocho, mix de clasificación final, WIP por piscina, OEE de hornos y alarmas.
 
-Todo se genera desde un único archivo, [`public/plant-layout.json`](public/plant-layout.json). En esta fase los datos en vivo son **simulados**: un turno de 8 horas, determinista, con arranque de hornos, WIP que fluctúa y una alarma.
+Todo se genera desde un único archivo, [`public/plant-layout.json`](public/plant-layout.json). En esta fase los datos en vivo son **simulados**: un turno de 8 horas, determinista, con arranque de hornos, WIP que fluctúa y una alarma. Sus parámetros ([`src/data/mock/parametros.ts`](src/data/mock/parametros.ts)) no son medidas de la planta, y la etapa N0 (sin datos) y la venta V (omitida) muestran a propósito el caso «Sin datos».
 
 > **Estado:** Fase 1 (MVP 2D). El layout es **preliminar**: la escala y el norte son supuestos y hay zonas sin ubicar. Ver [`docs/datos-faltantes.md`](docs/datos-faltantes.md).
 

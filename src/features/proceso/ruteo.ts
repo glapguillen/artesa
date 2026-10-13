@@ -1,193 +1,132 @@
-// Geometría del diagrama de proceso: grilla de celdas, manijas fijas de los nodos y elección del
-// lado de salida/llegada de cada arista para que el trazo "smoothstep" no pase por detrás de otros
-// nodos. Funciones puras (se prueban en node, sin DOM).
-import { getSmoothStepPath, Position, type NodeHandle } from '@xyflow/react'
-
-/** Separación entre columnas y filas de la grilla (px del lienzo). */
-export const COL_W = 240
-export const ROW_H = 110
-/** Tamaño fijo de un nodo de etapa (cabe en una celda con margen). */
-export const NODE_W = 196
-export const NODE_H = 78
-
-export type Lado = 'top' | 'right' | 'bottom' | 'left'
-export type Punto2 = [number, number]
-export interface Caja {
-  x1: number
-  y1: number
-  x2: number
-  y2: number
-}
-
-const LADOS: Lado[] = ['right', 'left', 'bottom', 'top']
-const POSICION: Record<Lado, Position> = {
-  top: Position.Top,
-  right: Position.Right,
-  bottom: Position.Bottom,
-  left: Position.Left,
-}
-
-export const idManija = (tipo: 'source' | 'target', lado: Lado) => `${tipo === 'source' ? 's' : 't'}-${lado}`
-
-/** Punto de cada manija relativo a la esquina superior izquierda del nodo (manija de 1×1 px). */
-function manijaRelativa(lado: Lado): Punto2 {
-  switch (lado) {
-    case 'right':
-      return [NODE_W - 0.5, NODE_H / 2 - 0.5]
-    case 'left':
-      return [-0.5, NODE_H / 2 - 0.5]
-    case 'top':
-      return [NODE_W / 2 - 0.5, -0.5]
-    case 'bottom':
-      return [NODE_W / 2 - 0.5, NODE_H - 0.5]
-  }
-}
-
-/** Manijas declaradas en el nodo: React Flow no necesita medirlas en el DOM en cada actualización. */
-export const MANIJAS: NodeHandle[] = LADOS.flatMap((lado) =>
-  (['source', 'target'] as const).map((type) => {
-    const [x, y] = manijaRelativa(lado)
-    return { id: idManija(type, lado), type, position: POSICION[lado], x, y, width: 1, height: 1 }
-  }),
-)
-
-/** Extremo de la arista en el lado indicado de un nodo centrado en c. */
-function extremo(c: Punto2, lado: Lado): Punto2 {
-  const [rx, ry] = manijaRelativa(lado)
-  const x = c[0] - NODE_W / 2 + rx
-  const y = c[1] - NODE_H / 2 + ry
-  // Igual que getHandlePosition de React Flow: borde exterior de la manija.
-  if (lado === 'right') return [x + 1, y + 0.5]
-  if (lado === 'left') return [x, y + 0.5]
-  if (lado === 'bottom') return [x + 0.5, y + 1]
-  return [x + 0.5, y]
-}
-
-export function cajaNodo(c: Punto2, margen = 0): Caja {
-  return {
-    x1: c[0] - NODE_W / 2 - margen,
-    y1: c[1] - NODE_H / 2 - margen,
-    x2: c[0] + NODE_W / 2 + margen,
-    y2: c[1] + NODE_H / 2 + margen,
-  }
-}
-
-/** Polilínea del trazo smoothstep (las curvas se aproximan por su esquina). */
-export function polilinea(s: Punto2, ls: Lado, t: Punto2, lt: Lado): Punto2[] {
-  const [sx, sy] = extremo(s, ls)
-  const [tx, ty] = extremo(t, lt)
-  const [d] = getSmoothStepPath({
-    sourceX: sx,
-    sourceY: sy,
-    sourcePosition: POSICION[ls],
-    targetX: tx,
-    targetY: ty,
-    targetPosition: POSICION[lt],
-  })
-  const nums = (d.match(/-?\d+(?:\.\d+)?(?:e[-+]?\d+)?/gi) ?? []).map(Number)
-  const out: Punto2[] = []
-  for (let i = 0; i + 1 < nums.length; i += 2) out.push([nums[i]!, nums[i + 1]!])
-  return out
-}
-
-/** ¿El segmento a-b toca la caja? (recorte de Liang-Barsky). */
-export function cruzaCaja(a: Punto2, b: Punto2, c: Caja): boolean {
-  const dx = b[0] - a[0]
-  const dy = b[1] - a[1]
-  let t0 = 0
-  let t1 = 1
-  const lim: Array<[number, number]> = [
-    [-dx, a[0] - c.x1],
-    [dx, c.x2 - a[0]],
-    [-dy, a[1] - c.y1],
-    [dy, c.y2 - a[1]],
-  ]
-  for (const [p, q] of lim) {
-    if (p === 0) {
-      if (q < 0) return false
-    } else {
-      const r = q / p
-      if (p < 0) t0 = Math.max(t0, r)
-      else t1 = Math.min(t1, r)
-      if (t0 > t1) return false
-    }
-  }
-  return true
-}
-
-function longitud(pts: Punto2[]): number {
-  let n = 0
-  for (let i = 0; i + 1 < pts.length; i++) n += Math.abs(pts[i + 1]![0] - pts[i]![0]) + Math.abs(pts[i + 1]![1] - pts[i]![1])
-  return n
-}
-
-/** Largo en que dos segmentos colineales (horizontales o verticales) se superponen. */
-function superposicion(a1: Punto2, a2: Punto2, b1: Punto2, b2: Punto2): number {
-  const tramo = (p: number, q: number, r: number, s: number) =>
-    Math.max(0, Math.min(Math.max(p, q), Math.max(r, s)) - Math.max(Math.min(p, q), Math.min(r, s)))
-  if (Math.abs(a1[1] - a2[1]) < 0.5 && Math.abs(b1[1] - b2[1]) < 0.5 && Math.abs(a1[1] - b1[1]) < 2)
-    return tramo(a1[0], a2[0], b1[0], b2[0])
-  if (Math.abs(a1[0] - a2[0]) < 0.5 && Math.abs(b1[0] - b2[0]) < 0.5 && Math.abs(a1[0] - b1[0]) < 2)
-    return tramo(a1[1], a2[1], b1[1], b2[1])
-  return 0
-}
+// Ruteo de las aristas: elige el lado de salida y de llegada de cada una para que el trazo
+// "smoothstep" no pase por detrás de otros nodos ni se encime con otras aristas. Función pura.
+import {
+  cajaNodo,
+  cruzaCaja,
+  idManija,
+  LADOS,
+  longitud,
+  polilinea,
+  superposicion,
+  type Caja,
+  type Lado,
+  type Punto2,
+} from './geometria'
 
 const COSTO_CHOQUE = 2000
 const COSTO_CURVA = 40
 const COSTO_SUPERPOSICION = 2
+/** Compartir la manija de salida (bifurcación) o de llegada (confluencia) se penaliza menos. */
+const FACTOR_MISMA_MANIJA = 0.15
+const COSTO_LADO_MIXTO = 150
+const RONDAS = 4
 
 export interface Ruteo {
   sourceHandle: string
   targetHandle: string
+  desde: string
+  hasta: string
+  ls: Lado
+  lt: Lado
+  /** Polilínea aproximada del trazo (para ubicar etiquetas y evitar superposiciones). */
+  pts: Punto2[]
+}
+
+interface Candidato {
+  ls: Lado
+  lt: Lado
+  pts: Punto2[]
+  /** Choques con nodos + largo + curvas (no cambia entre rondas). */
+  base: number
+}
+
+function candidatos(centros: ReadonlyMap<string, Punto2>, desde: string, hasta: string): Candidato[] {
+  const s = centros.get(desde)!
+  const t = centros.get(hasta)!
+  const obstaculos: Caja[] = []
+  for (const [id, c] of centros) obstaculos.push(id === desde || id === hasta ? cajaNodo(c, -3) : cajaNodo(c, 4))
+  const out: Candidato[] = []
+  for (const ls of LADOS) {
+    for (const lt of LADOS) {
+      const pts = polilinea(s, ls, t, lt)
+      let choques = 0
+      for (const caja of obstaculos) {
+        for (let i = 0; i + 1 < pts.length; i++) {
+          if (cruzaCaja(pts[i]!, pts[i + 1]!, caja)) {
+            choques++
+            break
+          }
+        }
+      }
+      const curvas = Math.max(0, pts.length - 2) / 3
+      out.push({ ls, lt, pts, base: choques * COSTO_CHOQUE + longitud(pts) + curvas * COSTO_CURVA })
+    }
+  }
+  return out
+}
+
+type Trazo = Pick<Ruteo, 'desde' | 'hasta' | 'ls' | 'lt' | 'pts'>
+
+function costoSuperposicion(c: Trazo, otros: Trazo[]): number {
+  let costo = 0
+  for (const o of otros) {
+    let sup = 0
+    for (let i = 0; i + 1 < c.pts.length; i++) {
+      for (let j = 0; j + 1 < o.pts.length; j++) sup += superposicion(c.pts[i]!, c.pts[i + 1]!, o.pts[j]!, o.pts[j + 1]!)
+    }
+    const mismaManija = (o.desde === c.desde && o.ls === c.ls) || (o.hasta === c.hasta && o.lt === c.lt)
+    costo += sup * COSTO_SUPERPOSICION * (mismaManija ? FACTOR_MISMA_MANIJA : 1)
+    // Entrar por el mismo lado por donde sale otra arista (o al revés) confunde el sentido del flujo.
+    if ((o.desde === c.hasta && o.ls === c.lt) || (o.hasta === c.desde && o.lt === c.ls)) costo += COSTO_LADO_MIXTO
+  }
+  return costo
 }
 
 /**
- * Elige, para cada arista y en orden, el par de lados que minimiza: nodos atravesados, largo,
- * curvas y tramos superpuestos con las aristas ya ruteadas. Determinista.
+ * Elige, para cada arista, el par de lados que minimiza: nodos atravesados, largo, curvas y tramos
+ * superpuestos con las demás aristas. Se negocia en varias rondas (cada arista se reubica viendo
+ * el trazado actual de todas las otras) hasta que nada cambia. `fijos`: trazos ya decididos que
+ * también se evitan (p. ej. las aristas principales al rutear las secundarias). Determinista.
  */
 export function rutear(
   centros: ReadonlyMap<string, Punto2>,
   aristas: ReadonlyArray<{ id: string; desde: string; hasta: string }>,
+  fijos: ReadonlyArray<Trazo> = [],
 ): Map<string, Ruteo> {
-  const out = new Map<string, Ruteo>()
-  const trazados: Punto2[][] = []
-  for (const a of aristas) {
-    const s = centros.get(a.desde)
-    const t = centros.get(a.hasta)
-    if (!s || !t) continue
-    const obstaculos: Caja[] = []
-    for (const [id, c] of centros) {
-      if (id === a.desde || id === a.hasta) obstaculos.push(cajaNodo(c, -3))
-      else obstaculos.push(cajaNodo(c, 4))
-    }
-    let mejor: { costo: number; ls: Lado; lt: Lado; pts: Punto2[] } | null = null
-    for (const ls of LADOS) {
-      for (const lt of LADOS) {
-        const pts = polilinea(s, ls, t, lt)
-        let choques = 0
-        for (const caja of obstaculos) {
-          for (let i = 0; i + 1 < pts.length; i++) {
-            if (cruzaCaja(pts[i]!, pts[i + 1]!, caja)) {
-              choques++
-              break
-            }
-          }
+  const validas = aristas.filter((a) => centros.has(a.desde) && centros.has(a.hasta))
+  const cands = validas.map((a) => candidatos(centros, a.desde, a.hasta))
+  const elegido = cands.map((cs) => cs.reduce((m, c, i) => (c.base < cs[m]!.base - 1e-6 ? i : m), 0))
+  const trazo = (k: number, c: Candidato): Trazo => ({ desde: validas[k]!.desde, hasta: validas[k]!.hasta, ...c })
+  for (let ronda = 0; ronda < RONDAS; ronda++) {
+    let cambios = 0
+    for (let k = 0; k < cands.length; k++) {
+      const otros = [...fijos, ...elegido.flatMap((e, j) => (j === k ? [] : [trazo(j, cands[j]![e]!)]))]
+      let mejor = elegido[k]!
+      let costoMejor = Infinity
+      cands[k]!.forEach((c, i) => {
+        const costo = c.base + costoSuperposicion(trazo(k, c), otros)
+        if (costo < costoMejor - 1e-6) {
+          costoMejor = costo
+          mejor = i
         }
-        let sup = 0
-        for (const otro of trazados) {
-          for (let i = 0; i + 1 < pts.length; i++) {
-            for (let j = 0; j + 1 < otro.length; j++) sup += superposicion(pts[i]!, pts[i + 1]!, otro[j]!, otro[j + 1]!)
-          }
-        }
-        const curvas = Math.max(0, pts.length - 2) / 3
-        const costo = choques * COSTO_CHOQUE + longitud(pts) + curvas * COSTO_CURVA + sup * COSTO_SUPERPOSICION
-        if (!mejor || costo < mejor.costo - 1e-6) mejor = { costo, ls, lt, pts }
-      }
+      })
+      if (mejor !== elegido[k]) cambios++
+      elegido[k] = mejor
     }
-    if (mejor) {
-      out.set(a.id, { sourceHandle: idManija('source', mejor.ls), targetHandle: idManija('target', mejor.lt) })
-      trazados.push(mejor.pts)
-    }
+    if (!cambios) break
   }
+  const out = new Map<string, Ruteo>()
+  validas.forEach((a, k) => {
+    const c = cands[k]![elegido[k]!]!
+    out.set(a.id, {
+      sourceHandle: idManija('source', c.ls),
+      targetHandle: idManija('target', c.lt),
+      desde: a.desde,
+      hasta: a.hasta,
+      ls: c.ls,
+      lt: c.lt,
+      pts: c.pts,
+    })
+  })
   return out
 }

@@ -25,8 +25,8 @@ interface Props {
 }
 
 const BASE = 'relative flex min-h-0 flex-col gap-0.5 rounded-lg border border-borde bg-surface px-2.5 py-2 shadow-xs'
-const ANCHO_CHICO = 'w-[9.5rem] min-w-0 xl:w-auto'
-const ANCHO_GRANDE = 'row-span-2 w-[12rem] min-w-[12rem] xl:w-auto'
+const ANCHO_CHICO = 'w-[9.5rem] min-w-0 @min-[78rem]:w-auto'
+const ANCHO_GRANDE = 'row-span-2 w-[12rem] min-w-[12rem] @min-[78rem]:w-auto'
 
 export function KpiTile(p: Props) {
   const sinDato = p.valor === null

@@ -22,8 +22,7 @@ export function ProcessHeader({ onEncuadrar }: { onEncuadrar: () => void }) {
             type="button"
             className={BOTON}
             aria-pressed={secundarias}
-            aria-label="Mostrar insumos, registros y configuración"
-            title="Mostrar aristas de insumo, registro y configuración"
+            title="Mostrar las aristas de insumo, registro y configuración"
             onClick={() => setSecundarias(!secundarias)}
           >
             <svg width="16" height="8" viewBox="0 0 16 8" aria-hidden="true" style={{ fill: 'none', stroke: 'currentColor' }}>

@@ -3,7 +3,15 @@ import type { ReactNode } from 'react'
 import { FaseSchema } from '../domain/schema'
 import { usePlantStore } from '../store/usePlantStore'
 import { colorEstado, colorFase, ESTADO_ETIQUETA, ESTADOS, FASE_ETIQUETA } from '../ui/tokens'
-import { MuestraDiscontinua, MuestraProbable, MuestraRayado } from './LegendNotacion'
+import {
+  MuestraAlarma,
+  MuestraDecision,
+  MuestraDiscontinua,
+  MuestraFlechaSecundaria,
+  MuestraProbable,
+  MuestraRayado,
+  MuestraRutaSeleccion,
+} from './LegendNotacion'
 
 function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
@@ -51,6 +59,10 @@ export function Legend() {
           <Item muestra={<MuestraDiscontinua />}>Línea discontinua: área abierta o tramo sin ubicar</Item>
           <Item muestra={<MuestraProbable />}>Asignación probable</Item>
           <Item muestra={<MuestraRayado />}>Rayado: sin rótulo en el croquis</Item>
+          <Item muestra={<MuestraAlarma />}>Anillo: alarma crítica o advertencia</Item>
+          <Item muestra={<MuestraRutaSeleccion />}>Rosa: ruta activa · celeste: selección</Item>
+          <Item muestra={<MuestraFlechaSecundaria />}>Flecha discontinua: insumo, registro o configuración</Item>
+          <Item muestra={<MuestraDecision />}>Doble borde: decisión</Item>
         </Grupo>
       </div>
       {layout && (

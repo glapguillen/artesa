@@ -14,7 +14,8 @@ import {
   type ProcesoEdge,
   type ProcesoNode,
 } from './buildGraph'
-import { cajaNodo, cruzaCaja, polilinea, type Lado, type Punto2 } from './ruteo'
+import { anchoEtiqueta } from './etiquetas'
+import { cajaNodo, cruzaCaja, polilinea, type Lado, type Punto2 } from './geometria'
 
 const raw: unknown = JSON.parse(readFileSync(new URL('../../../public/plant-layout.json', import.meta.url), 'utf-8'))
 
@@ -166,5 +167,24 @@ describe('buildGraph', () => {
     }
     expect(edges.every((e) => e.sourceHandle?.startsWith('s-') && e.targetHandle?.startsWith('t-'))).toBe(true)
     expect(edges.flatMap(choques)).toEqual([])
+  })
+
+  it('ubica las etiquetas sin tapar nodos ni otras etiquetas', () => {
+    const { nodes, edges } = buildGraph(l, idx, null, { ...BASE, mostrarSecundarias: true })
+    const conEtiqueta = edges.filter((e) => typeof e.label === 'string')
+    expect(conEtiqueta.length).toBe(l.proceso.transiciones.filter((t) => t.etiqueta).length)
+    const cajas = conEtiqueta.map((e) => {
+      const [x, y] = e.data!.etiqueta!
+      const w = anchoEtiqueta(String(e.label))
+      return { id: e.id, x1: x - w / 2, x2: x + w / 2, y1: y - 7, y2: y + 7 }
+    })
+    const solapa = (a: { x1: number; x2: number; y1: number; y2: number }, b: typeof a) =>
+      a.x1 < b.x2 && b.x1 < a.x2 && a.y1 < b.y2 && b.y1 < a.y2
+    const problemas: string[] = []
+    for (const [i, c] of cajas.entries()) {
+      for (const n of etapas(nodes)) if (solapa(c, cajaNodo([n.position.x, n.position.y]))) problemas.push(`${c.id} tapa ${n.id}`)
+      for (const o of cajas.slice(i + 1)) if (solapa(c, o)) problemas.push(`${c.id} tapa ${o.id}`)
+    }
+    expect(problemas).toEqual([])
   })
 })

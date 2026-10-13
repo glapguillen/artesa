@@ -6,7 +6,7 @@ import { usePlantStore } from '../../store/usePlantStore'
 import { colorEstado, colorFase, ESTADO_ETIQUETA, NIVEL_ALARMA_ETIQUETA, UBICACION_ETIQUETA } from '../../ui/tokens'
 import type { EtapaFlowNode } from './buildGraph'
 import { describirEtapa, metricaEtapa } from './etapaTexto'
-import { MANIJAS } from './ruteo'
+import { MANIJAS } from './geometria'
 import { AlarmaIcono, ChipUbicacion, Rombo } from './EtapaPartes'
 
 const mezcla = (color: string, pct: number) => `color-mix(in srgb, ${color} ${pct}%, transparent)`
@@ -60,7 +60,7 @@ export const EtapaNode = memo(function EtapaNode({ data: d }: NodeProps<EtapaFlo
         aria-pressed={d.seleccion === 'principal'}
         title={d.nombre}
         onKeyDown={onKeyDown}
-        className={`relative flex h-full w-full flex-col justify-between rounded-lg px-2 py-1.5 text-left shadow-sm outline-none transition-opacity focus-visible:outline-2 focus-visible:outline-offset-[5px] focus-visible:outline-texto ${bordeDe(d.tipo)} ${tenue ? 'bg-surface-2' : 'bg-surface'}`}
+        className={`relative flex h-full w-full flex-col justify-between rounded-lg px-2 py-1.5 text-left shadow-sm transition-opacity focus-visible:outline-2 focus-visible:outline-offset-[9px] focus-visible:outline-texto ${bordeDe(d.tipo)} ${tenue ? 'bg-surface-2' : 'bg-surface'}`}
         style={{
           borderColor: mezcla(fase, d.tipo === 'decision' ? 80 : 45),
           opacity: d.atenuado ? 0.28 : tenue ? 0.85 : 1,

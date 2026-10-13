@@ -45,6 +45,7 @@ export interface LiveState {
   /** ISO 8601 del instante (simulado o real) del estado. */
   timestamp: string
   fuente: 'mock' | 'rest' | 'sse' | 'mqtt'
+  /** inicio y fin en ISO 8601; progreso = fracción transcurrida del turno, de 0 a 1. */
   turno: { id: string; nombre: string; inicio: string; fin: string; progreso: number }
   /** Por código de etapa (1.4, 2.6, …). */
   etapas: Record<string, EstadoEtapa>

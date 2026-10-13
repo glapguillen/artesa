@@ -15,7 +15,8 @@
   --c-accent: #c2410c;
 
   --c-estado-operando: #15803d;
-  --c-estado-espera: #b45309;
+  /* Ámbar amarillento: distinto del naranja de Fase 1 (antes #b45309, casi igual). */
+  --c-estado-espera: #a16207;
   --c-estado-detenido: #dc2626;
   --c-estado-mantenimiento: #7c3aed;
   --c-estado-sin_datos: #9ca3af;
@@ -25,7 +26,8 @@
   --c-fase-B: #8a5a2b;
   --c-fase-F1: #c2410c;
   --c-fase-F2: #1d4ed8;
-  --c-fase-F3: #15803d;
+  /* Verde azulado: distinto del verde de "Operando" (antes era el mismo #15803d). */
+  --c-fase-F3: #0f766e;
   --c-fase-venta: #6b7280;
 
   --c-ruta: #db2777;
@@ -45,7 +47,7 @@
   --c-accent: #fb923c;
 
   --c-estado-operando: #22c55e;
-  --c-estado-espera: #f59e0b;
+  --c-estado-espera: #eab308;
   --c-estado-detenido: #f87171;
   --c-estado-mantenimiento: #a78bfa;
   --c-estado-sin_datos: #6b7280;
@@ -55,7 +57,7 @@
   --c-fase-B: #c99a6b;
   --c-fase-F1: #fb923c;
   --c-fase-F2: #60a5fa;
-  --c-fase-F3: #4ade80;
+  --c-fase-F3: #2dd4bf;
   --c-fase-venta: #9ca3af;
 
   --c-ruta: #f472b6;

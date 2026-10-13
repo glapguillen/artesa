@@ -11,11 +11,11 @@ const COLOR_ALARMA: Record<NivelAlarma, string> = {
 
 const CHIP: Record<Ubicacion, string> = { ubicada: 'Ubicada', hipotesis: 'Probable', sin_ubicar: 'Sin ubicar' }
 
+// Neutro a propósito: el rojo queda reservado para "Detenido / alarma", como dice la leyenda.
 export function ChipUbicacion({ ubicacion, titulo }: { ubicacion: Ubicacion; titulo: string }) {
-  const rojo = colorEstado('detenido')
   const estilo =
     ubicacion === 'sin_ubicar'
-      ? { color: rojo, background: `color-mix(in srgb, ${rojo} 10%, transparent)`, borderColor: `color-mix(in srgb, ${rojo} 35%, transparent)` }
+      ? { borderStyle: 'dotted' as const, background: 'var(--c-surface-2)' }
       : ubicacion === 'hipotesis'
         ? { borderStyle: 'dashed' as const }
         : undefined

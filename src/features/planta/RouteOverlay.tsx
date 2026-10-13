@@ -1,7 +1,9 @@
 // Ruta de decoración activa en tres piezas:
 // - RouteLine (debajo de las etiquetas): polilínea con flechas por los centroides de sus zonas.
-// - RouteSteps (encima): pasos numerados en la esquina de cada zona ("1·4" si se repite).
+// - RouteSteps (encima): pasos numerados sobre la esquina superior izquierda de cada zona ("1·4"
+//   si se repite), fuera del rectángulo de la etiqueta para no tapar el nombre.
 // - RouteBadge (HTML, fijo arriba a la izquierda del lienzo): código de la ruta y piezas.
+import { bbox } from '../../domain/selectors'
 import { fmtNum } from '../../ui/tokens'
 import { pathPolilinea } from './geometry'
 import { pasosPorZona } from './planLive'
@@ -44,10 +46,12 @@ export function RouteSteps({ ruta, k }: { ruta: RutaPlano; k: number }) {
         if (!z) return null
         const t = nums.join('·')
         const w = Math.max(20, anchoTexto(t, 11) + 10)
+        // La píldora apenas entra 5 px en la zona: queda pegada a su esquina sin tapar la etiqueta.
+        const { x1, z1 } = bbox(z.poligono)
         return (
-          <g key={id} data-paso-zona={id} transform={`translate(${z.etiqueta.x} ${z.etiqueta.y}) scale(${1 / k})`}>
-            <rect x={3} y={3} width={w} height={20} rx={10} style={{ fill: RUTA, stroke: 'var(--c-surface)' }} strokeWidth={2} />
-            <text x={3 + w / 2} y={13} dy="0.35em" textAnchor="middle" {...TEXTO}>
+          <g key={id} data-paso-zona={id} transform={`translate(${x1} ${z1}) scale(${1 / k})`}>
+            <rect x={5 - w} y={-15} width={w} height={20} rx={10} style={{ fill: RUTA, stroke: 'var(--c-surface)' }} strokeWidth={2} />
+            <text x={5 - w / 2} y={-5} dy="0.35em" textAnchor="middle" {...TEXTO}>
               {t}
             </text>
           </g>
