@@ -1,17 +1,23 @@
 {
-  "version": "0.1.0-preliminar",
+  "version": "0.2.0-preliminar",
+  "fuentes": [
+    "Croquis a lápiz (foto)",
+    "5 fotos de planta",
+    "Flujograma ARTESA 2025"
+  ],
   "convenciones": {
     "unidades": "metros",
     "ejes": "X = derecha del croquis (este supuesto), Z = abajo del croquis (sur supuesto), Y = altura",
     "origen": "Esquina superior izquierda del área dibujada en el croquis (píxel 50,5 de la foto 1370x1600)",
-    "escala_supuesta": "10 px de la foto del croquis = 1 m. NO calibrada: reemplazar con medidas reales.",
+    "escala_supuesta": "10 px de la foto del croquis = 1 m. NO calibrada.",
     "redondeo": "0,5 m",
     "precision": {
       "aprox": "derivado del croquis con la escala supuesta",
       "estimacion_visual_fotos": "estimado a ojo desde las fotos",
-      "por_definir": "sin dato; el visor lo mostrará como [POR DEFINIR]"
+      "por_definir": "sin dato"
     },
-    "nulos": "null = dato por definir (no inventado)"
+    "nulos": "null = dato por definir (no inventado); el visor mostrará [POR DEFINIR]",
+    "etapas": "Códigos del flujograma: N0, A1–A4, B1–B5, 1.1–1.9, 2.0–2.6, 3.1–3.8; V = venta (croquis). 'etapas' = asignación razonablemente segura; 'etapas_hipotesis' = por confirmar."
   },
   "planta": {
     "id": "artesa-cuenca",
@@ -33,6 +39,689 @@
       "archivo": "croquis a lápiz (foto, sin escala)",
       "escala_px_por_m": null
     }
+  },
+  "proceso": {
+    "fuente": "Flujograma ARTESA 2025",
+    "unidad_de_control": {
+      "F1": "forma",
+      "F2": "sku",
+      "F3": "sku",
+      "transformacion": "Forma → Artículo (SKU) al salir de Bodega bizcocho (1.8)"
+    },
+    "etapas": [
+      {
+        "codigo": "N0",
+        "nombre": "Configuración maestra: fichas técnicas FORMA y ARTÍCULO/SKU + BD de recetas",
+        "nombre_corto": "Fichas técnicas y recetas",
+        "fase": "nivel_0",
+        "tipo": "configuracion",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-lab-2",
+          "z-labor-1",
+          "z-id"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "A1",
+        "nombre": "Stock materia prima para esmaltes",
+        "nombre_corto": "Stock MP esmaltes",
+        "fase": "A",
+        "tipo": "inventario",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-mp-2"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "A2",
+        "nombre": "Preparación de colores / esmaltes (según receta)",
+        "nombre_corto": "Preparación colores/esmaltes",
+        "fase": "A",
+        "tipo": "proceso",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-molienda-2"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "A3",
+        "nombre": "Stock de esmaltes y colores",
+        "nombre_corto": "Stock esmaltes y colores",
+        "fase": "A",
+        "tipo": "inventario",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "A4",
+        "nombre": "Descarga (consumo / ajustes)",
+        "nombre_corto": "Descarga (consumo/ajustes)",
+        "fase": "A",
+        "tipo": "registro",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "B1",
+        "nombre": "Stock materia prima para pasta",
+        "nombre_corto": "Stock MP pasta",
+        "fase": "B",
+        "tipo": "inventario",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-mp-1",
+          "z-mp-2"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "B2",
+        "nombre": "Preparación de pasta (según receta)",
+        "nombre_corto": "Preparación de pasta",
+        "fase": "B",
+        "tipo": "proceso",
+        "control_por": null,
+        "zonas": [
+          "z-filtro-prensa",
+          "z-extrusora"
+        ],
+        "zonas_hipotesis": [
+          "z-molienda-1"
+        ],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "B3",
+        "nombre": "Stock pasta líquida (barbotina)",
+        "nombre_corto": "Stock pasta líquida",
+        "fase": "B",
+        "tipo": "inventario",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "B4",
+        "nombre": "Stock pasta extrusada",
+        "nombre_corto": "Stock pasta extrusada",
+        "fase": "B",
+        "tipo": "inventario",
+        "control_por": null,
+        "zonas": [
+          "z-extrusora"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "B5",
+        "nombre": "Registro baja / ajuste (desperdicio, variabilidad)",
+        "nombre_corto": "Baja/ajuste de pasta",
+        "fase": "B",
+        "tipo": "registro",
+        "control_por": null,
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "1.1",
+        "nombre": "Formación (7 métodos según ruta de formación)",
+        "nombre_corto": "Formación (7 métodos)",
+        "fase": "F1",
+        "tipo": "proceso",
+        "control_por": "forma",
+        "zonas": [
+          "z-impresion-3d",
+          "z-formacion"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "1.2",
+        "nombre": "Control de calidad de formación",
+        "nombre_corto": "CC formación",
+        "fase": "F1",
+        "tipo": "control_calidad",
+        "control_por": "forma",
+        "zonas": [
+          "z-formacion"
+        ],
+        "zonas_hipotesis": [
+          "z-impresion-3d"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "1.3",
+        "nombre": "Pulido (por método)",
+        "nombre_corto": "Pulido",
+        "fase": "F1",
+        "tipo": "proceso",
+        "control_por": "forma",
+        "zonas": [
+          "z-pulido"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "1.4",
+        "nombre": "Piscina pulido (inventario WIP en espera)",
+        "nombre_corto": "Piscina pulido (WIP)",
+        "fase": "F1",
+        "tipo": "inventario",
+        "control_por": "forma",
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-pulido",
+          "z-secado"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "1.5",
+        "nombre": "Quema bizcocho",
+        "nombre_corto": "Quema bizcocho",
+        "fase": "F1",
+        "tipo": "proceso",
+        "control_por": "forma",
+        "zonas": [
+          "z-horno"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "1.6",
+        "nombre": "Piscina quemado 1 (espera clasificación)",
+        "nombre_corto": "Piscina quemado 1",
+        "fase": "F1",
+        "tipo": "inventario",
+        "control_por": "forma",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "1.7",
+        "nombre": "Clasificación bizcocho (buena / mala)",
+        "nombre_corto": "Clasificación bizcocho",
+        "fase": "F1",
+        "tipo": "decision",
+        "control_por": "forma",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "1.8",
+        "nombre": "Bodega bizcocho (transformación Forma → Artículo)",
+        "nombre_corto": "Bodega bizcocho",
+        "fase": "F1",
+        "tipo": "inventario",
+        "control_por": "forma",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "1.9",
+        "nombre": "Baja: desecho (descarga piscina pulido)",
+        "nombre_corto": "Baja desecho bizcocho",
+        "fase": "F1",
+        "tipo": "registro",
+        "control_por": "forma",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "2.0",
+        "nombre": "Tipo de salida: producción / roturas-muestras-pruebas (baja inventario bodega)",
+        "nombre_corto": "Tipo de salida",
+        "fase": "F2",
+        "tipo": "decision",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "2.1",
+        "nombre": "Señalado",
+        "nombre_corto": "Señalado (S)",
+        "fase": "F2",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-trazado"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "2.2",
+        "nombre": "Trazado",
+        "nombre_corto": "Trazado (T)",
+        "fase": "F2",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [
+          "z-trazado"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "2.3",
+        "nombre": "Decorado (incluye Decorado 2 de R7)",
+        "nombre_corto": "Decorado (D)",
+        "fase": "F2",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [
+          "z-decorado"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "2.4",
+        "nombre": "Esmaltado",
+        "nombre_corto": "Esmaltado (E)",
+        "fase": "F2",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [
+          "z-esmaltado"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "2.5",
+        "nombre": "Impresión digital",
+        "nombre_corto": "Impresión digital (ID)",
+        "fase": "F2",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [
+          "z-kerajet"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "2.6",
+        "nombre": "Piscina esmaltado (inventario WIP en espera)",
+        "nombre_corto": "Piscina esmaltado (WIP)",
+        "fase": "F2",
+        "tipo": "inventario",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-esmaltado"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "3.1",
+        "nombre": "Quema esmalte",
+        "nombre_corto": "Quema esmalte",
+        "fase": "F3",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [
+          "z-horno"
+        ],
+        "zonas_hipotesis": [],
+        "ubicacion": "ubicada"
+      },
+      {
+        "codigo": "3.2",
+        "nombre": "Piscina quemado 2 (espera clasificación)",
+        "nombre_corto": "Piscina quemado 2",
+        "fase": "F3",
+        "tipo": "inventario",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "3.3",
+        "nombre": "Clasificación final",
+        "nombre_corto": "Clasificación final",
+        "fase": "F3",
+        "tipo": "decision",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-cf"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "3.4",
+        "nombre": "Aplicar calcomanía",
+        "nombre_corto": "Aplicar calcomanía",
+        "fase": "F3",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "3.5",
+        "nombre": "Quema calcomanía",
+        "nombre_corto": "Quema calcomanía",
+        "fase": "F3",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-horno"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "3.6",
+        "nombre": "Bodega producto terminado",
+        "nombre_corto": "Bodega PT",
+        "fase": "F3",
+        "tipo": "inventario",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [
+          "z-bodega"
+        ],
+        "ubicacion": "hipotesis"
+      },
+      {
+        "codigo": "3.7",
+        "nombre": "Basura (desecho)",
+        "nombre_corto": "Basura",
+        "fase": "F3",
+        "tipo": "registro",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "3.8",
+        "nombre": "Recuperación",
+        "nombre_corto": "Recuperación",
+        "fase": "F3",
+        "tipo": "proceso",
+        "control_por": "sku",
+        "zonas": [],
+        "zonas_hipotesis": [],
+        "ubicacion": "sin_ubicar"
+      },
+      {
+        "codigo": "V",
+        "nombre": "Venta (outlet / tienda) — no está en el flujograma, viene del croquis",
+        "nombre_corto": "Venta",
+        "fase": "venta",
+        "tipo": "comercial",
+        "control_por": "sku",
+        "zonas": [
+          "z-outlet-sur",
+          "z-tienda"
+        ],
+        "zonas_hipotesis": [
+          "z-outlet-interno"
+        ],
+        "ubicacion": "ubicada"
+      }
+    ],
+    "rutas_formacion": [
+      {
+        "id": "RF1",
+        "metodo": "Colado vaciado",
+        "pasos": [
+          "1.1",
+          "1.2",
+          "1.3",
+          "1.4"
+        ],
+        "insumo": "B3",
+        "insumo_confianza": "inferido"
+      },
+      {
+        "id": "RF2",
+        "metodo": "Colado presión",
+        "pasos": [
+          "1.1",
+          "1.2",
+          "1.3",
+          "1.4"
+        ],
+        "insumo": "B3",
+        "insumo_confianza": "inferido"
+      },
+      {
+        "id": "RF3",
+        "metodo": "Torno alfarero",
+        "pasos": [
+          "1.1",
+          "1.2",
+          "1.3",
+          "1.4"
+        ],
+        "insumo": "B4",
+        "insumo_confianza": "inferido"
+      },
+      {
+        "id": "RF4",
+        "metodo": "Torno roller",
+        "pasos": [
+          "1.1",
+          "1.2",
+          "1.3",
+          "1.4"
+        ],
+        "insumo": "B4",
+        "insumo_confianza": "inferido"
+      },
+      {
+        "id": "RF5",
+        "metodo": "Prensa RAM",
+        "pasos": [
+          "1.1",
+          "1.2",
+          "1.3",
+          "1.4"
+        ],
+        "insumo": "B4",
+        "insumo_confianza": "inferido"
+      },
+      {
+        "id": "RF6",
+        "metodo": "Impresora 3D",
+        "pasos": [
+          "1.1",
+          "1.2",
+          "1.3",
+          "1.4"
+        ],
+        "insumo": null,
+        "insumo_confianza": null
+      },
+      {
+        "id": "RF7",
+        "metodo": "Modelado",
+        "pasos": [
+          "1.1",
+          "1.2",
+          "1.3",
+          "1.4"
+        ],
+        "insumo": null,
+        "insumo_confianza": null
+      }
+    ],
+    "rutas_decoracion": [
+      {
+        "id": "R1",
+        "codigo": "S+T+D+E",
+        "pasos": [
+          "2.1",
+          "2.2",
+          "2.3",
+          "2.4"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R2",
+        "codigo": "S+D+E",
+        "pasos": [
+          "2.1",
+          "2.3",
+          "2.4"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R3",
+        "codigo": "T+D+E",
+        "pasos": [
+          "2.2",
+          "2.3",
+          "2.4"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R4",
+        "codigo": "D+E",
+        "pasos": [
+          "2.3",
+          "2.4"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R5",
+        "codigo": "E",
+        "pasos": [
+          "2.4"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R6",
+        "codigo": "D+E+ID",
+        "pasos": [
+          "2.3",
+          "2.4",
+          "2.5"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R7",
+        "codigo": "D+E+ID+D",
+        "pasos": [
+          "2.3",
+          "2.4",
+          "2.5",
+          "2.3"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R8",
+        "codigo": "E+ID+D",
+        "pasos": [
+          "2.4",
+          "2.5",
+          "2.3"
+        ],
+        "siguiente": "2.6"
+      },
+      {
+        "id": "R9",
+        "codigo": "E+ID",
+        "pasos": [
+          "2.4",
+          "2.5"
+        ],
+        "siguiente": "2.6"
+      }
+    ],
+    "clasificaciones": {
+      "1.7": [
+        {
+          "resultado": "buena",
+          "destino": "1.8"
+        },
+        {
+          "resultado": "mala",
+          "destino": "1.9"
+        }
+      ],
+      "3.3": [
+        {
+          "resultado": "ok_falta_calcomania",
+          "destino": "3.4",
+          "luego": [
+            "3.5",
+            "3.6"
+          ]
+        },
+        {
+          "resultado": "tipo_a",
+          "destino": "3.6"
+        },
+        {
+          "resultado": "tipo_b",
+          "destino": "3.6"
+        },
+        {
+          "resultado": "tipo_c",
+          "destino": "3.6"
+        },
+        {
+          "resultado": "desecho",
+          "destino": "3.7"
+        },
+        {
+          "resultado": "recuperable",
+          "destino": "3.8",
+          "luego": null
+        }
+      ]
+    },
+    "salidas_no_productivas": [
+      {
+        "en": "2.0",
+        "tipos": [
+          "roturas",
+          "muestras",
+          "pruebas"
+        ],
+        "accion": "baja de inventario de bodega"
+      }
+    ]
   },
   "edificios": [
     {
@@ -58,7 +747,7 @@
       ],
       "altura_m": null,
       "precision": "aprox",
-      "notas": "Contiene Materias primas 1 y Molienda 1."
+      "notas": "Materias primas 1 y Molienda 1."
     },
     {
       "id": "ed-mp-este",
@@ -91,7 +780,7 @@
       "poligono": null,
       "altura_m": 8,
       "precision": "estimacion_visual_fotos",
-      "notas": "El croquis no dibuja la envolvente. Las fotos muestran naves continuas con cerchas metálicas, techo de fibrocemento con tragaluces y muros de ladrillo. Altura libre estimada 7–10 m."
+      "notas": "Envolvente no dibujada. Fotos: cerchas metálicas, techo de fibrocemento con tragaluces, ladrillo visto; altura libre ≈7–10 m."
     },
     {
       "id": "ed-bodega-outlet",
@@ -124,7 +813,7 @@
       ],
       "altura_m": null,
       "precision": "aprox",
-      "notas": "¿Es un edificio separado o parte del complejo central?"
+      "notas": "¿Separado o parte del complejo central?"
     },
     {
       "id": "ed-bloque-servicios",
@@ -184,7 +873,10 @@
       "rotulo_croquis": "MATERIAS PRIMAS",
       "tipo": "almacen",
       "grupo": "materias_primas",
-      "etapa_proceso": 1,
+      "etapas": [],
+      "etapas_hipotesis": [
+        "B1"
+      ],
       "edificio": "ed-mp-oeste",
       "poligono": [
         [
@@ -210,15 +902,18 @@
       "fotos": [],
       "color": "#DCC7A6",
       "responsable": null,
-      "notas": null
+      "notas": "¿MP para pasta (contigua a Molienda 1)?"
     },
     {
       "id": "z-molienda-1",
       "nombre": "Molienda 1",
       "rotulo_croquis": "MOLIENDA",
       "tipo": "proceso",
-      "grupo": "preparacion_pasta",
-      "etapa_proceso": 2,
+      "grupo": "preparacion",
+      "etapas": [],
+      "etapas_hipotesis": [
+        "B2"
+      ],
       "edificio": "ed-mp-oeste",
       "poligono": [
         [
@@ -244,7 +939,7 @@
       "fotos": [],
       "color": "#C9A27E",
       "responsable": null,
-      "notas": "Tipo de molino no indicado (se asume molino de bolas para barbotina)."
+      "notas": "¿Preparación de pasta / barbotina?"
     },
     {
       "id": "z-mp-2",
@@ -252,7 +947,11 @@
       "rotulo_croquis": "MATERIAS PRIMAS",
       "tipo": "almacen",
       "grupo": "materias_primas",
-      "etapa_proceso": 1,
+      "etapas": [],
+      "etapas_hipotesis": [
+        "A1",
+        "B1"
+      ],
       "edificio": "ed-mp-este",
       "poligono": [
         [
@@ -278,7 +977,7 @@
       "fotos": [],
       "color": "#DCC7A6",
       "responsable": null,
-      "notas": null
+      "notas": "¿MP para pasta o para esmaltes?"
     },
     {
       "id": "z-mp-3",
@@ -286,7 +985,8 @@
       "rotulo_croquis": null,
       "tipo": "por_definir",
       "grupo": "sin_rotulo",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-mp-este",
       "poligono": [
         [
@@ -312,15 +1012,18 @@
       "fotos": [],
       "color": "#FFFFFF",
       "responsable": null,
-      "notas": "Bahía dibujada sin nombre; ¿más materias primas?"
+      "notas": "Bahía sin nombre."
     },
     {
       "id": "z-filtro-prensa",
       "nombre": "Filtro prensa",
       "rotulo_croquis": "FILTRO PRENSA",
       "tipo": "proceso",
-      "grupo": "preparacion_pasta",
-      "etapa_proceso": 3,
+      "grupo": "preparacion",
+      "etapas": [
+        "B2"
+      ],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -354,7 +1057,10 @@
       "rotulo_croquis": "LAB 2",
       "tipo": "soporte",
       "grupo": "laboratorio_id",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [
+        "N0"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -380,15 +1086,18 @@
       "fotos": [],
       "color": "#CDBDE6",
       "responsable": null,
-      "notas": "¿Laboratorio de pastas/barbotina? (junto al filtro prensa)."
+      "notas": "¿Recetas de pasta?"
     },
     {
       "id": "z-kerajet",
-      "nombre": "Kerajet (decoración digital)",
+      "nombre": "Kerajet (impresión digital)",
       "rotulo_croquis": "KERAJET",
       "tipo": "proceso",
       "grupo": "decoracion",
-      "etapa_proceso": 10,
+      "etapas": [
+        "2.5"
+      ],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -414,7 +1123,7 @@
       "fotos": [],
       "color": "#A9C0E8",
       "responsable": null,
-      "notas": "KERAjet es una marca de impresoras inkjet para cerámica; posición en el flujo por confirmar."
+      "notas": "Se asume Kerajet = 'Impresión digital' del flujograma (rutas R6–R9)."
     },
     {
       "id": "z-monte-turi",
@@ -422,7 +1131,8 @@
       "rotulo_croquis": "MONTE TURI",
       "tipo": "por_definir",
       "grupo": "sin_identificar",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -448,15 +1158,18 @@
       "fotos": [],
       "color": "#FFFFFF",
       "responsable": null,
-      "notas": "Rótulo sin recuadro; no se sabe si es equipo, línea o sala."
+      "notas": "Rótulo sin recuadro. ¿Área de formación (colado, torno, prensa)?"
     },
     {
       "id": "z-molienda-2",
       "nombre": "Molienda 2",
       "rotulo_croquis": "MOLIENDA",
       "tipo": "proceso",
-      "grupo": "preparacion_pasta",
-      "etapa_proceso": 2,
+      "grupo": "preparacion",
+      "etapas": [],
+      "etapas_hipotesis": [
+        "A2"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -482,15 +1195,19 @@
       "fotos": [],
       "color": "#C9A27E",
       "responsable": null,
-      "notas": "Segunda molienda: ¿pasta o esmaltes?"
+      "notas": "¿Preparación de colores / esmaltes?"
     },
     {
       "id": "z-extrusora",
       "nombre": "Extrusora",
       "rotulo_croquis": "EXTRUSORA",
       "tipo": "proceso",
-      "grupo": "preparacion_pasta",
-      "etapa_proceso": 4,
+      "grupo": "preparacion",
+      "etapas": [
+        "B2",
+        "B4"
+      ],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -516,15 +1233,20 @@
       "fotos": [],
       "color": "#C9A27E",
       "responsable": null,
-      "notas": "Rótulo sin recuadro: límite estimado."
+      "notas": "Rótulo sin recuadro: límite estimado. Produce la pasta extrusada."
     },
     {
       "id": "z-impresion-3d",
-      "nombre": "Impresión 3D",
+      "nombre": "Impresión 3D (formación)",
       "rotulo_croquis": "IMPRESIÓN 3D",
-      "tipo": "soporte",
-      "grupo": "laboratorio_id",
-      "etapa_proceso": null,
+      "tipo": "proceso",
+      "grupo": "formacion",
+      "etapas": [
+        "1.1"
+      ],
+      "etapas_hipotesis": [
+        "1.2"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -548,17 +1270,22 @@
       "precision": "aprox",
       "confianza": "alta",
       "fotos": [],
-      "color": "#CDBDE6",
+      "color": "#EADCC6",
       "responsable": null,
-      "notas": "¿Prototipos / matrices de moldes?"
+      "notas": "Método de formación 'Impresora 3D' del flujograma."
     },
     {
       "id": "z-pulido",
       "nombre": "Pulido",
       "rotulo_croquis": "PULIDO",
       "tipo": "proceso",
-      "grupo": "conformado_acabado",
-      "etapa_proceso": 7,
+      "grupo": "formacion",
+      "etapas": [
+        "1.3"
+      ],
+      "etapas_hipotesis": [
+        "1.4"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -586,7 +1313,7 @@
       ],
       "color": "#EADCC6",
       "responsable": null,
-      "notas": "Se interpreta como repasado/pulido de pieza seca antes del bizcochado."
+      "notas": "¿También es la 'Piscina pulido' física?"
     },
     {
       "id": "z-labor-1",
@@ -594,7 +1321,10 @@
       "rotulo_croquis": "LABOR. 1",
       "tipo": "soporte",
       "grupo": "laboratorio_id",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [
+        "N0"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -620,7 +1350,7 @@
       "fotos": [],
       "color": "#CDBDE6",
       "responsable": null,
-      "notas": null
+      "notas": "¿Recetas de esmaltes y colores?"
     },
     {
       "id": "z-id",
@@ -628,7 +1358,10 @@
       "rotulo_croquis": "I+D",
       "tipo": "soporte",
       "grupo": "laboratorio_id",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [
+        "N0"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -654,7 +1387,7 @@
       "fotos": [],
       "color": "#CDBDE6",
       "responsable": null,
-      "notas": null
+      "notas": "¿Ingeniería: fichas técnicas FORMA y SKU?"
     },
     {
       "id": "z-bodega-suministros",
@@ -662,7 +1395,8 @@
       "rotulo_croquis": "BODEGA DE SUMINISTROS",
       "tipo": "almacen",
       "grupo": "almacen",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -692,13 +1426,16 @@
     },
     {
       "id": "z-horno",
-      "nombre": "Horno",
+      "nombre": "Hornos",
       "rotulo_croquis": "HORNO",
       "tipo": "horno",
       "grupo": "horno",
-      "etapa_proceso": [
-        8,
-        12
+      "etapas": [
+        "1.5",
+        "3.1"
+      ],
+      "etapas_hipotesis": [
+        "3.5"
       ],
       "edificio": "ed-complejo-central",
       "poligono": [
@@ -727,7 +1464,7 @@
       ],
       "color": "#F2B36B",
       "responsable": null,
-      "notas": "Un solo recuadro en el croquis; la foto 4 muestra dos bocas de horno en paralelo."
+      "notas": "Un recuadro en el croquis; la foto 4 muestra dos hornos en paralelo (¿bizcocho y esmalte?)."
     },
     {
       "id": "z-esmaltado",
@@ -735,7 +1472,12 @@
       "rotulo_croquis": "ESMALTADO",
       "tipo": "proceso",
       "grupo": "esmaltado",
-      "etapa_proceso": 11,
+      "etapas": [
+        "2.4"
+      ],
+      "etapas_hipotesis": [
+        "2.6"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -771,7 +1513,12 @@
       "rotulo_croquis": "TRAZADO",
       "tipo": "proceso",
       "grupo": "decoracion",
-      "etapa_proceso": 9,
+      "etapas": [
+        "2.2"
+      ],
+      "etapas_hipotesis": [
+        "2.1"
+      ],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -801,11 +1548,11 @@
       ],
       "recinto_cerrado": false,
       "precision": "aprox",
-      "confianza": "baja",
+      "confianza": "media",
       "fotos": [],
       "color": "#A9C0E8",
       "responsable": null,
-      "notas": "Área abierta: límite estimado entre bodega, horno y oficinas."
+      "notas": "Área abierta: límite estimado. ¿El señalado (S) también se hace aquí?"
     },
     {
       "id": "z-decorado",
@@ -813,7 +1560,10 @@
       "rotulo_croquis": "DECORADO",
       "tipo": "proceso",
       "grupo": "decoracion",
-      "etapa_proceso": 10,
+      "etapas": [
+        "2.3"
+      ],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -835,13 +1585,13 @@
       ],
       "recinto_cerrado": true,
       "precision": "aprox",
-      "confianza": "media",
+      "confianza": "alta",
       "fotos": [
         "foto-2"
       ],
       "color": "#A9C0E8",
       "responsable": null,
-      "notas": null
+      "notas": "Incluye 'Decorado 2' de la ruta R7."
     },
     {
       "id": "z-oficinas-produccion",
@@ -849,7 +1599,8 @@
       "rotulo_croquis": "OFICINAS PRODUCCIÓN",
       "tipo": "soporte",
       "grupo": "administrativo",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -883,7 +1634,8 @@
       "rotulo_croquis": "ADMINISTRACIÓN",
       "tipo": "soporte",
       "grupo": "administrativo",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -925,7 +1677,8 @@
       "rotulo_croquis": "MUSEO",
       "tipo": "comercial",
       "grupo": "comercial",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-complejo-central",
       "poligono": [
         [
@@ -959,7 +1712,8 @@
       "rotulo_croquis": null,
       "tipo": "por_definir",
       "grupo": "sin_rotulo",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-bodega-outlet",
       "poligono": [
         [
@@ -985,7 +1739,7 @@
       "fotos": [],
       "color": "#FFFFFF",
       "responsable": null,
-      "notas": "Franja dibujada sin nombre dentro del edificio Outlet/Bodega."
+      "notas": null
     },
     {
       "id": "z-outlet-interno",
@@ -993,7 +1747,10 @@
       "rotulo_croquis": "OUTLET",
       "tipo": "comercial",
       "grupo": "comercial",
-      "etapa_proceso": 15,
+      "etapas": [],
+      "etapas_hipotesis": [
+        "V"
+      ],
       "edificio": "ed-bodega-outlet",
       "poligono": [
         [
@@ -1019,15 +1776,18 @@
       "fotos": [],
       "color": "#F2BDB4",
       "responsable": null,
-      "notas": "Sin línea divisoria con Bodega: el límite en Z=84 m es supuesto."
+      "notas": "Sin división con Bodega (límite supuesto). ¿Venta de Tipo B/C?"
     },
     {
       "id": "z-cf",
-      "nombre": "CF [sigla por confirmar]",
+      "nombre": "CF (¿Clasificación final?)",
       "rotulo_croquis": "CF",
-      "tipo": "por_definir",
-      "grupo": "almacen_pt",
-      "etapa_proceso": 13,
+      "tipo": "proceso",
+      "grupo": "clasificacion",
+      "etapas": [],
+      "etapas_hipotesis": [
+        "3.3"
+      ],
       "edificio": "ed-bodega-outlet",
       "poligono": [
         [
@@ -1051,17 +1811,20 @@
       "precision": "aprox",
       "confianza": "media",
       "fotos": [],
-      "color": "#BCD3A3",
+      "color": "#E3EDC2",
       "responsable": null,
-      "notas": "¿Control final? ¿Consumidor final?"
+      "notas": "Sigla coherente con 'Clasificación final'; puerta hacia los hornos y contigua a Bodega."
     },
     {
       "id": "z-bodega",
-      "nombre": "Bodega (producto terminado)",
+      "nombre": "Bodega (¿producto terminado?)",
       "rotulo_croquis": "BODEGA",
       "tipo": "almacen",
       "grupo": "almacen_pt",
-      "etapa_proceso": 14,
+      "etapas": [],
+      "etapas_hipotesis": [
+        "3.6"
+      ],
       "edificio": "ed-bodega-outlet",
       "poligono": [
         [
@@ -1093,9 +1856,9 @@
       "precision": "aprox",
       "confianza": "media",
       "fotos": [],
-      "color": "#BCD3A3",
+      "color": "#B5CF98",
       "responsable": null,
-      "notas": "Se asume bodega de producto terminado."
+      "notas": "¿Bodega PT (3.6) o Bodega bizcocho (1.8)?"
     },
     {
       "id": "z-franja-sur",
@@ -1103,7 +1866,8 @@
       "rotulo_croquis": null,
       "tipo": "por_definir",
       "grupo": "sin_rotulo",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-bodega-outlet",
       "poligono": [
         [
@@ -1137,7 +1901,10 @@
       "rotulo_croquis": "OUTLET",
       "tipo": "comercial",
       "grupo": "comercial",
-      "etapa_proceso": 15,
+      "etapas": [
+        "V"
+      ],
+      "etapas_hipotesis": [],
       "edificio": "ed-bloque-servicios",
       "poligono": [
         [
@@ -1171,7 +1938,8 @@
       "rotulo_croquis": "COMEDOR",
       "tipo": "servicios",
       "grupo": "servicios",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-bloque-servicios",
       "poligono": [
         [
@@ -1205,7 +1973,8 @@
       "rotulo_croquis": "COCINA",
       "tipo": "servicios",
       "grupo": "servicios",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-bloque-servicios",
       "poligono": [
         [
@@ -1237,9 +2006,10 @@
       "id": "z-academia",
       "nombre": "Academia ARTESA",
       "rotulo_croquis": "ACADEMIA ARTESA",
-      "tipo": "formacion",
+      "tipo": "formacion_personal",
       "grupo": "servicios",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": "ed-bloque-servicios",
       "poligono": [
         [
@@ -1273,7 +2043,8 @@
       "rotulo_croquis": "PARQUEADERO",
       "tipo": "exterior",
       "grupo": "exterior",
-      "etapa_proceso": null,
+      "etapas": [],
+      "etapas_hipotesis": [],
       "edificio": null,
       "poligono": [
         [
@@ -1307,7 +2078,10 @@
       "rotulo_croquis": "TIENDA",
       "tipo": "comercial",
       "grupo": "comercial",
-      "etapa_proceso": 15,
+      "etapas": [
+        "V"
+      ],
+      "etapas_hipotesis": [],
       "edificio": "ed-tienda",
       "poligono": [
         [
@@ -1333,15 +2107,19 @@
       "fotos": [],
       "color": "#F2BDB4",
       "responsable": null,
-      "notas": "¿Edificio o patio comercial? El lado norte coincide con la fachada de oficinas/museo."
+      "notas": "¿Edificio o patio comercial?"
     },
     {
-      "id": "z-conformado",
-      "nombre": "Conformado (colado/calibrado)",
+      "id": "z-formacion",
+      "nombre": "Formación (colado, torno, prensa RAM, modelado)",
       "rotulo_croquis": null,
       "tipo": "proceso",
-      "grupo": "conformado_acabado",
-      "etapa_proceso": 5,
+      "grupo": "formacion",
+      "etapas": [
+        "1.1",
+        "1.2"
+      ],
+      "etapas_hipotesis": [],
       "edificio": null,
       "poligono": null,
       "recinto_cerrado": true,
@@ -1352,15 +2130,18 @@
       ],
       "color": "#EADCC6",
       "responsable": null,
-      "notas": "No está en el croquis; evidencia en foto 5. Ubicación por definir."
+      "notas": "6 de los 7 métodos de formación no tienen zona en el croquis."
     },
     {
       "id": "z-secado",
-      "nombre": "Secado",
+      "nombre": "Secado (¿= Piscina pulido?)",
       "rotulo_croquis": null,
       "tipo": "proceso",
-      "grupo": "conformado_acabado",
-      "etapa_proceso": 6,
+      "grupo": "formacion",
+      "etapas": [],
+      "etapas_hipotesis": [
+        "1.4"
+      ],
       "edificio": null,
       "poligono": null,
       "recinto_cerrado": true,
@@ -1371,7 +2152,7 @@
       ],
       "color": "#EADCC6",
       "responsable": null,
-      "notas": "No está en el croquis; racks de secado en foto 5. Ubicación por definir."
+      "notas": "Racks de secado en foto 5; el flujograma no tiene una etapa 'secado'."
     }
   ],
   "accesos": [
@@ -1572,69 +2353,136 @@
     {
       "id": "molino-01",
       "nombre": "Molino(s) – Molienda 1",
-      "tipo": "molino_bolas",
+      "tipo": "molino",
       "zona": "z-molienda-1",
+      "etapa": "B2",
       "cantidad": null,
       "confianza": "baja",
       "fuente": "croquis",
-      "notas": "Tipo asumido."
+      "notas": "Tipo y uso por confirmar."
     },
     {
       "id": "molino-02",
       "nombre": "Molino(s) – Molienda 2",
-      "tipo": "molino_bolas",
+      "tipo": "molino",
       "zona": "z-molienda-2",
+      "etapa": "A2",
       "cantidad": null,
       "confianza": "baja",
       "fuente": "croquis",
-      "notas": "Tipo asumido."
+      "notas": "¿Molienda de esmaltes/colores?"
     },
     {
       "id": "filtro-prensa-01",
       "nombre": "Filtro prensa",
       "tipo": "filtro_prensa",
       "zona": "z-filtro-prensa",
-      "cantidad": 1,
+      "etapa": "B2",
+      "cantidad": null,
       "confianza": "media",
       "fuente": "croquis",
-      "notas": ""
+      "notas": null
     },
     {
       "id": "extrusora-01",
       "nombre": "Extrusora",
       "tipo": "extrusora",
       "zona": "z-extrusora",
-      "cantidad": 1,
-      "confianza": "media",
-      "fuente": "croquis",
-      "notas": "¿Extrusora de vacío / amasadora?"
-    },
-    {
-      "id": "kerajet-01",
-      "nombre": "Impresora KERAjet",
-      "tipo": "impresora_inkjet_ceramica",
-      "zona": "z-kerajet",
+      "etapa": "B2",
       "cantidad": null,
       "confianza": "media",
-      "fuente": "croquis",
-      "notas": "Modelo por confirmar."
+      "fuente": "croquis+flujograma",
+      "notas": "Produce la 'pasta extrusada' (B4)."
+    },
+    {
+      "id": "colado-vaciado",
+      "nombre": "Colado vaciado",
+      "tipo": "formacion_colado_vaciado",
+      "zona": "z-formacion",
+      "etapa": "1.1",
+      "cantidad": null,
+      "confianza": "alta",
+      "fuente": "flujograma",
+      "notas": "Ubicación por definir."
+    },
+    {
+      "id": "colado-presion",
+      "nombre": "Colado a presión",
+      "tipo": "formacion_colado_presion",
+      "zona": "z-formacion",
+      "etapa": "1.1",
+      "cantidad": null,
+      "confianza": "alta",
+      "fuente": "flujograma",
+      "notas": "Ubicación por definir."
+    },
+    {
+      "id": "torno-alfarero",
+      "nombre": "Torno alfarero",
+      "tipo": "formacion_torno_alfarero",
+      "zona": "z-formacion",
+      "etapa": "1.1",
+      "cantidad": null,
+      "confianza": "alta",
+      "fuente": "flujograma",
+      "notas": "Ubicación por definir."
+    },
+    {
+      "id": "torno-roller",
+      "nombre": "Torno roller",
+      "tipo": "formacion_torno_roller",
+      "zona": "z-formacion",
+      "etapa": "1.1",
+      "cantidad": null,
+      "confianza": "alta",
+      "fuente": "flujograma",
+      "notas": "Ubicación por definir."
+    },
+    {
+      "id": "prensa-ram",
+      "nombre": "Prensa RAM",
+      "tipo": "formacion_prensa_ram",
+      "zona": "z-formacion",
+      "etapa": "1.1",
+      "cantidad": null,
+      "confianza": "alta",
+      "fuente": "flujograma",
+      "notas": "Ubicación por definir."
     },
     {
       "id": "impresoras-3d",
       "nombre": "Impresoras 3D",
-      "tipo": "impresora_3d",
+      "tipo": "formacion_impresora_3d",
       "zona": "z-impresion-3d",
+      "etapa": "1.1",
       "cantidad": null,
-      "instanciado": true,
-      "confianza": "media",
-      "fuente": "croquis",
-      "notas": ""
+      "confianza": "alta",
+      "fuente": "croquis+flujograma",
+      "notas": null,
+      "instanciado": true
+    },
+    {
+      "id": "modelado",
+      "nombre": "Puestos de modelado",
+      "tipo": "formacion_modelado",
+      "zona": "z-formacion",
+      "etapa": "1.1",
+      "cantidad": null,
+      "confianza": "alta",
+      "fuente": "flujograma",
+      "notas": "Ubicación por definir.",
+      "instanciado": true
     },
     {
       "id": "horno-01",
       "nombre": "Horno continuo 1 (izq. en foto 4)",
       "tipo": "horno_continuo",
       "zona": "z-horno",
+      "etapa": "3.1",
+      "cantidad": null,
+      "confianza": "media",
+      "fuente": "croquis+foto-4",
+      "notas": "Carga de tazas moradas y platos esmaltados: ¿quema de esmalte? Logotipo parcial '…cnochimica'.",
       "posicion": [
         47.0,
         79.5
@@ -1645,16 +2493,18 @@
         "ancho": null,
         "alto": null,
         "precision": "aprox_croquis"
-      },
-      "confianza": "media",
-      "fuente": "croquis+foto-4",
-      "notas": "Entrada con placas refractarias, tazas moradas y platos (¿quema de esmalte?). Logotipo parcial '…cnochimica' en la campana."
+      }
     },
     {
       "id": "horno-02",
       "nombre": "Horno continuo 2 (der. en foto 4)",
       "tipo": "horno_continuo",
       "zona": "z-horno",
+      "etapa": "1.5",
+      "cantidad": null,
+      "confianza": "media",
+      "fuente": "foto-4",
+      "notas": "Placas con soportes refractarios: ¿quema de bizcocho?",
       "posicion": [
         49.5,
         79.5
@@ -1665,231 +2515,402 @@
         "ancho": null,
         "alto": null,
         "precision": "aprox_croquis"
-      },
+      }
+    },
+    {
+      "id": "kerajet-01",
+      "nombre": "Impresora KERAjet",
+      "tipo": "impresora_inkjet_ceramica",
+      "zona": "z-kerajet",
+      "etapa": "2.5",
+      "cantidad": null,
       "confianza": "media",
-      "fuente": "foto-4",
-      "notas": "Entrada con placas y soportes refractarios. ¿Bizcochado?"
+      "fuente": "croquis+flujograma",
+      "notas": "Impresión digital (R6–R9). Modelo por confirmar."
     },
     {
       "id": "esmaltado-maquinas",
       "nombre": "Máquinas / cabinas de esmaltado",
       "tipo": "esmaltadora",
       "zona": "z-esmaltado",
+      "etapa": "2.4",
       "cantidad": null,
-      "cantidad_min_observada": 2,
       "confianza": "media",
       "fuente": "foto-3",
-      "notas": "Gabinetes con tablero de control, extracción por ductos y operaria con mascarilla."
+      "notas": "Al menos 2 en la foto 3.",
+      "cantidad_min_observada": 2
     },
     {
       "id": "puesto-decoracion",
       "nombre": "Puestos de decoración a mano",
       "tipo": "puesto_decoracion",
       "zona": "z-decorado",
+      "etapa": "2.3",
       "cantidad": null,
-      "instanciado": true,
       "confianza": "media",
       "fuente": "foto-2",
+      "notas": "Al menos 5 mesas en la foto 2.",
+      "instanciado": true,
       "layout": {
         "filas": null,
         "columnas": null,
         "separacion": null
-      },
-      "notas": "En la foto 2 se ven al menos 5 mesas a lo largo del muro de ladrillo."
+      }
     },
     {
       "id": "rack-secado",
       "nombre": "Estanterías de secado",
       "tipo": "rack_secado",
       "zona": "z-secado",
+      "etapa": "1.4",
       "cantidad": null,
-      "instanciado": true,
       "confianza": "media",
       "fuente": "foto-5",
-      "notas": "Estanterías metálicas altas con tablas de madera, con platos y bowls en crudo."
+      "notas": "¿Son la 'Piscina pulido' física?",
+      "instanciado": true
     }
   ],
   "flujos": [
     {
-      "id": "f1",
+      "id": "p1",
       "desde": "z-mp-1",
       "hasta": "z-molienda-1",
-      "material": "materias primas",
+      "material": "materia prima",
+      "fase": "B",
+      "etapas": "B1→B2",
+      "rutas": null,
       "tipo": "principal",
-      "confianza": "alta",
+      "confianza": "media",
+      "volumen_tag": "flujo.p1"
+    },
+    {
+      "id": "p2",
+      "desde": "z-molienda-1",
+      "hasta": "z-filtro-prensa",
+      "material": "barbotina",
+      "fase": "B",
+      "etapas": "B2→B2",
+      "rutas": null,
+      "tipo": "principal",
+      "confianza": "media",
+      "volumen_tag": "flujo.p2"
+    },
+    {
+      "id": "p3",
+      "desde": "z-filtro-prensa",
+      "hasta": "z-extrusora",
+      "material": "tortas de pasta",
+      "fase": "B",
+      "etapas": "B2→B4",
+      "rutas": null,
+      "tipo": "principal",
+      "confianza": "media",
+      "volumen_tag": "flujo.p3"
+    },
+    {
+      "id": "e1",
+      "desde": "z-molienda-2",
+      "hasta": "z-esmaltado",
+      "material": "esmaltes (A3)",
+      "fase": "A",
+      "etapas": "A2→2.4",
+      "rutas": null,
+      "tipo": "hipotesis",
+      "confianza": "baja",
+      "volumen_tag": "flujo.e1"
+    },
+    {
+      "id": "e2",
+      "desde": "z-molienda-2",
+      "hasta": "z-decorado",
+      "material": "colores (A3)",
+      "fase": "A",
+      "etapas": "A2→2.3",
+      "rutas": null,
+      "tipo": "hipotesis",
+      "confianza": "baja",
+      "volumen_tag": "flujo.e2"
+    },
+    {
+      "id": "f1",
+      "desde": "z-extrusora",
+      "hasta": "z-formacion",
+      "material": "pasta extrusada",
+      "fase": "F1",
+      "etapas": "B4→1.1",
+      "rutas": [
+        "RF3",
+        "RF4",
+        "RF5"
+      ],
+      "tipo": "sin_ubicar",
+      "confianza": "media",
       "volumen_tag": "flujo.f1"
     },
     {
       "id": "f2",
-      "desde": "z-mp-2",
-      "hasta": "z-molienda-1",
-      "material": "materias primas",
-      "tipo": "principal",
-      "confianza": "media",
+      "desde": "z-molienda-1",
+      "hasta": "z-formacion",
+      "material": "pasta líquida",
+      "fase": "F1",
+      "etapas": "B3→1.1",
+      "rutas": [
+        "RF1",
+        "RF2"
+      ],
+      "tipo": "sin_ubicar",
+      "confianza": "baja",
       "volumen_tag": "flujo.f2"
     },
     {
       "id": "f3",
-      "desde": "z-molienda-1",
-      "hasta": "z-filtro-prensa",
-      "material": "barbotina",
-      "tipo": "principal",
+      "desde": "z-formacion",
+      "hasta": "z-pulido",
+      "material": "pieza formada",
+      "fase": "F1",
+      "etapas": "1.2→1.3",
+      "rutas": null,
+      "tipo": "sin_ubicar",
       "confianza": "media",
       "volumen_tag": "flujo.f3"
     },
     {
       "id": "f4",
-      "desde": "z-filtro-prensa",
-      "hasta": "z-extrusora",
-      "material": "tortas de pasta",
+      "desde": "z-impresion-3d",
+      "hasta": "z-pulido",
+      "material": "pieza impresa 3D",
+      "fase": "F1",
+      "etapas": "1.2→1.3",
+      "rutas": [
+        "RF6"
+      ],
       "tipo": "principal",
       "confianza": "media",
       "volumen_tag": "flujo.f4"
     },
     {
       "id": "f5",
-      "desde": "z-extrusora",
-      "hasta": "z-conformado",
-      "material": "pasta plástica",
+      "desde": "z-pulido",
+      "hasta": "z-horno",
+      "material": "piscina pulido → quema bizcocho",
+      "fase": "F1",
+      "etapas": "1.4→1.5",
+      "rutas": null,
       "tipo": "principal",
       "confianza": "media",
       "volumen_tag": "flujo.f5"
     },
     {
       "id": "f6",
-      "desde": "z-conformado",
-      "hasta": "z-secado",
-      "material": "pieza verde",
-      "tipo": "principal",
+      "desde": "z-horno",
+      "hasta": "z-trazado",
+      "material": "bizcocho (vía piscina quemado 1, clasificación y bodega bizcocho)",
+      "fase": "F1",
+      "etapas": "1.6→1.8→2.x",
+      "rutas": null,
+      "tipo": "sin_ubicar",
       "confianza": "media",
       "volumen_tag": "flujo.f6"
     },
     {
-      "id": "f7",
-      "desde": "z-secado",
-      "hasta": "z-pulido",
-      "material": "pieza seca",
-      "tipo": "principal",
-      "confianza": "media",
-      "volumen_tag": "flujo.f7"
-    },
-    {
-      "id": "f8",
-      "desde": "z-pulido",
-      "hasta": "z-horno",
-      "material": "pieza repasada (1.ª quema: bizcocho)",
-      "tipo": "principal",
-      "confianza": "media",
-      "volumen_tag": "flujo.f8"
-    },
-    {
-      "id": "f9",
-      "desde": "z-horno",
-      "hasta": "z-trazado",
-      "material": "bizcocho",
-      "tipo": "principal",
-      "confianza": "media",
-      "volumen_tag": "flujo.f9"
-    },
-    {
-      "id": "f10",
+      "id": "d1",
       "desde": "z-trazado",
       "hasta": "z-decorado",
-      "material": "bizcocho con trazo",
+      "material": "señalado/trazado → decorado",
+      "fase": "F2",
+      "etapas": "2.1/2.2→2.3",
+      "rutas": [
+        "R1",
+        "R2",
+        "R3"
+      ],
       "tipo": "principal",
       "confianza": "media",
-      "volumen_tag": "flujo.f10"
+      "volumen_tag": "flujo.d1"
     },
     {
-      "id": "f11",
+      "id": "d2",
       "desde": "z-decorado",
       "hasta": "z-esmaltado",
-      "material": "pieza decorada",
+      "material": "decorado → esmaltado",
+      "fase": "F2",
+      "etapas": "2.3→2.4",
+      "rutas": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R6",
+        "R7"
+      ],
       "tipo": "principal",
-      "confianza": "media",
-      "volumen_tag": "flujo.f11"
+      "confianza": "alta",
+      "volumen_tag": "flujo.d2"
     },
     {
-      "id": "f12",
+      "id": "d3",
+      "desde": "z-esmaltado",
+      "hasta": "z-kerajet",
+      "material": "esmaltado → impresión digital",
+      "fase": "F2",
+      "etapas": "2.4→2.5",
+      "rutas": [
+        "R6",
+        "R7",
+        "R8",
+        "R9"
+      ],
+      "tipo": "principal",
+      "confianza": "media",
+      "volumen_tag": "flujo.d3"
+    },
+    {
+      "id": "d4",
+      "desde": "z-kerajet",
+      "hasta": "z-decorado",
+      "material": "impresión digital → decorado",
+      "fase": "F2",
+      "etapas": "2.5→2.3",
+      "rutas": [
+        "R7",
+        "R8"
+      ],
+      "tipo": "principal",
+      "confianza": "media",
+      "volumen_tag": "flujo.d4"
+    },
+    {
+      "id": "q1",
       "desde": "z-esmaltado",
       "hasta": "z-horno",
-      "material": "pieza esmaltada (2.ª quema)",
+      "material": "piscina esmaltado → quema esmalte",
+      "fase": "F3",
+      "etapas": "2.6→3.1",
+      "rutas": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5"
+      ],
       "tipo": "principal",
       "confianza": "media",
-      "volumen_tag": "flujo.f12"
+      "volumen_tag": "flujo.q1"
     },
     {
-      "id": "f13",
+      "id": "q2",
+      "desde": "z-kerajet",
+      "hasta": "z-horno",
+      "material": "piscina esmaltado → quema esmalte",
+      "fase": "F3",
+      "etapas": "2.6→3.1",
+      "rutas": [
+        "R6",
+        "R9"
+      ],
+      "tipo": "principal",
+      "confianza": "media",
+      "volumen_tag": "flujo.q2"
+    },
+    {
+      "id": "q3",
+      "desde": "z-decorado",
+      "hasta": "z-horno",
+      "material": "piscina esmaltado → quema esmalte",
+      "fase": "F3",
+      "etapas": "2.6→3.1",
+      "rutas": [
+        "R7",
+        "R8"
+      ],
+      "tipo": "principal",
+      "confianza": "media",
+      "volumen_tag": "flujo.q3"
+    },
+    {
+      "id": "c1",
       "desde": "z-horno",
       "hasta": "z-cf",
-      "material": "pieza terminada",
+      "material": "piscina quemado 2 → clasificación final",
+      "fase": "F3",
+      "etapas": "3.2→3.3",
+      "rutas": null,
       "tipo": "principal",
-      "confianza": "baja",
-      "volumen_tag": "flujo.f13"
+      "confianza": "media",
+      "volumen_tag": "flujo.c1"
     },
     {
-      "id": "f14",
+      "id": "c2",
       "desde": "z-cf",
       "hasta": "z-bodega",
-      "material": "producto clasificado",
+      "material": "Tipo A / B / C",
+      "fase": "F3",
+      "etapas": "3.3→3.6",
+      "rutas": null,
       "tipo": "principal",
-      "confianza": "baja",
-      "volumen_tag": "flujo.f14"
+      "confianza": "media",
+      "volumen_tag": "flujo.c2"
     },
     {
-      "id": "f15",
+      "id": "v1",
       "desde": "z-bodega",
       "hasta": "z-outlet-interno",
       "material": "producto terminado",
+      "fase": "venta",
+      "etapas": "3.6→V",
+      "rutas": null,
       "tipo": "venta",
       "confianza": "baja",
-      "volumen_tag": "flujo.f15"
+      "volumen_tag": "flujo.v1"
     },
     {
-      "id": "f16",
+      "id": "v2",
       "desde": "z-bodega",
       "hasta": "z-tienda",
       "material": "producto terminado",
+      "fase": "venta",
+      "etapas": "3.6→V",
+      "rutas": null,
       "tipo": "venta",
       "confianza": "baja",
-      "volumen_tag": "flujo.f16"
-    },
-    {
-      "id": "h1",
-      "desde": "z-molienda-2",
-      "hasta": "z-esmaltado",
-      "material": "esmalte (hipótesis)",
-      "tipo": "hipotesis",
-      "confianza": "baja",
-      "volumen_tag": "flujo.h1"
-    },
-    {
-      "id": "h2",
-      "desde": "z-esmaltado",
-      "hasta": "z-kerajet",
-      "material": "pieza para decoración digital (hipótesis)",
-      "tipo": "hipotesis",
-      "confianza": "baja",
-      "volumen_tag": "flujo.h2"
-    },
-    {
-      "id": "h3",
-      "desde": "z-kerajet",
-      "hasta": "z-horno",
-      "material": "pieza impresa (hipótesis)",
-      "tipo": "hipotesis",
-      "confianza": "baja",
-      "volumen_tag": "flujo.h3"
+      "volumen_tag": "flujo.v2"
     }
   ],
   "kpis": [
+    {
+      "id": "wip_piscinas",
+      "nombre": "WIP por piscina (pulido, quemado 1, esmaltado, quemado 2)",
+      "ambito": "etapa",
+      "unidad": "pzs",
+      "meta": null
+    },
+    {
+      "id": "rend_bizcocho",
+      "nombre": "% bizcocho bueno vs. malo (1.7)",
+      "ambito": "etapa",
+      "unidad": "%",
+      "meta": null
+    },
+    {
+      "id": "clasif_final",
+      "nombre": "Mix de clasificación final A/B/C/desecho/recuperable (3.3)",
+      "ambito": "etapa",
+      "unidad": "%",
+      "meta": null
+    },
+    {
+      "id": "cc_formacion",
+      "nombre": "Rechazo en CC de formación por método (1.2)",
+      "ambito": "ruta_formacion",
+      "unidad": "%",
+      "meta": null
+    },
     {
       "id": "prod_turno",
       "nombre": "Piezas buenas por turno",
       "ambito": "planta",
       "unidad": "pzs",
-      "meta": null,
-      "fuente": "n8n:/plant-state"
+      "meta": null
     },
     {
       "id": "oee_horno",
@@ -1899,31 +2920,24 @@
       "meta": null
     },
     {
-      "id": "merma_etapa",
-      "nombre": "Rotura/merma por etapa",
-      "ambito": "zona",
-      "unidad": "%",
+      "id": "baja_pasta",
+      "nombre": "Baja/ajuste de pasta (B5)",
+      "ambito": "etapa",
+      "unidad": "kg",
       "meta": null
     },
     {
-      "id": "wip",
-      "nombre": "WIP entre etapas",
-      "ambito": "flujo",
-      "unidad": "pzs",
-      "meta": null
-    },
-    {
-      "id": "gas_por_quema",
-      "nombre": "Consumo de gas por quema",
-      "ambito": "equipo",
-      "unidad": null,
+      "id": "consumo_esmaltes",
+      "nombre": "Consumo de esmaltes y colores (A4)",
+      "ambito": "etapa",
+      "unidad": "kg",
       "meta": null
     },
     {
       "id": "inv_pt",
       "nombre": "Inventario PT",
-      "ambito": "zona",
-      "unidad": null,
+      "ambito": "etapa",
+      "unidad": "pzs",
       "meta": null
     }
   ],
@@ -1958,32 +2972,51 @@
     {
       "id": "foto-1",
       "zona_probable": "z-pulido",
+      "etapas_probables": [
+        "1.3",
+        "1.4",
+        "1.8"
+      ],
       "confianza": "baja",
-      "resumen": "Acopio de piezas en crudo/bizcocho y repasado manual"
+      "resumen": "Piezas sin esmaltar apiladas y repasado manual: ¿pulido, piscina pulido o bodega bizcocho?"
     },
     {
       "id": "foto-2",
       "zona_probable": "z-decorado",
+      "etapas_probables": [
+        "2.3"
+      ],
       "confianza": "media",
-      "resumen": "Pasillo de decoración a mano junto a muro de ladrillo"
+      "resumen": "Decoración a mano junto a muro de ladrillo"
     },
     {
       "id": "foto-3",
       "zona_probable": "z-esmaltado",
+      "etapas_probables": [
+        "2.4"
+      ],
       "confianza": "media",
-      "resumen": "Máquinas de esmaltado, baldes de esmalte, extracción"
+      "resumen": "Máquinas de esmaltado, baldes, extracción"
     },
     {
       "id": "foto-4",
       "zona_probable": "z-horno",
+      "etapas_probables": [
+        "1.5",
+        "3.1"
+      ],
       "confianza": "alta",
       "resumen": "Entradas de dos hornos continuos en paralelo"
     },
     {
       "id": "foto-5",
-      "zona_probable": "z-conformado / z-secado",
+      "zona_probable": "z-formacion / z-secado",
+      "etapas_probables": [
+        "1.1",
+        "1.4"
+      ],
       "confianza": "media",
-      "resumen": "Racks de secado con platos y bowls en crudo; banco de conformado"
+      "resumen": "Racks de secado con piezas en crudo; banco de formación"
     }
   ]
 }

@@ -1,14 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -14 200 184" width="1500" height="1380" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif">
-<title>ARTESA – Plano reinterpretado (Fase 0, preliminar)</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -14 252 184" width="1800" height="1314" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif">
+<title>ARTESA – Plano reinterpretado (Fase 0 v0.2, preliminar)</title>
 <defs>
 <pattern id="hatch" width="1.6" height="1.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1.6" stroke="#B9B9B9" stroke-width="0.35"/></pattern>
 <pattern id="dots" width="2" height="2" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.25" fill="#C4C4C0"/></pattern>
-<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2E3440"/></marker>
-<marker id="arrh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A5A9E"/></marker>
+<marker id="arr-A" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7C4A1E"/></marker><marker id="arr-B" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7C4A1E"/></marker><marker id="arr-F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#C2410C"/></marker><marker id="arr-F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1D4ED8"/></marker><marker id="arr-F3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803D"/></marker><marker id="arr-venta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
 </defs>
-<rect x="-6" y="-14" width="200" height="184" fill="#FFFFFF"/>
-<text x="0" y="-8" font-size="3.4" font-weight="700" fill="#1F2328">ARTESA · Planta Cuenca — plano reinterpretado del croquis</text>
-<text x="0" y="-3.6" font-size="1.9" fill="#57606A">Fase 0 · PRELIMINAR · escala supuesta (10 px croquis = 1 m), norte supuesto, medidas aproximadas — no usar para obra</text>
+<rect x="-6" y="-14" width="252" height="184" fill="#FFFFFF"/>
+<text x="0" y="-8" font-size="3.4" font-weight="700" fill="#1F2328">ARTESA · Planta Cuenca — plano reinterpretado + Flujograma ARTESA 2025</text>
+<text x="0" y="-3.6" font-size="1.9" fill="#57606A">Fase 0 v0.2 · PRELIMINAR · escala supuesta (10 px croquis = 1 m), norte supuesto, medidas aproximadas — no usar para obra</text>
 <polygon points="32.0,0.5 47.0,0.5 47.0,25.0 32.0,25.0" fill="none" stroke="#1F2328" stroke-width="0.7"/>
 <polygon points="52.5,0.5 80.0,0.5 80.0,25.0 52.5,25.0" fill="none" stroke="#1F2328" stroke-width="0.7"/>
 <polygon points="2.0,72.0 43.0,72.0 43.0,93.0 37.0,93.0 37.0,107.0 2.0,107.0" fill="none" stroke="#1F2328" stroke-width="0.7"/>
@@ -21,17 +20,17 @@
 <polygon points="67.5,0.5 80.0,0.5 80.0,25.0 67.5,25.0" fill="url(#hatch)"/>
 <polygon points="43.0,29.0 55.5,29.0 55.5,37.5 43.0,37.5" fill="#C9A27E" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-filtro-prensa · Filtro prensa</title></polygon>
 <polygon points="55.5,29.0 66.0,29.0 66.0,38.0 55.5,38.0" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-lab-2 · Laboratorio 2</title></polygon>
-<polygon points="6.0,30.0 18.0,30.0 18.0,55.0 6.0,55.0" fill="#A9C0E8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-kerajet · Kerajet (decoración digital)</title></polygon>
+<polygon points="6.0,30.0 18.0,30.0 18.0,55.0 6.0,55.0" fill="#A9C0E8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-kerajet · Kerajet (impresión digital)</title></polygon>
 <polygon points="18.5,29.5 34.0,29.5 34.0,54.5 18.5,54.5" fill="#FFFFFF" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-monte-turi · Monte Turi [por identificar]</title></polygon>
 <polygon points="18.5,29.5 34.0,29.5 34.0,54.5 18.5,54.5" fill="url(#hatch)"/>
 <polygon points="34.5,44.0 51.5,44.0 51.5,50.5 34.5,50.5" fill="#C9A27E" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-molienda-2 · Molienda 2</title></polygon>
 <polygon points="51.5,42.0 69.5,42.0 69.5,51.5 51.5,51.5" fill="#C9A27E" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-extrusora · Extrusora</title></polygon>
-<polygon points="5.5,55.0 40.0,55.0 40.0,67.0 5.5,67.0" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-impresion-3d · Impresión 3D</title></polygon>
+<polygon points="5.5,55.0 40.0,55.0 40.0,67.0 5.5,67.0" fill="#EADCC6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-impresion-3d · Impresión 3D (formación)</title></polygon>
 <polygon points="44.5,53.5 53.0,53.5 53.0,67.0 44.5,67.0" fill="#EADCC6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-pulido · Pulido</title></polygon>
 <polygon points="73.5,53.5 88.5,53.5 88.5,59.0 73.5,59.0" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-labor-1 · Laboratorio 1</title></polygon>
 <polygon points="73.5,59.0 88.5,59.0 88.5,66.5 73.5,66.5" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-id · I+D</title></polygon>
 <polygon points="88.5,47.5 119.0,47.5 119.0,66.5 88.5,66.5" fill="#D7D2C4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-bodega-suministros · Bodega de suministros</title></polygon>
-<polygon points="44.5,70.0 52.0,70.0 52.0,89.5 44.5,89.5" fill="#F2B36B" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-horno · Horno</title></polygon>
+<polygon points="44.5,70.0 52.0,70.0 52.0,89.5 44.5,89.5" fill="#F2B36B" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-horno · Hornos</title></polygon>
 <polygon points="54.0,69.5 72.5,69.5 72.5,79.5 54.0,79.5" fill="#A6D8CB" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-esmaltado · Esmaltado</title></polygon>
 <polygon points="37.5,90.0 53.0,90.0 53.0,81.0 74.0,81.0 74.0,104.0 37.5,104.0" fill="#A9C0E8" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-trazado · Trazado</title></polygon>
 <polygon points="74.0,66.5 89.0,66.5 89.0,90.0 74.0,90.0" fill="#A9C0E8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-decorado · Decorado</title></polygon>
@@ -41,8 +40,8 @@
 <polygon points="2.0,72.0 11.5,72.0 11.5,101.0 2.0,101.0" fill="#FFFFFF" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-franja-oeste · [Sin rótulo] franja oeste</title></polygon>
 <polygon points="2.0,72.0 11.5,72.0 11.5,101.0 2.0,101.0" fill="url(#hatch)"/>
 <polygon points="11.5,72.0 43.0,72.0 43.0,84.0 11.5,84.0" fill="#F2BDB4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-outlet-interno · Outlet (bloque bodega)</title></polygon>
-<polygon points="30.0,84.0 42.0,84.0 42.0,93.0 30.0,93.0" fill="#BCD3A3" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-cf · CF [sigla por confirmar]</title></polygon>
-<polygon points="11.5,84.0 30.0,84.0 30.0,93.0 37.0,93.0 37.0,101.0 11.5,101.0" fill="#BCD3A3" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-bodega · Bodega (producto terminado)</title></polygon>
+<polygon points="30.0,84.0 42.0,84.0 42.0,93.0 30.0,93.0" fill="#E3EDC2" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-cf · CF (¿Clasificación final?)</title></polygon>
+<polygon points="11.5,84.0 30.0,84.0 30.0,93.0 37.0,93.0 37.0,101.0 11.5,101.0" fill="#B5CF98" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-bodega · Bodega (¿producto terminado?)</title></polygon>
 <polygon points="2.0,101.0 37.0,101.0 37.0,107.0 2.0,107.0" fill="#FFFFFF" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-franja-sur · [Sin rótulo] franja sur</title></polygon>
 <polygon points="2.0,101.0 37.0,101.0 37.0,107.0 2.0,107.0" fill="url(#hatch)"/>
 <polygon points="0.5,108.5 22.0,108.5 22.0,125.5 0.5,125.5" fill="#F2BDB4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-outlet-sur · Outlet (bloque sur)</title></polygon>
@@ -71,54 +70,63 @@
 <rect x="68.05" y="117.9" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-tienda</title></rect>
 <text x="39.5" y="6.78" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Materias</text>
 <text x="39.5" y="9.05" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">primas 1</text>
-<rect x="32.6" y="1.1" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="33.675000000000004" y="2.7" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">1</text>
+<rect x="32.6" y="1.1" width="3.54" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="34.37" y="2.7" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">B1?</text>
 <text x="39.5" y="20.16" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Molienda 1</text>
-<rect x="32.6" y="14.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="33.675000000000004" y="16.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">2</text>
+<rect x="32.6" y="14.6" width="3.54" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="34.37" y="16.2" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">B2?</text>
 <text x="60.0" y="12.27" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Materias</text>
 <text x="60.0" y="14.55" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">primas 2</text>
-<rect x="53.1" y="1.1" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="54.175000000000004" y="2.7" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">1</text>
+<rect x="53.1" y="1.1" width="6.66" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="56.43" y="2.7" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">A1?·B1?</text>
 <text x="73.75" y="11.13" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">[Sin</text>
 <text x="73.75" y="13.41" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">rótulo]</text>
 <text x="73.75" y="15.70" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">bahía este</text>
 <text x="49.25" y="32.77" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Filtro</text>
 <text x="49.25" y="35.05" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">prensa</text>
-<rect x="43.6" y="29.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="44.675000000000004" y="31.200000000000003" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">3</text>
+<rect x="43.6" y="29.6" width="2.76" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="44.98" y="31.200000000000003" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">B2</text>
 <text x="60.75" y="33.14" font-size="1.46" font-weight="600" text-anchor="middle" fill="#1F2328">Laboratorio</text>
 <text x="60.75" y="34.88" font-size="1.46" font-weight="600" text-anchor="middle" fill="#1F2328">2</text>
-<text x="12.0" y="43.16" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Kerajet</text>
-<rect x="6.6" y="30.6" width="3.8499999999999996" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="8.524999999999999" y="32.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">10?</text>
+<rect x="56.1" y="29.6" width="3.54" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="57.87" y="31.200000000000003" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">N0?</text>
+<text x="12.0" y="42.02" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Kerajet</text>
+<text x="12.0" y="44.30" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">(ID)</text>
+<rect x="6.6" y="30.6" width="3.54" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="8.37" y="32.2" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">2.5</text>
 <text x="26.25" y="41.52" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">Monte Turi</text>
 <text x="26.25" y="43.80" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">(¿?)</text>
 <text x="43.0" y="47.91" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Molienda 2</text>
-<rect x="35.1" y="44.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="36.175000000000004" y="46.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">2</text>
+<rect x="35.1" y="44.6" width="3.54" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="36.87" y="46.2" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">A2?</text>
 <text x="60.5" y="47.41" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Extrusora</text>
-<rect x="52.1" y="42.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="53.175000000000004" y="44.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">4</text>
-<text x="22.75" y="61.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Impresión 3D</text>
+<rect x="52.1" y="42.6" width="5.10" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="54.65" y="44.2" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">B2·B4</text>
+<text x="16.5" y="61.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Impresión 3D</text>
+<rect x="6.1" y="55.6" width="7.44" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="9.82" y="57.2" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">1.1·1.2?</text>
 <text x="48.75" y="60.91" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Pulido</text>
-<rect x="45.1" y="54.1" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="46.175000000000004" y="55.7" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">7</text>
+<rect x="45.1" y="54.1" width="7.44" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="48.82" y="55.7" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">1.3·1.4?</text>
 <text x="81.0" y="56.79" font-size="1.55" font-weight="600" text-anchor="middle" fill="#1F2328">Laboratorio 1</text>
+<rect x="74.1" y="54.1" width="3.54" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="75.87" y="55.7" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">N0?</text>
 <text x="81.0" y="63.41" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">I+D</text>
+<rect x="74.1" y="59.6" width="3.54" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="75.87" y="61.2" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">N0?</text>
 <text x="103.75" y="57.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Bodega de suministros</text>
-<text x="48.0" y="74.67" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Horno</text>
-<rect x="45.1" y="86.7" width="4.7" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="47.45" y="88.3" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">8·12</text>
+<text x="48.0" y="74.63" font-size="1.81" font-weight="600" text-anchor="middle" fill="#1F2328">Hornos</text>
+<rect x="45.1" y="86.7" width="6.66" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="48.43" y="88.3" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">1.5·3.1</text>
 <text x="63.25" y="75.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Esmaltado</text>
-<rect x="54.6" y="70.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="56.1" y="71.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">11</text>
+<rect x="54.6" y="70.1" width="7.44" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="58.32" y="71.69999999999999" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">2.4·2.6?</text>
 <text x="60.0" y="97.67" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Trazado</text>
-<rect x="38.1" y="81.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="39.175000000000004" y="83.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">9</text>
+<rect x="38.6" y="101.5" width="7.44" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="42.32" y="103.1" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">2.2·2.1?</text>
 <text x="81.5" y="78.92" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Decorado</text>
-<rect x="74.6" y="67.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="76.1" y="68.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">10</text>
+<rect x="74.6" y="67.1" width="3.54" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="76.37" y="68.69999999999999" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">2.3</text>
 <text x="85.0" y="96.03" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Oficinas de</text>
 <text x="85.0" y="98.31" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">producción</text>
 <text x="100.5" y="80.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Administración</text>
@@ -128,148 +136,219 @@
 <text x="6.75" y="88.31" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">franja</text>
 <text x="6.75" y="90.59" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">oeste</text>
 <text x="27.25" y="78.67" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Outlet (bloque bodega)</text>
-<rect x="12.1" y="72.6" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="13.6" y="74.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">15</text>
-<text x="36.0" y="89.17" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">CF (¿?)</text>
-<rect x="30.6" y="84.6" width="3.8499999999999996" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="32.525" y="86.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">13?</text>
-<text x="20.5" y="96.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Bodega PT</text>
-<rect x="12.1" y="84.6" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="13.6" y="86.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">14</text>
+<rect x="12.1" y="72.6" width="2.76" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="13.48" y="74.19999999999999" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">V?</text>
+<text x="36.0" y="89.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">CF (¿?)</text>
+<rect x="30.6" y="84.6" width="4.32" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="32.76" y="86.19999999999999" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">3.3?</text>
+<text x="20.5" y="96.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Bodega (¿PT?)</text>
+<rect x="12.1" y="84.6" width="4.32" height="2.2" rx="1.1" fill="#7A7F87"/>
+<text x="14.26" y="86.19999999999999" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">3.6?</text>
 <text x="19.5" y="104.67" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">[Sin rótulo] franja sur</text>
 <text x="11.25" y="116.53" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Outlet (bloque</text>
 <text x="11.25" y="118.81" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">sur)</text>
-<rect x="1.1" y="109.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="2.6" y="110.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">15</text>
+<rect x="1.1" y="109.1" width="1.98" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="2.09" y="110.69999999999999" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">V</text>
 <text x="11.25" y="131.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Comedor</text>
 <text x="11.25" y="140.41" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Cocina</text>
 <text x="11.25" y="150.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Academia ARTESA</text>
 <text x="48.0" y="133.91" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Parqueadero</text>
 <text x="96.75" y="117.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Tienda</text>
-<rect x="69.1" y="104.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
-<text x="70.6" y="105.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">15</text>
-<path d="M39.50,10.45 Q38.80,13.38 39.50,16.30" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="39.15" cy="13.38" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="39.15" y="13.88" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">1</text>
-<path d="M56.96,13.75 Q49.18,14.39 42.54,18.50" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="49.47" cy="15.26" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="49.47" y="15.76" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">2</text>
-<path d="M41.35,22.11 Q43.35,27.10 47.40,30.64" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="43.86" cy="26.74" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="43.86" y="27.24" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">3</text>
-<path d="M51.30,35.71 Q53.84,40.86 58.45,44.29" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="54.36" cy="40.43" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="54.36" y="40.93" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">4</text>
-<path d="M48.56,63.44 Q47.61,66.58 48.19,69.81" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="47.99" cy="66.60" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="47.99" y="67.10" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">8</text>
-<path d="M49.62,76.76 Q52.65,86.73 59.88,94.24" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="53.70" cy="86.12" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="53.70" y="86.62" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">9</text>
-<path d="M62.41,94.90 Q72.50,89.63 79.09,80.35" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="71.62" cy="88.63" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="71.62" y="89.13" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">10</text>
-<path d="M78.37,77.60 Q75.05,76.04 71.38,76.15" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="74.96" cy="76.46" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="74.96" y="76.96" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">11</text>
-<path d="M60.08,74.92 Q55.48,74.43 51.17,76.08" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="55.55" cy="74.97" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="55.55" y="75.47" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">12</text>
-<path d="M46.37,76.75 Q43.04,80.18 41.63,84.75" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="43.52" cy="80.47" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="43.52" y="80.97" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">13</text>
-<path d="M33.08,89.82 Q27.73,90.84 23.42,94.18" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<circle cx="27.99" cy="91.42" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="27.99" y="91.92" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">14</text>
-<path d="M21.65,92.51 Q25.26,87.28 26.10,80.99" fill="none" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
-<circle cx="24.57" cy="87.02" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="24.57" y="87.52" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">15</text>
-<path d="M23.59,96.35 Q56.31,114.41 93.66,115.65" fill="none" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
-<circle cx="57.47" cy="110.20" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="57.47" y="110.70" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">16</text>
-<path d="M44.91,49.82 Q57.99,57.26 61.34,71.93" fill="none" stroke="#8A5A9E" stroke-width="0.35" stroke-dasharray="1.4 1" marker-end="url(#arrh)"/>
-<circle cx="55.56" cy="59.07" r="1.35" fill="#FFFFFF" stroke="#8A5A9E" stroke-width="0.3"/>
-<text x="55.56" y="59.57" font-size="1.35" font-weight="700" text-anchor="middle" fill="#8A5A9E">h1</text>
-<path d="M58.40,49.16 Q53.58,52.59 50.85,57.84" fill="none" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
-<circle cx="54.10" cy="53.05" r="1.8" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
-<text x="54.10" y="53.55" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">5–7</text>
-<g><rect x="47.1" y="63.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="49.0" y="65.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F1</text></g>
-<g><rect x="83.6" y="84.2" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="85.5" y="86.05" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F2</text></g>
-<g><rect x="68.1" y="76.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="70.0" y="78.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F3</text></g>
-<g><rect x="52.6" y="86.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="54.5" y="88.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F4</text></g>
-<text x="133" y="2" font-size="2.2" font-weight="700" fill="#1F2328">Leyenda</text>
-<rect x="133" y="3.6" width="3" height="2" fill="#DCC7A6" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="5.2" font-size="1.55" fill="#1F2328">Materias primas</text>
-<rect x="133" y="6.300000000000001" width="3" height="2" fill="#C9A27E" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="7.9" font-size="1.55" fill="#1F2328">Preparación de pasta</text>
-<rect x="133" y="9.000000000000002" width="3" height="2" fill="#EADCC6" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="10.600000000000001" font-size="1.55" fill="#1F2328">Conformado / acabado</text>
-<rect x="133" y="11.700000000000001" width="3" height="2" fill="#F2B36B" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="13.3" font-size="1.55" fill="#1F2328">Hornos</text>
-<rect x="133" y="14.4" width="3" height="2" fill="#A9C0E8" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="16.0" font-size="1.55" fill="#1F2328">Decoración</text>
-<rect x="133" y="17.099999999999998" width="3" height="2" fill="#A6D8CB" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="18.7" font-size="1.55" fill="#1F2328">Esmaltado</text>
-<rect x="133" y="19.799999999999997" width="3" height="2" fill="#BCD3A3" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="21.4" font-size="1.55" fill="#1F2328">Producto terminado</text>
-<rect x="133" y="22.499999999999996" width="3" height="2" fill="#D7D2C4" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="24.099999999999998" font-size="1.55" fill="#1F2328">Bodega / suministros</text>
-<rect x="133" y="25.199999999999996" width="3" height="2" fill="#CDBDE6" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="26.799999999999997" font-size="1.55" fill="#1F2328">Laboratorios / I+D / 3D</text>
-<rect x="133" y="27.899999999999995" width="3" height="2" fill="#D3D5DB" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="29.499999999999996" font-size="1.55" fill="#1F2328">Administración</text>
-<rect x="133" y="30.599999999999994" width="3" height="2" fill="#F2BDB4" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="32.199999999999996" font-size="1.55" fill="#1F2328">Comercial (tienda, outlet, museo)</text>
-<rect x="133" y="33.3" width="3" height="2" fill="#EDE5A8" stroke="#3B4048" stroke-width="0.2"/>
-<text x="137" y="34.9" font-size="1.55" fill="#1F2328">Servicios (comedor, cocina, academia)</text>
-<rect x="133" y="36.0" width="3" height="2" fill="#F1F1EF" stroke="#3B4048" stroke-width="0.2"/>
-<rect x="133" y="36.0" width="3" height="2" fill="url(#dots)"/>
-<text x="137" y="37.6" font-size="1.55" fill="#1F2328">Exterior</text>
-<rect x="133" y="38.7" width="3" height="2" fill="#FFFFFF" stroke="#3B4048" stroke-width="0.2"/>
-<rect x="133" y="38.7" width="3" height="2" fill="url(#hatch)"/>
-<text x="137" y="40.300000000000004" font-size="1.55" fill="#1F2328">Sin rótulo en el croquis</text>
-<rect x="133" y="42.400000000000006" width="3" height="2" fill="#FFF" stroke="#3B4048" stroke-width="0.3"/>
-<text x="137.6" y="44.00000000000001" font-size="1.55" fill="#1F2328">Recinto cerrado (dibujado)</text>
-<rect x="133" y="45.10000000000001" width="3" height="2" fill="#FFF" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"/>
-<text x="137.6" y="46.70000000000001" font-size="1.55" fill="#1F2328">Área abierta: rótulo sin recuadro</text>
-<rect x="133" y="47.80000000000001" width="3" height="2" fill="none" stroke="#1F2328" stroke-width="0.7"/>
-<text x="137.6" y="49.40000000000001" font-size="1.55" fill="#1F2328">Contorno de edificio</text>
-<rect x="133" y="50.500000000000014" width="0.9" height="2" fill="#FFF" stroke="#1F2328" stroke-width="0.3"/>
-<text x="137.6" y="52.100000000000016" font-size="1.55" fill="#1F2328">Puerta (marca del croquis)</text>
-<rect x="133" y="53.20000000000002" width="3.4" height="2" rx="1" fill="#1F2328"/>
-<text x="137.6" y="54.80000000000002" font-size="1.55" fill="#1F2328">N.º de etapa del proceso</text>
-<rect x="133" y="55.90000000000002" width="3.4" height="2" rx="0.5" fill="#D1242F"/>
-<text x="137.6" y="57.50000000000002" font-size="1.55" fill="#1F2328">Foto (ubicación probable)</text>
-<path d="M133,59.60000000000002 L136.4,59.60000000000002" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
-<text x="137.6" y="60.200000000000024" font-size="1.55" fill="#1F2328">Flujo principal (n.º)</text>
-<path d="M133,62.300000000000026 L136.4,62.300000000000026" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
-<text x="137.6" y="62.90000000000003" font-size="1.55" fill="#1F2328">Venta / tramo con zonas sin ubicar</text>
-<path d="M133,65.00000000000003 L136.4,65.00000000000003" stroke="#8A5A9E" stroke-width="0.35" stroke-dasharray="1.4 1" marker-end="url(#arrh)"/>
-<text x="137.6" y="65.60000000000002" font-size="1.55" fill="#1F2328">Hipótesis (h1–h3)</text>
-<text x="133" y="69.60000000000002" font-size="2.2" font-weight="700" fill="#1F2328">Secuencia interpretada</text>
-<text x="133" y="72.60000000000002" font-size="1.55" fill="#1F2328">1 Materias primas</text>
-<text x="133" y="74.90000000000002" font-size="1.55" fill="#1F2328">2 Molienda (barbotina)</text>
-<text x="133" y="77.20000000000002" font-size="1.55" fill="#1F2328">3 Filtro prensa</text>
-<text x="133" y="79.50000000000001" font-size="1.55" fill="#1F2328">4 Extrusora</text>
-<text x="133" y="81.80000000000001" font-size="1.55" fill="#1F2328">5 Conformado*</text>
-<text x="133" y="84.10000000000001" font-size="1.55" fill="#1F2328">6 Secado*</text>
-<text x="133" y="86.4" font-size="1.55" fill="#1F2328">7 Pulido</text>
-<text x="133" y="88.7" font-size="1.55" fill="#1F2328">8 Horno: bizcochado</text>
-<text x="133" y="91.0" font-size="1.55" fill="#1F2328">9 Trazado</text>
-<text x="133" y="93.3" font-size="1.55" fill="#1F2328">10 Decorado (¿Kerajet?)</text>
-<text x="133" y="95.6" font-size="1.55" fill="#1F2328">11 Esmaltado</text>
-<text x="133" y="97.89999999999999" font-size="1.55" fill="#1F2328">12 Horno: quema de esmalte</text>
-<text x="133" y="100.19999999999999" font-size="1.55" fill="#1F2328">13 CF (¿control final?)</text>
-<text x="133" y="102.49999999999999" font-size="1.55" fill="#1F2328">14 Bodega PT</text>
-<text x="133" y="104.79999999999998" font-size="1.55" fill="#1F2328">15 Outlet / Tienda</text>
-<text x="133" y="107.89999999999998" font-size="1.45" fill="#D1242F" font-weight="600">* No aparecen en el croquis.</text>
-<text x="133" y="110.09999999999998" font-size="1.45" fill="#D1242F">  Evidencia: foto 5. Ubicación por definir.</text>
-<rect x="133" y="113.09999999999998" width="52" height="8" fill="#EADCC6" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"/>
-<text x="157" y="116.39999999999998" font-size="1.6" font-weight="600" text-anchor="middle" fill="#1F2328">Zonas sin ubicar: Conformado (5) · Secado (6)</text>
-<text x="157" y="119.09999999999998" font-size="1.4" text-anchor="middle" fill="#1F2328">¿Dónde están en la planta?</text>
-<rect x="180.4" y="113.89999999999998" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="182.3" y="115.74999999999999" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F5</text>
-<text x="133" y="125.09999999999998" font-size="1.45" fill="#8A5A9E">h1 Molienda 2 → Esmaltado (¿molienda de esmaltes?).</text>
-<text x="133" y="127.29999999999998" font-size="1.45" fill="#8A5A9E">h2–h3 Esmaltado → Kerajet → Horno: solo en el JSON.</text>
+<rect x="69.1" y="104.1" width="1.98" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="70.09" y="105.69999999999999" font-size="1.4" font-weight="700" text-anchor="middle" fill="#FFFFFF">V</text>
+<path d="M39.50,10.25 Q38.75,13.38 39.50,16.50" fill="none" stroke="#7C4A1E" stroke-width="0.55" marker-end="url(#arr-B)"><title>p1: materia prima</title></path>
+<circle cx="39.12" cy="13.38" r="1.35" fill="#FFFFFF" stroke="#7C4A1E" stroke-width="0.35"/>
+<text x="39.12" y="13.88" font-size="1.35" font-weight="700" text-anchor="middle" fill="#7C4A1E">1</text>
+<path d="M41.24,21.95 Q43.31,27.13 47.51,30.80" fill="none" stroke="#7C4A1E" stroke-width="0.55" marker-end="url(#arr-B)"><title>p2: barbotina</title></path>
+<circle cx="43.84" cy="26.75" r="1.35" fill="#FFFFFF" stroke="#7C4A1E" stroke-width="0.35"/>
+<text x="43.84" y="27.25" font-size="1.35" font-weight="700" text-anchor="middle" fill="#7C4A1E">2</text>
+<path d="M51.17,35.55 Q53.81,40.89 58.58,44.45" fill="none" stroke="#7C4A1E" stroke-width="0.55" marker-end="url(#arr-B)"><title>p3: tortas de pasta</title></path>
+<circle cx="54.34" cy="40.44" r="1.35" fill="#FFFFFF" stroke="#7C4A1E" stroke-width="0.35"/>
+<text x="54.34" y="40.94" font-size="1.35" font-weight="700" text-anchor="middle" fill="#7C4A1E">3</text>
+<path d="M45.03,49.46 Q59.21,55.65 64.22,70.29" fill="none" stroke="#7C4A1E" stroke-width="0.35" stroke-dasharray="1.4 1" marker-end="url(#arr-A)"><title>e1: esmaltes (A3)</title></path>
+<circle cx="56.92" cy="57.76" r="1.6" fill="#FFFFFF" stroke="#7C4A1E" stroke-width="0.35"/>
+<text x="56.92" y="58.26" font-size="1.35" font-weight="700" text-anchor="middle" fill="#7C4A1E">4?</text>
+<path d="M58.53,49.01 Q53.55,52.56 50.72,57.99" fill="none" stroke="#C2410C" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr-F1)"><title>f1: pasta extrusada → formación* → pulido</title></path>
+<circle cx="54.09" cy="53.03" r="1.35" fill="#FFFFFF" stroke="#C2410C" stroke-width="0.35"/>
+<text x="54.09" y="53.53" font-size="1.35" font-weight="700" text-anchor="middle" fill="#C2410C">5</text>
+<path d="M31.50,60.89 Q38.62,60.62 45.75,60.36" fill="none" stroke="#C2410C" stroke-width="0.55" marker-end="url(#arr-F1)"><title>f4: pieza impresa 3D</title></path>
+<circle cx="38.62" cy="60.62" r="1.35" fill="#FFFFFF" stroke="#C2410C" stroke-width="0.35"/>
+<text x="38.62" y="61.12" font-size="1.35" font-weight="700" text-anchor="middle" fill="#C2410C">6</text>
+<path d="M48.57,63.24 Q47.56,66.58 48.18,70.01" fill="none" stroke="#C2410C" stroke-width="0.55" marker-end="url(#arr-F1)"><title>f5: piscina pulido → quema bizcocho</title></path>
+<circle cx="47.97" cy="66.60" r="1.35" fill="#FFFFFF" stroke="#C2410C" stroke-width="0.35"/>
+<text x="47.97" y="67.10" font-size="1.35" font-weight="700" text-anchor="middle" fill="#C2410C">7</text>
+<path d="M51.52,82.59 Q53.58,89.33 58.48,94.41" fill="none" stroke="#C2410C" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr-F1)"><title>f6: bizcocho (vía piscina quemado 1, clasificación y bodega bizcocho)</title></path>
+<circle cx="54.29" cy="88.92" r="1.35" fill="#FFFFFF" stroke="#C2410C" stroke-width="0.35"/>
+<text x="54.29" y="89.42" font-size="1.35" font-weight="700" text-anchor="middle" fill="#C2410C">8</text>
+<path d="M62.42,95.23 Q72.21,91.12 79.08,83.02" fill="none" stroke="#1D4ED8" stroke-width="0.55" marker-end="url(#arr-F2)"><title>d1: señalado/trazado → decorado</title></path>
+<circle cx="71.48" cy="90.12" r="1.35" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="0.35"/>
+<text x="71.48" y="90.62" font-size="1.35" font-weight="700" text-anchor="middle" fill="#1D4ED8">9</text>
+<path d="M78.55,77.68 Q74.57,75.87 70.20,76.07" fill="none" stroke="#1D4ED8" stroke-width="0.55" marker-end="url(#arr-F2)"><title>d2: decorado → esmaltado</title></path>
+<circle cx="74.47" cy="76.37" r="1.6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="0.35"/>
+<text x="74.47" y="76.87" font-size="1.35" font-weight="700" text-anchor="middle" fill="#1D4ED8">10</text>
+<path d="M56.71,70.91 Q44.30,48.32 18.54,47.09" fill="none" stroke="#1D4ED8" stroke-width="0.55" marker-end="url(#arr-F2)"><title>d3: esmaltado → impresión digital</title></path>
+<circle cx="40.96" cy="53.66" r="1.6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="0.35"/>
+<text x="40.96" y="54.16" font-size="1.35" font-weight="700" text-anchor="middle" fill="#1D4ED8">11</text>
+<path d="M18.64,41.93 Q57.76,37.92 75.86,72.82" fill="none" stroke="#1D4ED8" stroke-width="0.55" marker-end="url(#arr-F2)"><title>d4: impresión digital → decorado</title></path>
+<circle cx="52.50" cy="47.65" r="1.6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="0.35"/>
+<text x="52.50" y="48.15" font-size="1.35" font-weight="700" text-anchor="middle" fill="#1D4ED8">12</text>
+<path d="M58.28,76.90 Q55.54,76.61 52.97,77.60" fill="none" stroke="#15803D" stroke-width="0.55" marker-end="url(#arr-F3)"><title>q1: piscina esmaltado → quema esmalte</title></path>
+<circle cx="55.58" cy="76.93" r="1.6" fill="#FFFFFF" stroke="#15803D" stroke-width="0.35"/>
+<text x="55.58" y="77.43" font-size="1.35" font-weight="700" text-anchor="middle" fill="#15803D">13</text>
+<path d="M17.49,52.17 Q29.18,63.95 44.51,70.33" fill="none" stroke="#15803D" stroke-width="0.55" marker-end="url(#arr-F3)"><title>q2: piscina esmaltado → quema esmalte</title></path>
+<circle cx="30.09" cy="62.60" r="1.6" fill="#FFFFFF" stroke="#15803D" stroke-width="0.35"/>
+<text x="30.09" y="63.10" font-size="1.35" font-weight="700" text-anchor="middle" fill="#15803D">14</text>
+<path d="M78.53,78.70 Q66.33,84.46 52.97,82.55" fill="none" stroke="#15803D" stroke-width="0.55" marker-end="url(#arr-F3)"><title>q3: piscina esmaltado → quema esmalte</title></path>
+<circle cx="66.04" cy="82.54" r="1.6" fill="#FFFFFF" stroke="#15803D" stroke-width="0.35"/>
+<text x="66.04" y="83.04" font-size="1.35" font-weight="700" text-anchor="middle" fill="#15803D">15</text>
+<path d="M43.71,81.94 Q40.45,83.60 38.29,86.56" fill="none" stroke="#15803D" stroke-width="0.55" marker-end="url(#arr-F3)"><title>c1: piscina quemado 2 → clasificación final</title></path>
+<circle cx="40.72" cy="83.92" r="1.6" fill="#FFFFFF" stroke="#15803D" stroke-width="0.35"/>
+<text x="40.72" y="84.42" font-size="1.35" font-weight="700" text-anchor="middle" fill="#15803D">16</text>
+<path d="M33.27,89.73 Q27.71,90.80 23.23,94.27" fill="none" stroke="#15803D" stroke-width="0.55" marker-end="url(#arr-F3)"><title>c2: Tipo A / B / C</title></path>
+<circle cx="27.98" cy="91.40" r="1.6" fill="#FFFFFF" stroke="#15803D" stroke-width="0.35"/>
+<text x="27.98" y="91.90" font-size="1.35" font-weight="700" text-anchor="middle" fill="#15803D">17</text>
+<path d="M21.58,92.70 Q25.30,87.30 26.17,80.80" fill="none" stroke="#6B7280" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr-venta)"><title>v1: producto terminado</title></path>
+<circle cx="24.59" cy="87.03" r="1.6" fill="#FFFFFF" stroke="#6B7280" stroke-width="0.35"/>
+<text x="24.59" y="87.53" font-size="1.35" font-weight="700" text-anchor="middle" fill="#6B7280">18</text>
+<path d="M23.39,96.30 Q56.30,114.46 93.86,115.70" fill="none" stroke="#6B7280" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr-venta)"><title>v2: producto terminado</title></path>
+<circle cx="57.46" cy="110.23" r="1.6" fill="#FFFFFF" stroke="#6B7280" stroke-width="0.35"/>
+<text x="57.46" y="110.73" font-size="1.35" font-weight="700" text-anchor="middle" fill="#6B7280">19</text>
+<rect x="40.1" y="62.2" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="42.0" y="64.05" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F1</text>
+<rect x="83.6" y="84.2" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="85.5" y="86.05" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F2</text>
+<rect x="68.1" y="76.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="70.0" y="78.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F3</text>
+<rect x="46.1" y="69.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="48.0" y="71.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F4</text>
+<text x="132" y="1.5" font-size="2.1" font-weight="700" fill="#1F2328">Leyenda</text>
+<rect x="132" y="2.9000000000000004" width="3" height="1.9" fill="#DCC7A6" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="4.4" font-size="1.45" fill="#1F2328">Materias primas</text>
+<rect x="132" y="5.3500000000000005" width="3" height="1.9" fill="#C9A27E" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="6.8500000000000005" font-size="1.45" fill="#1F2328">Preparación de pasta / esmaltes</text>
+<rect x="132" y="7.800000000000001" width="3" height="1.9" fill="#EADCC6" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="9.3" font-size="1.45" fill="#1F2328">Formación y pulido (Fase 1)</text>
+<rect x="132" y="10.25" width="3" height="1.9" fill="#F2B36B" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="11.75" font-size="1.45" fill="#1F2328">Hornos</text>
+<rect x="132" y="12.7" width="3" height="1.9" fill="#A9C0E8" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="14.2" font-size="1.45" fill="#1F2328">Decoración e impresión digital (Fase 2)</text>
+<rect x="132" y="15.149999999999999" width="3" height="1.9" fill="#A6D8CB" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="16.65" font-size="1.45" fill="#1F2328">Esmaltado (Fase 2)</text>
+<rect x="132" y="17.599999999999998" width="3" height="1.9" fill="#E3EDC2" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="19.099999999999998" font-size="1.45" fill="#1F2328">Clasificación</text>
+<rect x="132" y="20.049999999999997" width="3" height="1.9" fill="#B5CF98" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="21.549999999999997" font-size="1.45" fill="#1F2328">Producto terminado</text>
+<rect x="132" y="22.499999999999996" width="3" height="1.9" fill="#D7D2C4" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="23.999999999999996" font-size="1.45" fill="#1F2328">Bodega / suministros</text>
+<rect x="132" y="24.949999999999996" width="3" height="1.9" fill="#CDBDE6" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="26.449999999999996" font-size="1.45" fill="#1F2328">Laboratorios / I+D</text>
+<rect x="132" y="27.399999999999995" width="3" height="1.9" fill="#D3D5DB" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="28.899999999999995" font-size="1.45" fill="#1F2328">Administración</text>
+<rect x="132" y="29.849999999999994" width="3" height="1.9" fill="#F2BDB4" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="31.349999999999994" font-size="1.45" fill="#1F2328">Comercial (tienda, outlet, museo)</text>
+<rect x="132" y="32.3" width="3" height="1.9" fill="#EDE5A8" stroke="#3B4048" stroke-width="0.2"/>
+<text x="136" y="33.8" font-size="1.45" fill="#1F2328">Servicios (comedor, cocina, academia)</text>
+<rect x="132" y="34.75" width="3" height="1.9" fill="#F1F1EF" stroke="#3B4048" stroke-width="0.2"/>
+<rect x="132" y="34.75" width="3" height="1.9" fill="url(#dots)"/>
+<text x="136" y="36.25" font-size="1.45" fill="#1F2328">Exterior</text>
+<rect x="132" y="37.2" width="3" height="1.9" fill="#FFFFFF" stroke="#3B4048" stroke-width="0.2"/>
+<rect x="132" y="37.2" width="3" height="1.9" fill="url(#hatch)"/>
+<text x="136" y="38.7" font-size="1.45" fill="#1F2328">Sin rótulo en el croquis</text>
+<rect x="132" y="40.25000000000001" width="3" height="1.9" fill="#FFF" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"/>
+<text x="136.6" y="41.75000000000001" font-size="1.45" fill="#1F2328">Área abierta (rótulo sin recuadro)</text>
+<rect x="132" y="42.70000000000001" width="0.9" height="1.9" fill="#FFF" stroke="#1F2328" stroke-width="0.3"/>
+<text x="136.6" y="44.20000000000001" font-size="1.45" fill="#1F2328">Puerta (marca del croquis)</text>
+<rect x="132" y="45.15000000000001" width="3.4" height="1.9" rx="0.95" fill="#1F2328"/>
+<text x="136.6" y="46.65000000000001" font-size="1.45" fill="#1F2328">Etapa del flujograma en la zona</text>
+<rect x="132" y="47.600000000000016" width="3.4" height="1.9" rx="0.95" fill="#7A7F87"/>
+<text x="136.6" y="49.100000000000016" font-size="1.45" fill="#1F2328">Etapa probable (código con ?)</text>
+<rect x="132" y="50.05000000000002" width="3.4" height="1.9" rx="0.5" fill="#D1242F"/>
+<text x="136.6" y="51.55000000000002" font-size="1.45" fill="#1F2328">Foto (ubicación probable)</text>
+<path d="M132,54.00000000000002 L135.4,54.00000000000002" stroke="#7C4A1E" stroke-width="0.55" marker-end="url(#arr-B)"/>
+<text x="136.6" y="54.60000000000002" font-size="1.45" fill="#1F2328">Stock de pastas / esmaltes</text>
+<path d="M132,56.450000000000024 L135.4,56.450000000000024" stroke="#C2410C" stroke-width="0.55" marker-end="url(#arr-F1)"/>
+<text x="136.6" y="57.050000000000026" font-size="1.45" fill="#1F2328">Fase 1 · Formación y bizcocho (por FORMA)</text>
+<path d="M132,58.90000000000003 L135.4,58.90000000000003" stroke="#1D4ED8" stroke-width="0.55" marker-end="url(#arr-F2)"/>
+<text x="136.6" y="59.50000000000003" font-size="1.45" fill="#1F2328">Fase 2 · Decoración y esmaltado (por SKU)</text>
+<path d="M132,61.35000000000003 L135.4,61.35000000000003" stroke="#15803D" stroke-width="0.55" marker-end="url(#arr-F3)"/>
+<text x="136.6" y="61.95000000000003" font-size="1.45" fill="#1F2328">Fase 3 · Quema esmalte, clasificación, calcomanía</text>
+<path d="M132,63.80000000000003 L135.4,63.80000000000003" stroke="#6B7280" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr-venta)"/>
+<text x="136.6" y="64.40000000000003" font-size="1.45" fill="#1F2328">Venta (croquis)</text>
+<text x="132" y="66.85000000000004" font-size="1.35" fill="#57606A">Discontinua = pasa por zonas sin ubicar · n? = hipótesis</text>
+<text x="132" y="70.45000000000003" font-size="2.1" font-weight="700" fill="#1F2328">Flujos dibujados</text>
+<text x="132" y="73.25000000000003" font-size="1.35" fill="#7C4A1E"><tspan font-weight="700">1</tspan> Materias primas 1 → Molienda 1</text>
+<text x="132" y="75.30000000000003" font-size="1.35" fill="#7C4A1E"><tspan font-weight="700">2</tspan> Molienda 1 → Filtro prensa</text>
+<text x="132" y="77.35000000000002" font-size="1.35" fill="#7C4A1E"><tspan font-weight="700">3</tspan> Filtro prensa → Extrusora</text>
+<text x="132" y="79.40000000000002" font-size="1.35" fill="#7C4A1E"><tspan font-weight="700">4?</tspan> Molienda 2 → Esmaltado</text>
+<text x="132" y="81.45000000000002" font-size="1.35" fill="#C2410C"><tspan font-weight="700">5</tspan> Extrusora → Pulido (RF3–RF5)</text>
+<text x="132" y="83.50000000000001" font-size="1.35" fill="#C2410C"><tspan font-weight="700">6</tspan> Impresión 3D → Pulido (RF6)</text>
+<text x="132" y="85.55000000000001" font-size="1.35" fill="#C2410C"><tspan font-weight="700">7</tspan> Pulido → Hornos</text>
+<text x="132" y="87.60000000000001" font-size="1.35" fill="#C2410C"><tspan font-weight="700">8</tspan> Hornos → Trazado</text>
+<text x="132" y="89.65" font-size="1.35" fill="#1D4ED8"><tspan font-weight="700">9</tspan> Trazado → Decorado (R1–R3)</text>
+<text x="132" y="91.7" font-size="1.35" fill="#1D4ED8"><tspan font-weight="700">10</tspan> Decorado → Esmaltado (R1–R7)</text>
+<text x="132" y="93.75" font-size="1.35" fill="#1D4ED8"><tspan font-weight="700">11</tspan> Esmaltado → Kerajet (R6–R9)</text>
+<text x="132" y="95.8" font-size="1.35" fill="#1D4ED8"><tspan font-weight="700">12</tspan> Kerajet → Decorado (R7, R8)</text>
+<text x="132" y="97.85" font-size="1.35" fill="#15803D"><tspan font-weight="700">13</tspan> Esmaltado → Hornos (R1–R5)</text>
+<text x="132" y="99.89999999999999" font-size="1.35" fill="#15803D"><tspan font-weight="700">14</tspan> Kerajet → Hornos (R6, R9)</text>
+<text x="132" y="101.94999999999999" font-size="1.35" fill="#15803D"><tspan font-weight="700">15</tspan> Decorado → Hornos (R7, R8)</text>
+<text x="132" y="103.99999999999999" font-size="1.35" fill="#15803D"><tspan font-weight="700">16</tspan> Hornos → CF</text>
+<text x="132" y="106.04999999999998" font-size="1.35" fill="#15803D"><tspan font-weight="700">17</tspan> CF → Bodega</text>
+<text x="132" y="108.09999999999998" font-size="1.35" fill="#6B7280"><tspan font-weight="700">18</tspan> Bodega → Outlet</text>
+<text x="132" y="110.14999999999998" font-size="1.35" fill="#6B7280"><tspan font-weight="700">19</tspan> Bodega → Tienda</text>
+<text x="190" y="1.5" font-size="2.1" font-weight="700" fill="#1F2328">Etapas del Flujograma ARTESA 2025 → zona</text>
+<text x="190" y="4.1" font-size="1.3" fill="#57606A">negro = ubicada · gris = probable · rojo = sin ubicar en el croquis</text>
+<text x="190" y="7.7" font-size="1.5" font-weight="700" fill="#1F2328">Nivel 0 · Ingeniería</text>
+<text x="190" y="9.9" font-size="1.35" fill="#1F2328"><tspan font-weight="700">N0</tspan> Fichas técnicas y recetas <tspan fill="#7A7F87">→ ¿Laboratorio 2, Laboratorio 1, I+D?</tspan></text>
+<text x="190" y="12.549999999999999" font-size="1.5" font-weight="700" fill="#7C4A1E">Stock esmaltes y colores</text>
+<text x="190" y="14.75" font-size="1.35" fill="#1F2328"><tspan font-weight="700">A1</tspan> Stock MP esmaltes <tspan fill="#7A7F87">→ ¿Materias primas 2?</tspan></text>
+<text x="190" y="16.7" font-size="1.35" fill="#1F2328"><tspan font-weight="700">A2</tspan> Preparación colores/esmaltes <tspan fill="#7A7F87">→ ¿Molienda 2?</tspan></text>
+<text x="190" y="18.65" font-size="1.35" fill="#1F2328"><tspan font-weight="700">A3</tspan> Stock esmaltes y colores <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="20.599999999999998" font-size="1.35" fill="#1F2328"><tspan font-weight="700">A4</tspan> Descarga (consumo/ajustes) <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="23.249999999999996" font-size="1.5" font-weight="700" fill="#7C4A1E">Stock de pastas</text>
+<text x="190" y="25.449999999999996" font-size="1.35" fill="#1F2328"><tspan font-weight="700">B1</tspan> Stock MP pasta <tspan fill="#7A7F87">→ ¿Materias primas 1, Materias primas 2?</tspan></text>
+<text x="190" y="27.399999999999995" font-size="1.35" fill="#1F2328"><tspan font-weight="700">B2</tspan> Preparación de pasta <tspan fill="#1F2328">→ Filtro prensa, Extrusora</tspan></text>
+<text x="190" y="29.349999999999994" font-size="1.35" fill="#1F2328"><tspan font-weight="700">B3</tspan> Stock pasta líquida <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="31.299999999999994" font-size="1.35" fill="#1F2328"><tspan font-weight="700">B4</tspan> Stock pasta extrusada <tspan fill="#1F2328">→ Extrusora</tspan></text>
+<text x="190" y="33.24999999999999" font-size="1.35" fill="#1F2328"><tspan font-weight="700">B5</tspan> Baja/ajuste de pasta <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="35.9" font-size="1.5" font-weight="700" fill="#C2410C">Fase 1 · Formación y bizcocho (por FORMA)</text>
+<text x="190" y="38.1" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.1</tspan> Formación (7 métodos) <tspan fill="#1F2328">→ Impresión 3D</tspan></text>
+<text x="190" y="40.050000000000004" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.2</tspan> CC formación <tspan fill="#7A7F87">→ ¿Impresión 3D?</tspan></text>
+<text x="190" y="42.00000000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.3</tspan> Pulido <tspan fill="#1F2328">→ Pulido</tspan></text>
+<text x="190" y="43.95000000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.4</tspan> Piscina pulido (WIP) <tspan fill="#7A7F87">→ ¿Pulido, Secado?</tspan></text>
+<text x="190" y="45.90000000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.5</tspan> Quema bizcocho <tspan fill="#1F2328">→ Hornos</tspan></text>
+<text x="190" y="47.850000000000016" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.6</tspan> Piscina quemado 1 <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="49.80000000000002" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.7</tspan> Clasificación bizcocho <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="51.75000000000002" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.8</tspan> Bodega bizcocho <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="53.700000000000024" font-size="1.35" fill="#1F2328"><tspan font-weight="700">1.9</tspan> Baja desecho bizcocho <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="56.35000000000003" font-size="1.5" font-weight="700" fill="#1D4ED8">Fase 2 · Decoración y esmaltado (por SKU)</text>
+<text x="190" y="58.55000000000003" font-size="1.35" fill="#1F2328"><tspan font-weight="700">2.0</tspan> Tipo de salida <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="60.500000000000036" font-size="1.35" fill="#1F2328"><tspan font-weight="700">2.1</tspan> Señalado (S) <tspan fill="#7A7F87">→ ¿Trazado?</tspan></text>
+<text x="190" y="62.45000000000004" font-size="1.35" fill="#1F2328"><tspan font-weight="700">2.2</tspan> Trazado (T) <tspan fill="#1F2328">→ Trazado</tspan></text>
+<text x="190" y="64.40000000000003" font-size="1.35" fill="#1F2328"><tspan font-weight="700">2.3</tspan> Decorado (D) <tspan fill="#1F2328">→ Decorado</tspan></text>
+<text x="190" y="66.35000000000004" font-size="1.35" fill="#1F2328"><tspan font-weight="700">2.4</tspan> Esmaltado (E) <tspan fill="#1F2328">→ Esmaltado</tspan></text>
+<text x="190" y="68.30000000000004" font-size="1.35" fill="#1F2328"><tspan font-weight="700">2.5</tspan> Impresión digital (ID) <tspan fill="#1F2328">→ Kerajet</tspan></text>
+<text x="190" y="70.25000000000004" font-size="1.35" fill="#1F2328"><tspan font-weight="700">2.6</tspan> Piscina esmaltado (WIP) <tspan fill="#7A7F87">→ ¿Esmaltado?</tspan></text>
+<text x="190" y="72.90000000000005" font-size="1.5" font-weight="700" fill="#15803D">Fase 3 · Quema esmalte, clasificación, calcomanía</text>
+<text x="190" y="75.10000000000005" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.1</tspan> Quema esmalte <tspan fill="#1F2328">→ Hornos</tspan></text>
+<text x="190" y="77.05000000000005" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.2</tspan> Piscina quemado 2 <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="79.00000000000006" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.3</tspan> Clasificación final <tspan fill="#7A7F87">→ ¿CF?</tspan></text>
+<text x="190" y="80.95000000000006" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.4</tspan> Aplicar calcomanía <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="82.90000000000006" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.5</tspan> Quema calcomanía <tspan fill="#7A7F87">→ ¿Hornos?</tspan></text>
+<text x="190" y="84.85000000000007" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.6</tspan> Bodega PT <tspan fill="#7A7F87">→ ¿Bodega?</tspan></text>
+<text x="190" y="86.80000000000007" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.7</tspan> Basura <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="88.75000000000007" font-size="1.35" fill="#1F2328"><tspan font-weight="700">3.8</tspan> Recuperación <tspan fill="#D1242F">→ sin ubicar</tspan></text>
+<text x="190" y="91.40000000000008" font-size="1.5" font-weight="700" fill="#6B7280">Venta (croquis)</text>
+<text x="190" y="93.60000000000008" font-size="1.35" fill="#1F2328"><tspan font-weight="700">V</tspan> Venta <tspan fill="#1F2328">→ Outlet, Tienda</tspan></text>
+<text x="190" y="97.05000000000008" font-size="1.5" font-weight="700" fill="#1D4ED8">Rutas de decoración (Fase 2)</text>
+<text x="190" y="99.25000000000009" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R1</tspan> S+T+D+E  ·  2.1 → 2.2 → 2.3 → 2.4 → 2.6</text>
+<text x="190" y="101.20000000000009" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R2</tspan> S+D+E  ·  2.1 → 2.3 → 2.4 → 2.6</text>
+<text x="190" y="103.15000000000009" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R3</tspan> T+D+E  ·  2.2 → 2.3 → 2.4 → 2.6</text>
+<text x="190" y="105.1000000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R4</tspan> D+E  ·  2.3 → 2.4 → 2.6</text>
+<text x="190" y="107.0500000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R5</tspan> E  ·  2.4 → 2.6</text>
+<text x="190" y="109.0000000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R6</tspan> D+E+ID  ·  2.3 → 2.4 → 2.5 → 2.6</text>
+<text x="190" y="110.9500000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R7</tspan> D+E+ID+D  ·  2.3 → 2.4 → 2.5 → 2.3 → 2.6</text>
+<text x="190" y="112.9000000000001" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R8</tspan> E+ID+D  ·  2.4 → 2.5 → 2.3 → 2.6</text>
+<text x="190" y="114.85000000000011" font-size="1.35" fill="#1F2328"><tspan font-weight="700">R9</tspan> E+ID  ·  2.4 → 2.5 → 2.6</text>
+<rect x="190" y="117.80000000000011" width="54" height="7" fill="#EADCC6" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"/>
+<text x="191.2" y="120.70000000000012" font-size="1.45" font-weight="600" fill="#1F2328">Sin ubicar: formación (6 de 7 métodos) · secado</text>
+<text x="191.2" y="123.20000000000012" font-size="1.3" fill="#1F2328">Evidencia en foto 5. ¿Dónde están en la planta?</text>
+<rect x="239" y="118.60000000000011" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="240.9" y="120.45000000000012" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F5</text>
 <g transform="translate(120,4)"><path d="M0,-3.2 L1.6,1.6 L0,0.6 L-1.6,1.6 z" fill="#1F2328"/><text x="0" y="4.4" font-size="1.6" font-weight="700" text-anchor="middle" fill="#1F2328">N?</text></g>
 <rect x="0" y="160.5" width="10" height="1" fill="#1F2328"/><rect x="10" y="160.5" width="10" height="1" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.2"/>
 <text x="0" y="163.5" font-size="1.4" text-anchor="middle" fill="#1F2328">0</text>
