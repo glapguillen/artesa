@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -14 200 184" width="1500" height="1380" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif">
+<title>ARTESA – Plano reinterpretado (Fase 0, preliminar)</title>
+<defs>
+<pattern id="hatch" width="1.6" height="1.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1.6" stroke="#B9B9B9" stroke-width="0.35"/></pattern>
+<pattern id="dots" width="2" height="2" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.25" fill="#C4C4C0"/></pattern>
+<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2E3440"/></marker>
+<marker id="arrh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A5A9E"/></marker>
+</defs>
+<rect x="-6" y="-14" width="200" height="184" fill="#FFFFFF"/>
+<text x="0" y="-8" font-size="3.4" font-weight="700" fill="#1F2328">ARTESA · Planta Cuenca — plano reinterpretado del croquis</text>
+<text x="0" y="-3.6" font-size="1.9" fill="#57606A">Fase 0 · PRELIMINAR · escala supuesta (10 px croquis = 1 m), norte supuesto, medidas aproximadas — no usar para obra</text>
+<polygon points="32.0,0.5 47.0,0.5 47.0,25.0 32.0,25.0" fill="none" stroke="#1F2328" stroke-width="0.7"/>
+<polygon points="52.5,0.5 80.0,0.5 80.0,25.0 52.5,25.0" fill="none" stroke="#1F2328" stroke-width="0.7"/>
+<polygon points="2.0,72.0 43.0,72.0 43.0,93.0 37.0,93.0 37.0,107.0 2.0,107.0" fill="none" stroke="#1F2328" stroke-width="0.7"/>
+<polygon points="0.5,108.5 22.0,108.5 22.0,157.0 0.5,157.0" fill="none" stroke="#1F2328" stroke-width="0.7"/>
+<polygon points="68.5,104.0 121.5,103.5 125.0,128.5 68.5,129.5" fill="none" stroke="#1F2328" stroke-width="0.7"/>
+<polygon points="32.0,0.5 47.0,0.5 47.0,14.0 32.0,14.0" fill="#DCC7A6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-mp-1 · Materias primas 1</title></polygon>
+<polygon points="32.0,14.0 47.0,14.0 47.0,25.0 32.0,25.0" fill="#C9A27E" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-molienda-1 · Molienda 1</title></polygon>
+<polygon points="52.5,0.5 67.5,0.5 67.5,25.0 52.5,25.0" fill="#DCC7A6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-mp-2 · Materias primas 2</title></polygon>
+<polygon points="67.5,0.5 80.0,0.5 80.0,25.0 67.5,25.0" fill="#FFFFFF" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-mp-3 · [Sin rótulo] bahía este</title></polygon>
+<polygon points="67.5,0.5 80.0,0.5 80.0,25.0 67.5,25.0" fill="url(#hatch)"/>
+<polygon points="43.0,29.0 55.5,29.0 55.5,37.5 43.0,37.5" fill="#C9A27E" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-filtro-prensa · Filtro prensa</title></polygon>
+<polygon points="55.5,29.0 66.0,29.0 66.0,38.0 55.5,38.0" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-lab-2 · Laboratorio 2</title></polygon>
+<polygon points="6.0,30.0 18.0,30.0 18.0,55.0 6.0,55.0" fill="#A9C0E8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-kerajet · Kerajet (decoración digital)</title></polygon>
+<polygon points="18.5,29.5 34.0,29.5 34.0,54.5 18.5,54.5" fill="#FFFFFF" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-monte-turi · Monte Turi [por identificar]</title></polygon>
+<polygon points="18.5,29.5 34.0,29.5 34.0,54.5 18.5,54.5" fill="url(#hatch)"/>
+<polygon points="34.5,44.0 51.5,44.0 51.5,50.5 34.5,50.5" fill="#C9A27E" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-molienda-2 · Molienda 2</title></polygon>
+<polygon points="51.5,42.0 69.5,42.0 69.5,51.5 51.5,51.5" fill="#C9A27E" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-extrusora · Extrusora</title></polygon>
+<polygon points="5.5,55.0 40.0,55.0 40.0,67.0 5.5,67.0" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-impresion-3d · Impresión 3D</title></polygon>
+<polygon points="44.5,53.5 53.0,53.5 53.0,67.0 44.5,67.0" fill="#EADCC6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-pulido · Pulido</title></polygon>
+<polygon points="73.5,53.5 88.5,53.5 88.5,59.0 73.5,59.0" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-labor-1 · Laboratorio 1</title></polygon>
+<polygon points="73.5,59.0 88.5,59.0 88.5,66.5 73.5,66.5" fill="#CDBDE6" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-id · I+D</title></polygon>
+<polygon points="88.5,47.5 119.0,47.5 119.0,66.5 88.5,66.5" fill="#D7D2C4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-bodega-suministros · Bodega de suministros</title></polygon>
+<polygon points="44.5,70.0 52.0,70.0 52.0,89.5 44.5,89.5" fill="#F2B36B" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-horno · Horno</title></polygon>
+<polygon points="54.0,69.5 72.5,69.5 72.5,79.5 54.0,79.5" fill="#A6D8CB" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-esmaltado · Esmaltado</title></polygon>
+<polygon points="37.5,90.0 53.0,90.0 53.0,81.0 74.0,81.0 74.0,104.0 37.5,104.0" fill="#A9C0E8" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"><title>z-trazado · Trazado</title></polygon>
+<polygon points="74.0,66.5 89.0,66.5 89.0,90.0 74.0,90.0" fill="#A9C0E8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-decorado · Decorado</title></polygon>
+<polygon points="75.0,90.0 95.0,90.0 95.0,103.0 75.0,103.0" fill="#D3D5DB" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-oficinas-produccion · Oficinas de producción</title></polygon>
+<polygon points="89.0,66.5 106.0,66.5 106.0,103.0 95.0,103.0 95.0,90.0 89.0,90.0" fill="#D3D5DB" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-administracion · Administración</title></polygon>
+<polygon points="106.0,66.5 121.5,66.5 121.5,103.0 106.0,103.0" fill="#F2BDB4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-museo · Museo</title></polygon>
+<polygon points="2.0,72.0 11.5,72.0 11.5,101.0 2.0,101.0" fill="#FFFFFF" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-franja-oeste · [Sin rótulo] franja oeste</title></polygon>
+<polygon points="2.0,72.0 11.5,72.0 11.5,101.0 2.0,101.0" fill="url(#hatch)"/>
+<polygon points="11.5,72.0 43.0,72.0 43.0,84.0 11.5,84.0" fill="#F2BDB4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-outlet-interno · Outlet (bloque bodega)</title></polygon>
+<polygon points="30.0,84.0 42.0,84.0 42.0,93.0 30.0,93.0" fill="#BCD3A3" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-cf · CF [sigla por confirmar]</title></polygon>
+<polygon points="11.5,84.0 30.0,84.0 30.0,93.0 37.0,93.0 37.0,101.0 11.5,101.0" fill="#BCD3A3" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-bodega · Bodega (producto terminado)</title></polygon>
+<polygon points="2.0,101.0 37.0,101.0 37.0,107.0 2.0,107.0" fill="#FFFFFF" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-franja-sur · [Sin rótulo] franja sur</title></polygon>
+<polygon points="2.0,101.0 37.0,101.0 37.0,107.0 2.0,107.0" fill="url(#hatch)"/>
+<polygon points="0.5,108.5 22.0,108.5 22.0,125.5 0.5,125.5" fill="#F2BDB4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-outlet-sur · Outlet (bloque sur)</title></polygon>
+<polygon points="0.5,125.5 22.0,125.5 22.0,136.5 0.5,136.5" fill="#EDE5A8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-comedor · Comedor</title></polygon>
+<polygon points="0.5,136.5 22.0,136.5 22.0,143.0 0.5,143.0" fill="#EDE5A8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-cocina · Cocina</title></polygon>
+<polygon points="0.5,143.0 22.0,143.0 22.0,157.0 0.5,157.0" fill="#EDE5A8" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-academia · Academia ARTESA</title></polygon>
+<polygon points="27.5,109.5 68.5,109.5 68.5,157.0 27.5,157.0" fill="#F1F1EF" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-parqueadero · Parqueadero</title></polygon>
+<polygon points="27.5,109.5 68.5,109.5 68.5,157.0 27.5,157.0" fill="url(#dots)"/>
+<polygon points="68.5,104.0 121.5,103.5 125.0,128.5 68.5,129.5" fill="#F2BDB4" fill-opacity="0.9" stroke="#3B4048" stroke-width="0.3"><title>z-tienda · Tienda</title></polygon>
+<rect x="46.55" y="20.4" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-molienda-1</title></rect>
+<rect x="59.9" y="37.55" width="2.2" height="0.9" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-lab-2</title></rect>
+<rect x="73.05" y="55.4" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-labor-1</title></rect>
+<rect x="73.05" y="62.4" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-id</title></rect>
+<rect x="88.55" y="76.9" width="0.9" height="2.2" fill="#E9E9E9" stroke="#1F2328" stroke-width="0.3"><title>a-decorado-admin</title></rect>
+<rect x="105.55" y="83.4" width="0.9" height="2.2" fill="#E9E9E9" stroke="#1F2328" stroke-width="0.3"><title>a-admin-museo</title></rect>
+<rect x="114.9" y="102.55" width="2.2" height="0.9" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-museo</title></rect>
+<rect x="74.55" y="95.4" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-oficinas-produccion</title></rect>
+<rect x="41.55" y="87.4" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-cf</title></rect>
+<rect x="36.55" y="94.9" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-bodega</title></rect>
+<rect x="64.5" y="103.4" width="5" height="1.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.35"/>
+<text x="67.0" y="106.6" font-size="1.3" text-anchor="middle" fill="#1F2328">portón</text>
+<rect x="21.55" y="115.9" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-outlet-sur</title></rect>
+<rect x="21.55" y="129.9" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-comedor</title></rect>
+<rect x="21.55" y="138.9" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-cocina</title></rect>
+<rect x="21.55" y="148.9" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-academia</title></rect>
+<rect x="68.05" y="117.9" width="0.9" height="2.2" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.3"><title>a-tienda</title></rect>
+<text x="39.5" y="6.78" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Materias</text>
+<text x="39.5" y="9.05" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">primas 1</text>
+<rect x="32.6" y="1.1" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="33.675000000000004" y="2.7" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">1</text>
+<text x="39.5" y="20.16" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Molienda 1</text>
+<rect x="32.6" y="14.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="33.675000000000004" y="16.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">2</text>
+<text x="60.0" y="12.27" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Materias</text>
+<text x="60.0" y="14.55" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">primas 2</text>
+<rect x="53.1" y="1.1" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="54.175000000000004" y="2.7" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">1</text>
+<text x="73.75" y="11.13" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">[Sin</text>
+<text x="73.75" y="13.41" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">rótulo]</text>
+<text x="73.75" y="15.70" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">bahía este</text>
+<text x="49.25" y="32.77" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Filtro</text>
+<text x="49.25" y="35.05" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">prensa</text>
+<rect x="43.6" y="29.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="44.675000000000004" y="31.200000000000003" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">3</text>
+<text x="60.75" y="33.14" font-size="1.46" font-weight="600" text-anchor="middle" fill="#1F2328">Laboratorio</text>
+<text x="60.75" y="34.88" font-size="1.46" font-weight="600" text-anchor="middle" fill="#1F2328">2</text>
+<text x="12.0" y="43.16" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Kerajet</text>
+<rect x="6.6" y="30.6" width="3.8499999999999996" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="8.524999999999999" y="32.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">10?</text>
+<text x="26.25" y="41.52" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">Monte Turi</text>
+<text x="26.25" y="43.80" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">(¿?)</text>
+<text x="43.0" y="47.91" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Molienda 2</text>
+<rect x="35.1" y="44.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="36.175000000000004" y="46.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">2</text>
+<text x="60.5" y="47.41" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Extrusora</text>
+<rect x="52.1" y="42.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="53.175000000000004" y="44.2" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">4</text>
+<text x="22.75" y="61.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Impresión 3D</text>
+<text x="48.75" y="60.91" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Pulido</text>
+<rect x="45.1" y="54.1" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="46.175000000000004" y="55.7" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">7</text>
+<text x="81.0" y="56.79" font-size="1.55" font-weight="600" text-anchor="middle" fill="#1F2328">Laboratorio 1</text>
+<text x="81.0" y="63.41" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">I+D</text>
+<text x="103.75" y="57.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Bodega de suministros</text>
+<text x="48.0" y="74.67" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Horno</text>
+<rect x="45.1" y="86.7" width="4.7" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="47.45" y="88.3" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">8·12</text>
+<text x="63.25" y="75.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Esmaltado</text>
+<rect x="54.6" y="70.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="56.1" y="71.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">11</text>
+<text x="60.0" y="97.67" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Trazado</text>
+<rect x="38.1" y="81.6" width="2.15" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="39.175000000000004" y="83.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">9</text>
+<text x="81.5" y="78.92" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Decorado</text>
+<rect x="74.6" y="67.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="76.1" y="68.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">10</text>
+<text x="85.0" y="96.03" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Oficinas de</text>
+<text x="85.0" y="98.31" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">producción</text>
+<text x="100.5" y="80.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Administración</text>
+<text x="113.75" y="85.42" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Museo</text>
+<text x="6.75" y="83.75" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">[Sin</text>
+<text x="6.75" y="86.03" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">rótulo]</text>
+<text x="6.75" y="88.31" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">franja</text>
+<text x="6.75" y="90.59" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">oeste</text>
+<text x="27.25" y="78.67" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Outlet (bloque bodega)</text>
+<rect x="12.1" y="72.6" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="13.6" y="74.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">15</text>
+<text x="36.0" y="89.17" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">CF (¿?)</text>
+<rect x="30.6" y="84.6" width="3.8499999999999996" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="32.525" y="86.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">13?</text>
+<text x="20.5" y="96.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Bodega PT</text>
+<rect x="12.1" y="84.6" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="13.6" y="86.19999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">14</text>
+<text x="19.5" y="104.67" font-size="1.90" font-weight="400" text-anchor="middle" fill="#1F2328">[Sin rótulo] franja sur</text>
+<text x="11.25" y="116.53" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Outlet (bloque</text>
+<text x="11.25" y="118.81" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">sur)</text>
+<rect x="1.1" y="109.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="2.6" y="110.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">15</text>
+<text x="11.25" y="131.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Comedor</text>
+<text x="11.25" y="140.41" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Cocina</text>
+<text x="11.25" y="150.66" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Academia ARTESA</text>
+<text x="48.0" y="133.91" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Parqueadero</text>
+<text x="96.75" y="117.17" font-size="1.90" font-weight="600" text-anchor="middle" fill="#1F2328">Tienda</text>
+<rect x="69.1" y="104.1" width="3.0" height="2.2" rx="1.1" fill="#1F2328"/>
+<text x="70.6" y="105.69999999999999" font-size="1.45" font-weight="700" text-anchor="middle" fill="#FFFFFF">15</text>
+<path d="M39.50,10.45 Q38.80,13.38 39.50,16.30" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="39.15" cy="13.38" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="39.15" y="13.88" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">1</text>
+<path d="M56.96,13.75 Q49.18,14.39 42.54,18.50" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="49.47" cy="15.26" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="49.47" y="15.76" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">2</text>
+<path d="M41.35,22.11 Q43.35,27.10 47.40,30.64" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="43.86" cy="26.74" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="43.86" y="27.24" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">3</text>
+<path d="M51.30,35.71 Q53.84,40.86 58.45,44.29" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="54.36" cy="40.43" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="54.36" y="40.93" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">4</text>
+<path d="M48.56,63.44 Q47.61,66.58 48.19,69.81" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="47.99" cy="66.60" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="47.99" y="67.10" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">8</text>
+<path d="M49.62,76.76 Q52.65,86.73 59.88,94.24" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="53.70" cy="86.12" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="53.70" y="86.62" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">9</text>
+<path d="M62.41,94.90 Q72.50,89.63 79.09,80.35" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="71.62" cy="88.63" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="71.62" y="89.13" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">10</text>
+<path d="M78.37,77.60 Q75.05,76.04 71.38,76.15" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="74.96" cy="76.46" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="74.96" y="76.96" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">11</text>
+<path d="M60.08,74.92 Q55.48,74.43 51.17,76.08" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="55.55" cy="74.97" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="55.55" y="75.47" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">12</text>
+<path d="M46.37,76.75 Q43.04,80.18 41.63,84.75" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="43.52" cy="80.47" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="43.52" y="80.97" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">13</text>
+<path d="M33.08,89.82 Q27.73,90.84 23.42,94.18" fill="none" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<circle cx="27.99" cy="91.42" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="27.99" y="91.92" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">14</text>
+<path d="M21.65,92.51 Q25.26,87.28 26.10,80.99" fill="none" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
+<circle cx="24.57" cy="87.02" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="24.57" y="87.52" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">15</text>
+<path d="M23.59,96.35 Q56.31,114.41 93.66,115.65" fill="none" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
+<circle cx="57.47" cy="110.20" r="1.35" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="57.47" y="110.70" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">16</text>
+<path d="M44.91,49.82 Q57.99,57.26 61.34,71.93" fill="none" stroke="#8A5A9E" stroke-width="0.35" stroke-dasharray="1.4 1" marker-end="url(#arrh)"/>
+<circle cx="55.56" cy="59.07" r="1.35" fill="#FFFFFF" stroke="#8A5A9E" stroke-width="0.3"/>
+<text x="55.56" y="59.57" font-size="1.35" font-weight="700" text-anchor="middle" fill="#8A5A9E">h1</text>
+<path d="M58.40,49.16 Q53.58,52.59 50.85,57.84" fill="none" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
+<circle cx="54.10" cy="53.05" r="1.8" fill="#FFFFFF" stroke="#2E3440" stroke-width="0.3"/>
+<text x="54.10" y="53.55" font-size="1.35" font-weight="700" text-anchor="middle" fill="#2E3440">5–7</text>
+<g><rect x="47.1" y="63.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="49.0" y="65.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F1</text></g>
+<g><rect x="83.6" y="84.2" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="85.5" y="86.05" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F2</text></g>
+<g><rect x="68.1" y="76.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="70.0" y="78.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F3</text></g>
+<g><rect x="52.6" y="86.7" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="54.5" y="88.55" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F4</text></g>
+<text x="133" y="2" font-size="2.2" font-weight="700" fill="#1F2328">Leyenda</text>
+<rect x="133" y="3.6" width="3" height="2" fill="#DCC7A6" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="5.2" font-size="1.55" fill="#1F2328">Materias primas</text>
+<rect x="133" y="6.300000000000001" width="3" height="2" fill="#C9A27E" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="7.9" font-size="1.55" fill="#1F2328">Preparación de pasta</text>
+<rect x="133" y="9.000000000000002" width="3" height="2" fill="#EADCC6" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="10.600000000000001" font-size="1.55" fill="#1F2328">Conformado / acabado</text>
+<rect x="133" y="11.700000000000001" width="3" height="2" fill="#F2B36B" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="13.3" font-size="1.55" fill="#1F2328">Hornos</text>
+<rect x="133" y="14.4" width="3" height="2" fill="#A9C0E8" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="16.0" font-size="1.55" fill="#1F2328">Decoración</text>
+<rect x="133" y="17.099999999999998" width="3" height="2" fill="#A6D8CB" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="18.7" font-size="1.55" fill="#1F2328">Esmaltado</text>
+<rect x="133" y="19.799999999999997" width="3" height="2" fill="#BCD3A3" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="21.4" font-size="1.55" fill="#1F2328">Producto terminado</text>
+<rect x="133" y="22.499999999999996" width="3" height="2" fill="#D7D2C4" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="24.099999999999998" font-size="1.55" fill="#1F2328">Bodega / suministros</text>
+<rect x="133" y="25.199999999999996" width="3" height="2" fill="#CDBDE6" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="26.799999999999997" font-size="1.55" fill="#1F2328">Laboratorios / I+D / 3D</text>
+<rect x="133" y="27.899999999999995" width="3" height="2" fill="#D3D5DB" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="29.499999999999996" font-size="1.55" fill="#1F2328">Administración</text>
+<rect x="133" y="30.599999999999994" width="3" height="2" fill="#F2BDB4" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="32.199999999999996" font-size="1.55" fill="#1F2328">Comercial (tienda, outlet, museo)</text>
+<rect x="133" y="33.3" width="3" height="2" fill="#EDE5A8" stroke="#3B4048" stroke-width="0.2"/>
+<text x="137" y="34.9" font-size="1.55" fill="#1F2328">Servicios (comedor, cocina, academia)</text>
+<rect x="133" y="36.0" width="3" height="2" fill="#F1F1EF" stroke="#3B4048" stroke-width="0.2"/>
+<rect x="133" y="36.0" width="3" height="2" fill="url(#dots)"/>
+<text x="137" y="37.6" font-size="1.55" fill="#1F2328">Exterior</text>
+<rect x="133" y="38.7" width="3" height="2" fill="#FFFFFF" stroke="#3B4048" stroke-width="0.2"/>
+<rect x="133" y="38.7" width="3" height="2" fill="url(#hatch)"/>
+<text x="137" y="40.300000000000004" font-size="1.55" fill="#1F2328">Sin rótulo en el croquis</text>
+<rect x="133" y="42.400000000000006" width="3" height="2" fill="#FFF" stroke="#3B4048" stroke-width="0.3"/>
+<text x="137.6" y="44.00000000000001" font-size="1.55" fill="#1F2328">Recinto cerrado (dibujado)</text>
+<rect x="133" y="45.10000000000001" width="3" height="2" fill="#FFF" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"/>
+<text x="137.6" y="46.70000000000001" font-size="1.55" fill="#1F2328">Área abierta: rótulo sin recuadro</text>
+<rect x="133" y="47.80000000000001" width="3" height="2" fill="none" stroke="#1F2328" stroke-width="0.7"/>
+<text x="137.6" y="49.40000000000001" font-size="1.55" fill="#1F2328">Contorno de edificio</text>
+<rect x="133" y="50.500000000000014" width="0.9" height="2" fill="#FFF" stroke="#1F2328" stroke-width="0.3"/>
+<text x="137.6" y="52.100000000000016" font-size="1.55" fill="#1F2328">Puerta (marca del croquis)</text>
+<rect x="133" y="53.20000000000002" width="3.4" height="2" rx="1" fill="#1F2328"/>
+<text x="137.6" y="54.80000000000002" font-size="1.55" fill="#1F2328">N.º de etapa del proceso</text>
+<rect x="133" y="55.90000000000002" width="3.4" height="2" rx="0.5" fill="#D1242F"/>
+<text x="137.6" y="57.50000000000002" font-size="1.55" fill="#1F2328">Foto (ubicación probable)</text>
+<path d="M133,59.60000000000002 L136.4,59.60000000000002" stroke="#2E3440" stroke-width="0.55" marker-end="url(#arr)"/>
+<text x="137.6" y="60.200000000000024" font-size="1.55" fill="#1F2328">Flujo principal (n.º)</text>
+<path d="M133,62.300000000000026 L136.4,62.300000000000026" stroke="#2E3440" stroke-width="0.55" stroke-dasharray="1.4 1" marker-end="url(#arr)"/>
+<text x="137.6" y="62.90000000000003" font-size="1.55" fill="#1F2328">Venta / tramo con zonas sin ubicar</text>
+<path d="M133,65.00000000000003 L136.4,65.00000000000003" stroke="#8A5A9E" stroke-width="0.35" stroke-dasharray="1.4 1" marker-end="url(#arrh)"/>
+<text x="137.6" y="65.60000000000002" font-size="1.55" fill="#1F2328">Hipótesis (h1–h3)</text>
+<text x="133" y="69.60000000000002" font-size="2.2" font-weight="700" fill="#1F2328">Secuencia interpretada</text>
+<text x="133" y="72.60000000000002" font-size="1.55" fill="#1F2328">1 Materias primas</text>
+<text x="133" y="74.90000000000002" font-size="1.55" fill="#1F2328">2 Molienda (barbotina)</text>
+<text x="133" y="77.20000000000002" font-size="1.55" fill="#1F2328">3 Filtro prensa</text>
+<text x="133" y="79.50000000000001" font-size="1.55" fill="#1F2328">4 Extrusora</text>
+<text x="133" y="81.80000000000001" font-size="1.55" fill="#1F2328">5 Conformado*</text>
+<text x="133" y="84.10000000000001" font-size="1.55" fill="#1F2328">6 Secado*</text>
+<text x="133" y="86.4" font-size="1.55" fill="#1F2328">7 Pulido</text>
+<text x="133" y="88.7" font-size="1.55" fill="#1F2328">8 Horno: bizcochado</text>
+<text x="133" y="91.0" font-size="1.55" fill="#1F2328">9 Trazado</text>
+<text x="133" y="93.3" font-size="1.55" fill="#1F2328">10 Decorado (¿Kerajet?)</text>
+<text x="133" y="95.6" font-size="1.55" fill="#1F2328">11 Esmaltado</text>
+<text x="133" y="97.89999999999999" font-size="1.55" fill="#1F2328">12 Horno: quema de esmalte</text>
+<text x="133" y="100.19999999999999" font-size="1.55" fill="#1F2328">13 CF (¿control final?)</text>
+<text x="133" y="102.49999999999999" font-size="1.55" fill="#1F2328">14 Bodega PT</text>
+<text x="133" y="104.79999999999998" font-size="1.55" fill="#1F2328">15 Outlet / Tienda</text>
+<text x="133" y="107.89999999999998" font-size="1.45" fill="#D1242F" font-weight="600">* No aparecen en el croquis.</text>
+<text x="133" y="110.09999999999998" font-size="1.45" fill="#D1242F">  Evidencia: foto 5. Ubicación por definir.</text>
+<rect x="133" y="113.09999999999998" width="52" height="8" fill="#EADCC6" fill-opacity="0.55" stroke="#3B4048" stroke-width="0.3" stroke-dasharray="1.2 0.8"/>
+<text x="157" y="116.39999999999998" font-size="1.6" font-weight="600" text-anchor="middle" fill="#1F2328">Zonas sin ubicar: Conformado (5) · Secado (6)</text>
+<text x="157" y="119.09999999999998" font-size="1.4" text-anchor="middle" fill="#1F2328">¿Dónde están en la planta?</text>
+<rect x="180.4" y="113.89999999999998" width="3.8" height="2.6" rx="0.5" fill="#D1242F"/><text x="182.3" y="115.74999999999999" font-size="1.5" font-weight="700" text-anchor="middle" fill="#FFFFFF">F5</text>
+<text x="133" y="125.09999999999998" font-size="1.45" fill="#8A5A9E">h1 Molienda 2 → Esmaltado (¿molienda de esmaltes?).</text>
+<text x="133" y="127.29999999999998" font-size="1.45" fill="#8A5A9E">h2–h3 Esmaltado → Kerajet → Horno: solo en el JSON.</text>
+<g transform="translate(120,4)"><path d="M0,-3.2 L1.6,1.6 L0,0.6 L-1.6,1.6 z" fill="#1F2328"/><text x="0" y="4.4" font-size="1.6" font-weight="700" text-anchor="middle" fill="#1F2328">N?</text></g>
+<rect x="0" y="160.5" width="10" height="1" fill="#1F2328"/><rect x="10" y="160.5" width="10" height="1" fill="#FFFFFF" stroke="#1F2328" stroke-width="0.2"/>
+<text x="0" y="163.5" font-size="1.4" text-anchor="middle" fill="#1F2328">0</text>
+<text x="10" y="163.5" font-size="1.4" text-anchor="middle" fill="#1F2328">10</text>
+<text x="20" y="163.5" font-size="1.4" text-anchor="middle" fill="#1F2328">20</text>
+<text x="23" y="161.5" font-size="1.4" fill="#1F2328">m (escala SUPUESTA, sin calibrar)</text>
+</svg>
