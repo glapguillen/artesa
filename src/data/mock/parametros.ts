@@ -11,6 +11,11 @@ export interface ParamHorno {
   objetivoC: number
   /** Carga máxima (pzs/min). */
   capCarga: number
+  /**
+   * WIP de la piscina de entrada con el que el horno carga a plena capacidad; por debajo carga en
+   * proporción (se arman los carros con lo que hay), así la piscina nunca queda en cero.
+   */
+  bufferPzs: number
   /** Tiempo medio de permanencia dentro del horno (min). */
   residenciaMin: number
   gasM3h: number
@@ -20,7 +25,7 @@ export interface ParamHorno {
 
 export const PARAM = {
   /** Productividad por persona (pzs/h) de las etapas manuales; se multiplica por la dotación. */
-  productividad: { '1.1': 21, '1.3': 23, '1.7': 75, '2.1': 40, '2.2': 40, '2.3': 17, '2.4': 70, '3.3': 70 } as Tabla,
+  productividad: { '1.1': 21, '1.3': 23, '1.7': 68, '2.1': 40, '2.2': 40, '2.3': 17, '2.4': 70, '3.3': 66 } as Tabla,
   /** Personas que se asumen si la dotación no asigna a nadie a la etapa. */
   personasMin: { '1.1': 6, '1.3': 6, '1.7': 2, '2.1': 1, '2.2': 1, '2.3': 6, '2.4': 2, '3.3': 2 } as Tabla,
   /** Capacidad (pzs/min) de etapas no manuales. */
@@ -31,7 +36,8 @@ export const PARAM = {
       entrada: '1.4',
       salida: '1.6',
       objetivoC: 1000,
-      capCarga: 3.6,
+      capCarga: 3.9,
+      bufferPzs: 120,
       residenciaMin: 40,
       gasM3h: 36,
       calidad: 'bizcocho',
@@ -40,7 +46,8 @@ export const PARAM = {
       entrada: '2.6',
       salida: '3.2',
       objetivoC: 1080,
-      capCarga: 3.4,
+      capCarga: 3.8,
+      bufferPzs: 120,
       residenciaMin: 40,
       gasM3h: 42,
       calidad: 'final',
@@ -52,7 +59,7 @@ export const PARAM = {
     '1.4': 70,
     '1.6': 220,
     '1.8': 1500,
-    '2.6': 60,
+    '2.6': 25,
     '3.2': 200,
     '3.4': 10,
     '3.5': 0,

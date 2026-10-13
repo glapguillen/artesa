@@ -7,6 +7,7 @@ import type { PlantLayout } from '../domain/types'
 
 export type Seleccion = { tipo: 'zona' | 'etapa' | 'equipo'; id: string }
 export type Tema = 'sistema' | 'claro' | 'oscuro'
+export type ModoPlanta = '2d' | '3d'
 
 /** Lectura resumida para los mini-gráficos. */
 export interface PuntoHistorial {
@@ -31,6 +32,8 @@ interface PlantState {
   mostrarSecundarias: boolean
   /** En pantallas angostas solo se ve una vista a la vez. */
   vistaMovil: 'planta' | 'proceso'
+  /** La sección de planta muestra el plano 2D o la escena 3D. */
+  modoPlanta: ModoPlanta
   tema: Tema
   setLayout: (layout: PlantLayout, avisos: string[]) => void
   recibirEstado: (s: LiveState, simulado: boolean) => void
@@ -40,6 +43,7 @@ interface PlantState {
   setColorPor: (c: 'estado' | 'grupo') => void
   setMostrarSecundarias: (v: boolean) => void
   setVistaMovil: (v: 'planta' | 'proceso') => void
+  setModoPlanta: (m: ModoPlanta) => void
   setTema: (t: Tema) => void
 }
 
@@ -64,6 +68,7 @@ export const usePlantStore = create<PlantState>()((set) => ({
   colorPor: 'estado',
   mostrarSecundarias: false,
   vistaMovil: 'planta',
+  modoPlanta: '2d',
   tema: 'sistema',
   setLayout: (layout, avisos) => set({ layout, idx: indexarLayout(layout), avisosLayout: avisos }),
   recibirEstado: (s, simulado) =>
@@ -79,5 +84,6 @@ export const usePlantStore = create<PlantState>()((set) => ({
   setColorPor: (colorPor) => set({ colorPor }),
   setMostrarSecundarias: (mostrarSecundarias) => set({ mostrarSecundarias }),
   setVistaMovil: (vistaMovil) => set({ vistaMovil }),
+  setModoPlanta: (modoPlanta) => set({ modoPlanta }),
   setTema: (tema) => set({ tema }),
 }))

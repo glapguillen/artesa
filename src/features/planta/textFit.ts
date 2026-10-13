@@ -21,21 +21,13 @@ const INTERLINEA = 1.15
 
 export const anchoTexto = (t: string, tam: number, factor = FACTOR) => t.length * tam * factor
 
-/** Corte de líneas por palabras. Con `forzar`, parte las palabras largas; si no, devuelve null. */
-export function partirLineas(texto: string, maxChars: number, forzar = false): string[] | null {
+/** Corte de líneas por palabras enteras; null si alguna palabra no entra en una línea. */
+export function partirLineas(texto: string, maxChars: number): string[] | null {
   if (maxChars < 1) return null
   const lineas: string[] = []
   let actual = ''
-  for (let p of texto.split(/\s+/).filter(Boolean)) {
-    if (p.length > maxChars) {
-      if (!forzar) return null
-      if (actual) lineas.push(actual)
-      actual = ''
-      while (p.length > maxChars) {
-        lineas.push(p.slice(0, maxChars))
-        p = p.slice(maxChars)
-      }
-    }
+  for (const p of texto.split(/\s+/).filter(Boolean)) {
+    if (p.length > maxChars) return null
     if (!actual) actual = p
     else if (actual.length + 1 + p.length <= maxChars) actual += ` ${p}`
     else {
@@ -46,6 +38,9 @@ export function partirLineas(texto: string, maxChars: number, forzar = false): s
   if (actual) lineas.push(actual)
   return lineas
 }
+
+/** Caracteres del texto original que quedan a la vista (sin contar los "…"). */
+export const visibles = (t: TextoAjustado) => t.lineas.join('').replaceAll('…', '').length
 
 /**
  * Mayor tamaño de letra (de maxPx a minPx, en pasos de 0,5) con el que el texto cabe en
@@ -62,16 +57,21 @@ export function ajustarTexto(texto: string, ancho: number, alto: number, o: Opci
       return { lineas, tam, truncado: false }
     }
   }
+  // Último recurso, al tamaño mínimo: nunca se parte una palabra; la que no entra se recorta
+  // con "…" y lo que sobra después de la última línea también.
   const maxChars = Math.floor(ancho / (o.minPx * factor))
   const n = Math.min(maxLineas, Math.floor(alto / (o.minPx * interlinea)))
   if (maxChars < 4 || n < 1) return null
-  const todas = partirLineas(texto, maxChars, true) ?? []
+  const palabras = texto.split(/\s+/).filter(Boolean)
+  const recortadas = palabras.map((p) => (p.length > maxChars ? `${p.slice(0, maxChars - 1)}…` : p))
+  const todas = partirLineas(recortadas.join(' '), maxChars) ?? []
   const lineas = todas.slice(0, n)
   if (todas.length > n) {
     const ultima = lineas[n - 1] ?? ''
-    lineas[n - 1] = `${ultima.slice(0, maxChars - 1).trimEnd()}…`
+    lineas[n - 1] = ultima.endsWith('…') ? ultima : `${ultima.slice(0, maxChars - 1).trimEnd()}…`
   }
-  return { lineas, tam: o.minPx, truncado: todas.length > n }
+  const truncado = todas.length > n || recortadas.some((p, i) => p !== palabras[i])
+  return { lineas, tam: o.minPx, truncado }
 }
 
 /** Elemento de una fila de insignias (píldora de etapa, personas…). */
@@ -117,9 +117,11 @@ const OPC_NOMBRE: OpcionesTexto = { maxPx: 14, minPx: 9 }
 function ajustarNombre(nombre: string, w: number, h: number) {
   const horizontal = ajustarTexto(nombre, w, h, OPC_NOMBRE)
   if (horizontal && !horizontal.truncado) return { ...horizontal, rotado: false }
-  // En zonas altas y angostas el nombre puede ir vertical.
+  // En zonas altas y angostas el nombre puede ir vertical, si así se lee más.
   const vertical = h > w * 1.3 ? ajustarTexto(nombre, h, w, { ...OPC_NOMBRE, maxLineas: 2 }) : null
-  if (vertical && (!vertical.truncado || !horizontal)) return { ...vertical, rotado: true }
+  if (vertical && (!vertical.truncado || !horizontal || visibles(vertical) > visibles(horizontal))) {
+    return { ...vertical, rotado: true }
+  }
   return horizontal ? { ...horizontal, rotado: false } : null
 }
 

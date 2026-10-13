@@ -1,4 +1,16 @@
-// STUB provisional: lo reemplaza la implementación real.
+// Barra de herramientas: pestañas Planta | Proceso (solo < lg) y selector de ruta de decoración.
+import { RouteChips } from './RouteChips'
+import { ViewTabs } from './ViewTabs'
+
 export function Toolbar() {
-  return <div className="p-2 text-sm text-tenue">Toolbar (pendiente)</div>
+  return (
+    <nav
+      data-testid="toolbar"
+      aria-label="Herramientas de las vistas"
+      className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2"
+    >
+      <ViewTabs />
+      <RouteChips />
+    </nav>
+  )
 }

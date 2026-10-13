@@ -147,7 +147,10 @@ export function capacidad(ctx: Ctx, codigo: string, m: number): number {
  * Los resultados dominantes varían menos (amplitud proporcional a 1 - peso).
  */
 export function repartirMix(ctx: Ctx, codigo: string, res: Resultado[], m: number, cant: number): number[] {
-  const w = res.map((r) => noNeg(r.peso * (1 + 0.35 * (1 - r.peso) * ruidoSuave(ctx.semilla, `mix:${codigo}:${r.resultado}`, m, 45))))
+  const w = res.map((r) => {
+    const r1 = ruidoSuave(ctx.semilla, `mix:${codigo}:${r.resultado}`, m, 45)
+    return noNeg(r.peso * (1 + 0.35 * (1 - r.peso) * r1))
+  })
   const total = w.reduce((a, b) => a + b, 0)
   return w.map((x) => (total > 0 ? (cant * x) / total : cant / Math.max(1, res.length)))
 }

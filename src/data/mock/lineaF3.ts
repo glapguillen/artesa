@@ -14,7 +14,9 @@ export function pasoHornos(ctx: Ctx, sim: Sim, m: number): void {
     sim.tasa[h.etapa] = 0
     sim.tasa[h.entrada] = 0
     if (estadoHorno(h.etapa, m, ctx.etapaAlarmaHorno) !== 'operando') continue
-    const carga = sacar(sim, h.entrada, h.capCarga * (1 + 0.05 * ruidoSuave(ctx.semilla, `carga:${h.etapa}`, m, 30)))
+    const lleno = Math.min(1, (sim.q[h.entrada] ?? 0) / Math.max(1, h.bufferPzs))
+    const ritmo = 1 + 0.05 * ruidoSuave(ctx.semilla, `carga:${h.etapa}`, m, 30)
+    const carga = sacar(sim, h.entrada, h.capCarga * lleno * ritmo)
     const dentro = (sim.dentro[h.etapa] ?? 0) + carga
     const descarga = dentro / Math.max(1, h.residenciaMin)
     sim.dentro[h.etapa] = dentro - descarga
@@ -60,6 +62,7 @@ export function pasoF3(ctx: Ctx, sim: Sim, m: number): void {
 
   // 3.6 Bodega PT: ingreso del minuto y despachos hacia venta (V).
   sim.tasa['3.6'] = (sim.mov['3.3>3.6'] ?? 0) + quemaCalco
-  const despacho = sacar(sim, '3.6', capacidadBase(ctx, 'ventas') * (1 + 0.3 * ruidoSuave(ctx.semilla, 'ventas', m, 60)))
+  const demanda = capacidadBase(ctx, 'ventas') * (1 + 0.3 * ruidoSuave(ctx.semilla, 'ventas', m, 60))
+  const despacho = sacar(sim, '3.6', demanda)
   mover(sim, '3.6', 'V', despacho)
 }

@@ -22,7 +22,7 @@ export const FlowArrows = memo(function FlowArrows({ flujos, live, k, tenue }: P
     <g data-capa="flujos" opacity={tenue ? 0.25 : 1}>
       {flujos.map((f) => {
         const rel = caudal[f.id] ?? null
-        const grosor = rel === null ? 1.25 : 1.5 + 4 * rel
+        const grosor = rel === null ? 1.25 : 1.25 + 3.5 * rel
         const tam = 7 + grosor * 1.2
         const color = colorFase(f.fase)
         const piezas = live?.flujos?.[f.id]?.piezas_h ?? null

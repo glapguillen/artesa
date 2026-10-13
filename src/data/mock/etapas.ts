@@ -40,10 +40,11 @@ function wipEtapa(ctx: Ctx, sim: Sim, codigo: string): number | null {
 }
 
 /** % de merma acumulada en el turno: rechazo en CC, resultados que van a un registro de baja, no productivas. */
-function mermaEtapa(l: PlantLayout, ctx: Ctx, sim: Sim, codigo: string): number | null {
-  const registros = new Set(l.proceso.etapas.filter((e) => e.tipo === 'registro').map((e) => e.codigo))
-  const deBaja = (res: Ctx['resultadosFinal'], conteo: Record<string, number>) =>
-    redondear(pct(res.filter((r) => registros.has(r.destino)).reduce((a, r) => a + (conteo[r.resultado] ?? 0), 0), suma(conteo)), 1)
+function mermaEtapa(registros: Set<string>, ctx: Ctx, sim: Sim, codigo: string): number | null {
+  const deBaja = (res: Ctx['resultadosFinal'], conteo: Record<string, number>) => {
+    const baja = res.filter((r) => registros.has(r.destino)).reduce((a, r) => a + (conteo[r.resultado] ?? 0), 0)
+    return redondear(pct(baja, suma(conteo)), 1)
+  }
   switch (codigo) {
     case '1.2':
       return redondear(pct(suma(sim.rechazados), suma(sim.formados)), 1)
@@ -60,6 +61,7 @@ function mermaEtapa(l: PlantLayout, ctx: Ctx, sim: Sim, codigo: string): number 
 
 export function construirEtapas(l: PlantLayout, ctx: Ctx, sim: Sim, m: number): Record<string, EstadoEtapa> {
   const out: Record<string, EstadoEtapa> = {}
+  const registros = new Set(l.proceso.etapas.filter((e) => e.tipo === 'registro').map((e) => e.codigo))
   for (const { codigo } of l.proceso.etapas) {
     if (codigo === ETAPA_OMITIDA) continue
     if (codigo === ETAPA_SIN_DATOS) {
@@ -71,7 +73,7 @@ export function construirEtapas(l: PlantLayout, ctx: Ctx, sim: Sim, m: number): 
       estado: estadoEtapaSim(ctx, sim, codigo, m),
       wip: wipEtapa(ctx, sim, codigo),
       piezas_h: tasa === undefined ? null : redondear(tasa * 60),
-      merma_pct: mermaEtapa(l, ctx, sim, codigo),
+      merma_pct: mermaEtapa(registros, ctx, sim, codigo),
     }
   }
   return out

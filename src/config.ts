@@ -15,6 +15,8 @@ export const CONFIG = {
     minutosPorTick: 2,
     intervaloMs: 1000,
   },
+  /** ?debug en la URL muestra estadísticas de render (FPS, draw calls) en la escena 3D. */
+  debug: typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug'),
   /** Cantidad de lecturas que se guardan para los mini-gráficos. */
   historialMax: 120,
 } as const
