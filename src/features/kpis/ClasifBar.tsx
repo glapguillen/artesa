@@ -1,5 +1,4 @@
 // Barra apilada con el detalle de la clasificación final (3.3) y su leyenda accesible.
-import { colorEstado } from '../../ui/tokens'
 import { fmtValorKpi, segmentosClasif } from './kpiModel'
 
 interface Props {
@@ -11,7 +10,7 @@ export function ClasifBar({ detalle, unidad }: Props) {
   const segmentos = segmentosClasif(detalle)
   if (!segmentos) {
     return (
-      <p className="mt-auto text-[10px]" style={{ color: colorEstado('sin_datos') }}>
+      <p className="mt-auto text-[10px]" style={{ color: 'var(--c-muted)' }}>
         Detalle: Sin datos
       </p>
     )

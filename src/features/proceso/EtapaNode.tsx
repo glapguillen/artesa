@@ -112,7 +112,7 @@ function Metrica({ m }: { m: ReturnType<typeof metricaEtapa> }) {
   if (!m) return <span />
   if (m.valor === null) {
     return (
-      <span className="text-[11px] leading-5" style={{ color: colorEstado('sin_datos') }}>
+      <span className="text-[11px] leading-5" style={{ color: 'var(--c-muted)' }}>
         Sin datos
       </span>
     )

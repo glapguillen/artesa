@@ -19,7 +19,7 @@ export function ModoPlantaToggle() {
           aria-pressed={modo === o.id}
           onClick={() => setModo(o.id)}
           className={`rounded-md px-3 py-1 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-seleccion ${
-            modo === o.id ? 'bg-acento text-white' : 'text-tenue hover:text-texto'
+            modo === o.id ? 'bg-acento text-sobre-acento' : 'text-tenue hover:text-texto'
           }`}
         >
           {o.texto}

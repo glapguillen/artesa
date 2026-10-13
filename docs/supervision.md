@@ -233,4 +233,107 @@ Verificación: comandos y resultados; capturas revisadas (/tmp/supervision/…)
 Estado de bloqueantes de rondas anteriores: …
 ```
 
-*(Sin rondas todavía. La Ronda 1 se hará cuando terminen la Fase 1 y la construcción del 3D, a pedido del agente principal.)*
+### Ronda 1A · 2026-10-13 19:24 UTC · commit `570ae65` (Fase 1, 2D)
+
+**Alcance:** ítems de la DoD aplicables a la Fase 1, es decir F1–F8, U, Q y S, más lo del 2D. V y F9 quedan para la Ronda 1B, porque en este commit la vista 3D sigue siendo un stub.
+
+**Aislamiento:** un worktree `--detach` en `/tmp/artesa-r1` con `npm ci` propio, sin enlace a `node_modules` del árbol principal. Ningún `tsc` corrió con el enlace que se borró, así que no hubo caché compartida: los `*.tsbuildinfo` del árbol principal tienen hora 19:11, anterior al worktree. El worktree se quitó al terminar.
+
+**Veredicto: NO APROBADO** (alcance de la Fase 1). Hay 3 bloqueantes, todos acotados y de arreglo rápido. El resto del 2D cumple y está bien hecho.
+
+**Bloqueantes**
+
+1. **F5 / Q5 · Los errores de un JSON inválido salen en inglés o confunden.**
+   - Repro: en un preview, editar `dist/plant-layout.json` y recargar.
+     - Con `zonas[2].poligono = "texto"` aparece «✖ Invalid input: expected array, received string → at zonas[2].poligono».
+     - Truncado (sintaxis rota) aparece «Expected double-quoted property name in JSON at position 5000 (line 161 column 22)».
+     - Borrado (404) aparece «Unexpected token '<', "<!doctype "... is not valid JSON»: el servidor devuelve `index.html` y el mensaje no dice que falta el archivo.
+     - Capturas: `/tmp/supervision/r1a/j-error-tipo.png`, `j-error-sintaxis.png` y `j-error-ausente.png`.
+   - Archivos: `src/domain/validate.ts` y `src/app/useBootstrap.ts`.
+   - Sugerencia: `z.config(z.locales.es())` (zod 4.6.7 trae `es`; verificado: «Entrada inválida: se esperaba arreglo, recibido texto») y formatear cada issue como `ruta: mensaje`, sin el «→ at» de `prettifyError`. Además, capturar el SyntaxError («plant-layout.json no es JSON válido cerca de la línea L, columna C») y detectar una respuesta HTML o un 404 («No se encontró plant-layout.json en …»).
+2. **Q4 · Contraste por debajo de AA en textos principales.** Mediciones con un script propio, sobre texto HTML visible:
+   - «Sin datos» mide **2,54:1** en claro (rgb 156,163,175 sobre blanco) y **3,46:1** en oscuro. Aparece en los nodos del diagrama (11 px), en el panel (14 px, p. ej. «Merma: Sin datos») y en los chips de ruta sin dato. Es justo el texto que exige F6.
+   - El botón activo **«Plano 2D»** en oscuro mide **2,26:1** (blanco sobre rgb 251,146,60).
+   - Archivos: `src/features/proceso/EtapaNode.tsx` (`Metrica` usa `colorEstado('sin_datos')` como color de texto), `src/features/detalle/*` (mismo patrón), `src/components/RouteChips.tsx`, `src/components/ModoPlantaToggle.tsx` (`bg-acento text-white`) y los tokens de `src/index.css`.
+   - Sugerencia: dejar el gris de estado para el punto o el relleno y usar `text-tenue` (o un gris ≥ 4,5:1) para el texto. En oscuro, texto oscuro sobre el acento, o un acento más oscuro.
+3. **F1 · El aviso del build no está resuelto ni explicado.** `vite build` avisa «Some chunks are larger than 500 kB» (`index-*.js`: 963,56 kB, 292,81 kB gzip). La DoD pide resolverlo o explicarlo.
+   - Repro: `npm run build`.
+   - Archivos: `vite.config.ts` y `README.md`.
+   - Sugerencia: separar `@xyflow/react`, `recharts` y `zod` en chunks de proveedor, o subir `chunkSizeWarningLimit` con la justificación escrita en el README (el chunk 3D ya está aparte).
+
+**Mejoras** (por prioridad, no bloquean)
+
+- **P1 · Diagrama ilegible en el encuadre inicial.** A 1440×900 y en móvil, el diagrama se encuadra entero y el texto de los nodos queda en ~4 px; hay que acercar para leer cualquier cosa (`d-1440-claro.png`, `movil-390-dark-proceso.png`).
+  - Para gerencia conviene un encuadre inicial legible (p. ej. la franja de la fase de la selección o de la ruta activa) o un zoom mínimo mayor con desplazamiento.
+  - En móvil hay además mucho espacio vacío sobre el diagrama.
+- **P1 · Contrastes límite (4,0–4,5:1, texto de 11–12 px).**
+  - El distintivo «DATOS SIMULADOS» en claro mide 4,21. Es un elemento de honestidad, conviene subirlo.
+  - Los códigos de etapa de la Fase 1 (1.x) miden 4,21 y los de la Fase 3 (3.x) quedan justo en el borde de 4,5 (4,497).
+  - El chip «V» mide 4,05 y el chip de ruta pulsado, 3,63.
+- **P2 · Tablet 1024×768 con el panel abierto.** Las dos columnas quedan de ~290 px y el plano se vuelve muy chico (`tablet-1024-light-panel.png`). Se podría apilar las vistas o usar el panel superpuesto por debajo de ~1280 px.
+- **P2 · Objetivos táctiles de 28 px en móvil.** Afecta a «Plano 2D» / «Vista 3D», «Estado» / «Grupo», «Flujos» y al zoom. Cumple AA de WCAG 2.5.8 (≥ 24 px), pero conviene ≥ 40 px, y en el conmutador 2D/3D lo exige V19 en la Ronda 1B.
+- **P2 · Rótulos truncados en el plano a 100 %.** Por ejemplo «Materi…», «Kera… (imp… digi…», «CF (¿Cl…». Hay tooltip; se podría usar un rótulo corto desde el JSON.
+- **P3 · KPIs cortados con el panel abierto a 1440.** La barra de KPIs se corta en el borde del panel (las tarjetas siguen accesibles con scroll). Un degradado indicaría que hay más.
+- **Pendientes para el cierre** (no se evalúan en esta ronda):
+  - U1: el README no tiene capturas;
+  - U2: faltan los pasos para publicar `dist/` y editar `dist/plant-layout.json` sin recompilar;
+  - S3: el apartado de Licencias del README no nombra three, R3F ni drei, que ya son dependencias;
+  - Q2: `construirModelo.ts` tiene 244 líneas;
+  - Q6: el stub «Vista 3D (en construcción)».
+
+**Verificación**
+
+- `npm run typecheck` → 0. `npm run lint` → 0, sin avisos. `npm test` → **9 archivos, 114 pruebas OK**. `npm run build` → 0, con aviso de chunk (bloqueante 3).
+- `SMOKE_URL=http://localhost:4174/ npm run smoke` → **20/20 PASS** (escritorio 11/11, móvil 9/9).
+- Script propio `/tmp/supervision/revisar-r1a.mjs` → **87 PASS, 4 FAIL, 13 NOTE**. Los 4 FAIL son el contraste en claro y en oscuro y los mensajes en inglés (×2).
+  - **2D:** 35 zonas (2 sin ubicar) y 35 etapas.
+  - **Ids sin datos:** N0, V, Tienda, una zona nueva y un equipo nuevo aparecen en gris «Sin datos» (relleno rgb 156,163,175).
+  - **Sincronía:** zona Hornos ↔ nodos 1.5 y 3.1; nodo 2.4 ↔ zona Esmaltado; equipo ↔ resalte de su zona; alarma → panel del equipo; etapa 1.7 sin zona → «sin ubicar».
+  - **Rutas:** R7 en el plano (pasos 1·4→2→3→5) y en el diagrama (5 nodos en ruta); «Sin ruta» la quita; R5 funciona por toque en móvil.
+  - **Conmutadores:** Color Estado/Grupo y Flujos (19 → 0).
+  - **Teclado:** Tab llega a zonas y nodos. Enter abre el panel y el foco entra; Esc lo cierra y devuelve el foco a la zona.
+  - **Guion con `page.clock`:**
+    - min 20: hornos en espera;
+    - min 120: hornos operando;
+    - min 220: 3.1 detenido con alarma crítica, la zona Hornos con marcador y «Alarmas activas: 1 (1 crítica)»; 1.5 sigue operando;
+    - min 250: la alarma terminó;
+    - min 286: almuerzo, con 1.3, 2.1, 2.2 y 2.3 a 0 pzs/h;
+    - min 316: 2.4 y la zona Esmaltado en mantenimiento;
+    - min 346: vuelve a operar;
+    - el reloj avanza 2 min por segundo; tras el minuto 480 empieza el turno siguiente (15:04).
+  - **Determinismo:** dos cargas en el minuto 150 dan KPIs y estados de etapas idénticos.
+  - **JSON en `dist/`:** se verificaron la zona agregada, el renombre, el vértice movido, la celda 2.5 movida en el diagrama y el equipo nuevo; con una referencia rota aparece un error legible con el id. El archivo se restauró y se comprobó con `cmp`.
+  - **Responsive:** sin scroll horizontal ni errores de consola a 1440, 1024, 390 y 360 px, en claro y oscuro; el tema del sistema se respeta.
+  - **Carga diferida:** el chunk `Scene3DView-*.js` no se pide en 2D y sí al abrir la Vista 3D.
+  - **Red y consola:** 0 peticiones a terceros, 0 fallidas y 0 avisos de consola.
+- **Subcarpeta:** `dist/` servido en `http://localhost:4175/artesa/` (python http.server) carga sin fallas, con el favicon en 200. O8 queda cerrada.
+- **S1/S2:** no hay correos, teléfonos, cédulas ni salarios. `responsable` sigue en null y las URLs de `fuentes_de_datos` en null.
+- **S3:** el árbol de producción tiene 91 MIT, 19 ISC, 5 Apache-2.0, 2 BSD-3, `victory-vendor` (MIT AND ISC) y `webgl-constants` (sin campo en `package.json`, pero su LICENSE es MIT). Nada GPL.
+- **Q2:** el `.tsx` más largo tiene 152 líneas.
+- **Q3:** `kpiModel.ts` solo da formato; el «Personal 64» es un conteo de la dotación del JSON.
+- **U5:** ningún `import` de `data/mock` fuera de `src/data/`.
+- **Capturas revisadas** en `/tmp/supervision/r1a/`: `d-1440-claro`, `d-1440-oscuro`, `d-ruta-R7`, `g-min220-alarma`, `j-modificado`, `j-error-tipo`, `tablet-1024-light-panel`, `tablet-1024-dark-planta`, `movil-360-light-planta`, `movil-390-dark-proceso` y `movil-390-dark-panel-etapa`.
+
+**Estado de la ronda 0:**
+
+- Cerradas: O1 (existe `npm run smoke`), O4 (`cantidad_min_observada: 5` en el JSON), O8 (favicon en subcarpeta) y O10 (README).
+- Pendientes de la Ronda 1B: O2, O3, O5, O6 y la verificación del panel de O4/O5.
+
+**Tablero de la DoD tras la R1A**
+
+| Ítem | Estado | Nota |
+|---|---|---|
+| F1 | `[!]` | Aviso de chunk (bloqueante 3) |
+| F2 | `[ ]` | El 2D está bien (20/20); falta la parte 3D (R1B) |
+| F3, F4, F6, F8 | `[x]` en 2D, diagrama y panel | Falta el 3D (R1B) |
+| F5 | `[!]` | Bloqueante 1 |
+| F7 | `[x]` | Guion y determinismo |
+| F9, V1–V14, V16–V20 | `[ ]` | R1B |
+| V15 | `[ ]` | Parcial: diferido y sin terceros en 2D; se revalida con el 3D real |
+| U1, U2, U4 | `[ ]` | Cierre. Subcarpeta verificada |
+| U3, U5 | `[x]` en 2D | — |
+| Q1, Q6 | `[ ]` | R1B |
+| Q2, Q3 | `[x]` en 2D | — |
+| Q4, Q5 | `[!]` | Bloqueantes 1 y 2 |
+| S1, S2 | `[x]` | — |
+| S3 | `[ ]` | Falta el README de Licencias con three/R3F/drei |

@@ -97,3 +97,16 @@ describe('selectores', () => {
     expect(l.personal.dotacion.reduce((s, d) => s + d.cantidad, 0)).toBe(l.personal.total)
   })
 })
+
+describe('mensajes de validación', () => {
+  it('salen en español y con la ruta del campo', () => {
+    const copia = structuredClone(raw) as { zonas: Array<{ poligono: unknown }> }
+    copia.zonas[2]!.poligono = 'texto'
+    const r = validarLayout(copia)
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.errores[0]).toMatch(/^zonas\[2\]\.poligono: /)
+      expect(r.errores.join(' ')).not.toMatch(/Invalid input|expected/)
+    }
+  })
+})

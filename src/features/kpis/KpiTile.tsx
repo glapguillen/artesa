@@ -1,6 +1,5 @@
 // Tarjeta de un indicador: nombre, valor (o "Sin datos"), meta, tendencia y detalle opcional.
 import type { ReactNode } from 'react'
-import { colorEstado } from '../../ui/tokens'
 import type { PuntoSerie } from './kpiModel'
 import { Sparkline } from './Sparkline'
 
@@ -39,7 +38,7 @@ export function KpiTile(p: Props) {
       <div className={p.destacado ? 'flex flex-col gap-1' : 'flex items-end justify-between gap-2'}>
         <p
           className={`${sinDato ? 'text-sm font-medium' : `${tamValor} font-semibold`} leading-tight tabular-nums whitespace-nowrap`}
-          style={{ color: sinDato ? colorEstado('sin_datos') : (p.colorValor ?? 'var(--c-text)') }}
+          style={{ color: sinDato ? 'var(--c-muted)' : (p.colorValor ?? 'var(--c-text)') }}
         >
           {p.valor ?? 'Sin datos'}
         </p>

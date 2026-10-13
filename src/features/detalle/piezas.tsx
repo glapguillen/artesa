@@ -45,7 +45,7 @@ export function Punto({ color, hueco = false }: { color: string; hueco?: boolean
 }
 
 export function SinDatos({ texto = 'Sin datos' }: { texto?: string }) {
-  return <span style={{ color: colorEstado('sin_datos') }}>{texto}</span>
+  return <span className="text-tenue">{texto}</span>
 }
 
 export function PorDefinir() {

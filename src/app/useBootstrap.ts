@@ -4,6 +4,7 @@ import { CONFIG } from '../config'
 import { createDataSource } from '../data/createDataSource'
 import { validarLayout } from '../domain/validate'
 import { usePlantStore } from '../store/usePlantStore'
+import { interpretarRespuesta } from './cargarLayout'
 
 export type EstadoCarga = { fase: 'cargando' } | { fase: 'error'; errores: string[] } | { fase: 'listo' }
 
@@ -14,20 +15,19 @@ export function useBootstrap(): EstadoCarga {
   useEffect(() => {
     let cancelado = false
     fetch(CONFIG.layoutUrl, { cache: 'no-store' })
-      .then((r) => {
-        if (!r.ok) throw new Error(`No se pudo leer ${CONFIG.layoutUrl} (HTTP ${r.status}).`)
-        return r.json() as Promise<unknown>
-      })
-      .then((raw) => {
+      .then(async (r) => interpretarRespuesta(CONFIG.layoutUrl, r.status, r.headers.get('content-type'), await r.text()))
+      .then((lectura) => {
         if (cancelado) return
-        const res = validarLayout(raw)
+        if (!lectura.ok) return setEstado({ fase: 'error', errores: [lectura.error] })
+        const res = validarLayout(lectura.raw)
         if (!res.ok) return setEstado({ fase: 'error', errores: res.errores })
         for (const a of res.avisos) console.warn('[plant-layout]', a)
         usePlantStore.getState().setLayout(res.layout, res.avisos)
         setEstado({ fase: 'listo' })
       })
       .catch((e: unknown) => {
-        if (!cancelado) setEstado({ fase: 'error', errores: [e instanceof Error ? e.message : String(e)] })
+        const detalle = e instanceof Error ? e.message : String(e)
+        if (!cancelado) setEstado({ fase: 'error', errores: [`No se pudo conectar para leer el layout (${detalle}).`] })
       })
     return () => {
       cancelado = true

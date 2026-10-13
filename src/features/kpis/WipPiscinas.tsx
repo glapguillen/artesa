@@ -32,7 +32,7 @@ export function WipPiscinas({ detalle, unidad }: Props) {
             <span className="sr-only">({ESTADO_ETIQUETA[estado]})</span>
             <span
               className="ml-auto shrink-0 tabular-nums"
-              style={{ color: valor === null ? colorEstado('sin_datos') : 'var(--c-text)' }}
+              style={{ color: valor === null ? 'var(--c-muted)' : 'var(--c-text)' }}
             >
               {valor ?? 'Sin datos'}
             </span>

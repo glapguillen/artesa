@@ -2,7 +2,7 @@
 // resalta en el plano y en el diagrama; volver a pulsarla, o "Sin ruta", la quita.
 import type { ReactNode } from 'react'
 import { usePlantStore } from '../store/usePlantStore'
-import { colorEstado, fmtNum } from '../ui/tokens'
+import { fmtNum } from '../ui/tokens'
 
 const CHIP =
   'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-borde bg-surface px-3 ' +
@@ -55,7 +55,7 @@ export function RouteChips() {
               <span>{texto}</span>
               <span
                 className="text-[10px] font-normal tabular-nums"
-                style={{ color: piezas === undefined ? colorEstado('sin_datos') : 'var(--c-muted)' }}
+                style={{ color: 'var(--c-muted)' }}
               >
                 {piezas === undefined ? 'Sin datos' : `${fmtNum(piezas)} pzs`}
               </span>

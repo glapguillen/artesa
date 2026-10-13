@@ -13,6 +13,9 @@
   --c-text: #1f2328;
   --c-muted: #5c6168;
   --c-accent: #c2410c;
+  /* Texto sobre fondo de acento y texto de aviso (contraste AA). */
+  --c-on-accent: #ffffff;
+  --c-aviso-texto: #854d0e;
 
   --c-estado-operando: #15803d;
   /* Ámbar amarillento: distinto del naranja de Fase 1 (antes #b45309, casi igual). */
@@ -45,6 +48,8 @@
   --c-text: #e8e6e3;
   --c-muted: #a2a8b0;
   --c-accent: #fb923c;
+  --c-on-accent: #1c1206;
+  --c-aviso-texto: #fde047;
 
   --c-estado-operando: #22c55e;
   --c-estado-espera: #eab308;
@@ -73,6 +78,8 @@
   --color-texto: var(--c-text);
   --color-tenue: var(--c-muted);
   --color-acento: var(--c-accent);
+  --color-sobre-acento: var(--c-on-accent);
+  --color-aviso: var(--c-aviso-texto);
   --color-ruta: var(--c-ruta);
   --color-seleccion: var(--c-seleccion);
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;

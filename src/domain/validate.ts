@@ -7,6 +7,16 @@ export type ResultadoValidacion =
   | { ok: true; layout: PlantLayout; avisos: string[] }
   | { ok: false; errores: string[] }
 
+// Mensajes de zod en español ("Entrada inválida: se esperaba arreglo, recibido texto").
+z.config(z.locales.es())
+
+/** Ruta legible de un error: zonas[2].poligono. */
+export function formatearRuta(path: PropertyKey[]): string {
+  let out = ''
+  for (const p of path) out += typeof p === 'number' ? `[${p}]` : `${out ? '.' : ''}${String(p)}`
+  return out || '(raíz del archivo)'
+}
+
 function duplicados(ids: string[]): string[] {
   const vistos = new Set<string>()
   const repetidos = new Set<string>()
@@ -17,7 +27,7 @@ function duplicados(ids: string[]): string[] {
 export function validarLayout(raw: unknown): ResultadoValidacion {
   const parsed = PlantLayoutSchema.safeParse(raw)
   if (!parsed.success) {
-    return { ok: false, errores: z.prettifyError(parsed.error).split('\n').filter(Boolean) }
+    return { ok: false, errores: parsed.error.issues.map((i) => `${formatearRuta(i.path)}: ${i.message}`) }
   }
   const l = parsed.data
   const errores: string[] = []
