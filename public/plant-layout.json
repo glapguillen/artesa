@@ -2872,13 +2872,14 @@
       "cantidad": null,
       "confianza": "media",
       "fuente": "foto-2",
-      "notas": "Al menos 5 mesas en la foto 2.",
+      "notas": "Al menos 5 mesas visibles en la foto 2 (cantidad_min_observada). La cantidad real está por definir.",
       "instanciado": true,
       "layout": {
         "filas": null,
         "columnas": null,
         "separacion": null
-      }
+      },
+      "cantidad_min_observada": 5
     },
     {
       "id": "rack-secado",

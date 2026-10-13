@@ -34,7 +34,7 @@ export function ClasifBar({ detalle, unidad }: Props) {
             ) : null,
           )}
       </div>
-      <ul aria-label="Detalle de la clasificación final" className="grid grid-cols-3 gap-x-1.5 gap-y-0.5">
+      <ul aria-label="Detalle de la clasificación final" className="grid grid-cols-2 gap-x-2 gap-y-0.5">
         {segmentos.map((s) => (
           <li key={s.clave} className="flex min-w-0 items-center gap-1 text-[10px] leading-tight" title={s.etiqueta}>
             <span aria-hidden="true" className="size-2 shrink-0 rounded-sm" style={{ background: s.color }} />
@@ -42,7 +42,7 @@ export function ClasifBar({ detalle, unidad }: Props) {
               {s.corta}
             </span>
             <span className="sr-only">{s.etiqueta}:</span>
-            <span className="ml-auto tabular-nums text-texto">{fmt(s.valor)}</span>
+            <span className="ml-auto shrink-0 tabular-nums whitespace-nowrap text-texto">{fmt(s.valor)}</span>
           </li>
         ))}
       </ul>

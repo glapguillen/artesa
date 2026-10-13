@@ -15,7 +15,7 @@ export function KpiBar() {
   const kpis = usePlantStore((s) => s.layout?.kpis)
   const ordenados = useMemo(() => kpisOrdenados(kpis ?? []), [kpis])
   return (
-    <section data-testid="kpi-bar" aria-labelledby="kpi-bar-titulo" className="min-w-0 px-4 pt-3 pb-1">
+    <section data-testid="kpi-bar" aria-labelledby="kpi-bar-titulo" className="min-w-0 px-4 pt-2 pb-1">
       <h2 id="kpi-bar-titulo" className="sr-only">
         Indicadores del turno
       </h2>

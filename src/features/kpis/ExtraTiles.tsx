@@ -43,7 +43,7 @@ export function PersonalTile() {
       nombre="Personal"
       ayuda={personal?.nota}
       valor={conteo ? `${fmtNum(conteo.total)} personas` : null}
-      meta={conteo ? `${fmtNum(conteo.produccion)} en Producción · dotación` : 'Sin dotación en el layout'}
+      meta={conteo ? `${fmtNum(conteo.produccion)} en Producción · nómina` : 'Sin dotación en el layout'}
     />
   )
 }

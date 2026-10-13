@@ -1,5 +1,5 @@
 // Convierte plant-layout.json en un modelo de escena 3D (puro y testeable).
-import { bbox, centroide, type LayoutIndex } from '../../../domain/selectors'
+import { bbox, centroide } from '../../../domain/selectors'
 import type { Equipo, PlantLayout, Punto, Zona } from '../../../domain/types'
 import {
   ALTO_MURO_EDIFICIO,
@@ -11,6 +11,9 @@ import {
   MARGEN_ZONA,
   PASILLO,
 } from './catalogo'
+
+/** Holgura en cada extremo cuando un equipo se recorta al largo de su zona (m). */
+const HOLGURA_LARGO = 0.4
 import type { Equipo3D, Flujo3D, Instancia, Limites, Losa3D, ModeloEscena, Muro3D, OrigenCantidad, V2, V3 } from './tipos'
 
 export function calcularLimites(poligonos: Punto[][]): Limites {
@@ -90,16 +93,13 @@ export function construirMuros(l: PlantLayout): Muro3D[] {
   return muros
 }
 
-/** Cuántas instancias dibujar y de dónde sale ese número (nunca se inventa en silencio). */
-export function cantidadEquipo(e: Equipo, idx: LayoutIndex): { n: number; origen: OrigenCantidad } {
+/**
+ * Cuántas instancias dibujar y de dónde sale ese número: cantidad del JSON, o el mínimo
+ * observado, o una sola instancia representativa. Nunca se estima a partir de otros datos.
+ */
+export function cantidadEquipo(e: Equipo): { n: number; origen: OrigenCantidad } {
   if (e.cantidad !== null && e.cantidad > 0) return { n: Math.round(e.cantidad), origen: 'json' }
   if (e.cantidad_min_observada && e.cantidad_min_observada > 0) return { n: e.cantidad_min_observada, origen: 'minimo_observado' }
-  if (e.instanciado) {
-    const personas = (idx.personalPorZona.get(e.zona)?.confirmado ?? [])
-      .filter((d) => d.etapas.includes(e.etapa))
-      .reduce((s, d) => s + d.cantidad, 0)
-    if (personas > 0) return { n: personas, origen: 'dotacion' }
-  }
   return { n: 1, origen: 'uno' }
 }
 
@@ -134,7 +134,7 @@ export function distribuirEnRect(
   return out
 }
 
-function construirEquipos(l: PlantLayout, idx: LayoutIndex, zonas: Map<string, Zona>): { equipos: Equipo3D[]; sinUbicar: Equipo[] } {
+function construirEquipos(l: PlantLayout, zonas: Map<string, Zona>): { equipos: Equipo3D[]; sinUbicar: Equipo[] } {
   const equipos: Equipo3D[] = []
   const sinUbicar: Equipo[] = []
   const sinPosicionPorZona = new Map<string, Equipo[]>()
@@ -152,10 +152,13 @@ function construirEquipos(l: PlantLayout, idx: LayoutIndex, zonas: Map<string, Z
     const forma = FORMA_POR_TIPO[e.tipo] ?? 'generico'
     const [lt, at, ht] = DIMS_TIPICAS[forma]
     const d = e.dimensiones
-    const dims = { largo: d?.largo ?? lt, ancho: d?.ancho ?? at, alto: d?.alto ?? ht }
-    const representativo = !(d && d.largo !== null && d.ancho !== null && d.alto !== null)
-    const { n, origen } = cantidadEquipo(e, idx)
     const b = bbox(z.poligono)
+    // El largo no puede exceder el eje mayor de la zona (evita que el equipo atraviese los muros).
+    const ejeMayor = Math.max(b.x2 - b.x1, b.z2 - b.z1) - 2 * HOLGURA_LARGO
+    const largo = Math.min(d?.largo ?? lt, ejeMayor)
+    const dims = { largo, ancho: d?.ancho ?? at, alto: d?.alto ?? ht }
+    const representativo = !(d && d.largo !== null && d.ancho !== null && d.alto !== null) || largo !== (d?.largo ?? lt)
+    const { n, origen } = cantidadEquipo(e)
     let instancias: Instancia[]
     if (e.posicion) {
       const rot = e.rotacion_grados !== undefined ? (e.rotacion_grados * Math.PI) / 180 : b.x2 - b.x1 >= b.z2 - b.z1 ? 0 : Math.PI / 2
@@ -191,7 +194,7 @@ export function arco(a: V2, b: V2, muestras = 24): V3[] {
   return out
 }
 
-export function construirModelo(l: PlantLayout, idx: LayoutIndex): ModeloEscena {
+export function construirModelo(l: PlantLayout): ModeloEscena {
   const zonas = new Map(l.zonas.map((z) => [z.id, z]))
   const conPoligono = l.zonas.filter((z) => z.poligono)
   const losas: Losa3D[] = conPoligono.map((z) => {
@@ -219,7 +222,7 @@ export function construirModelo(l: PlantLayout, idx: LayoutIndex): ModeloEscena 
     const b = centros.get(f.hasta)
     if (a && b) flujos.push({ id: f.id, desde: f.desde, hasta: f.hasta, fase: f.fase, tipo: f.tipo, puntos: arco(a, b) })
   }
-  const { equipos, sinUbicar } = construirEquipos(l, idx, zonas)
+  const { equipos, sinUbicar } = construirEquipos(l, zonas)
   return {
     limites: calcularLimites([...conPoligono.map((z) => z.poligono!), ...l.edificios.flatMap((e) => (e.poligono ? [e.poligono] : []))]),
     losas,

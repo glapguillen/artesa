@@ -43,7 +43,7 @@ npm run preview    # sirve dist/ en http://localhost:4173
 
 | Sección | Para qué sirve |
 |---|---|
-| `zonas[]` | Áreas del plano: `poligono` en metros (`[x, z]`; X hacia la derecha, Z hacia abajo), `etapas` que ocurren ahí y `etapas_hipotesis` por confirmar. `poligono: null` = existe pero no está ubicada |
+| `zonas[]` | Áreas del plano: `poligono` en metros (`[x, z]`; X hacia la derecha, Z hacia abajo), `etapas` que ocurren ahí y `etapas_hipotesis` por confirmar. `poligono: null` = existe pero no está ubicada. `responsable` lleva un **cargo** (p. ej. "Jefe de producción"), nunca el nombre de una persona |
 | `proceso.etapas[]` | Etapas del flujograma, con código, fase, tipo y control por FORMA o SKU |
 | `proceso.transiciones[]` | Conexiones del diagrama (flujo, clasificación, insumo, registro, configuración) |
 | `proceso.diagrama` | Posición `[columna, fila]` de cada etapa en el diagrama y franjas de fase |

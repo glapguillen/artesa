@@ -11,7 +11,7 @@ const r = validarLayout(raw)
 if (!r.ok) throw new Error(r.errores.join('\n'))
 const layout: PlantLayout = r.layout
 const idx = indexarLayout(layout)
-const m = construirModelo(layout, idx)
+const m = construirModelo(layout)
 const finito = (v: number[]) => v.every(Number.isFinite)
 
 describe('construirModelo', () => {
@@ -20,11 +20,13 @@ describe('construirModelo', () => {
     expect(m.zonasSinUbicar.map((z) => z.id).sort()).toEqual(['z-formacion', 'z-secado'])
   })
 
-  it('dibuja los dos hornos con largo del JSON y ancho representativo', () => {
+  it('dibuja los dos hornos sin que excedan su zona, marcados como representativos', () => {
     const hornos = m.equipos.filter((e) => e.forma === 'horno')
     expect(hornos.map((h) => h.id).sort()).toEqual(['horno-01', 'horno-02'])
+    const zona = m.losas.find((s) => s.id === 'z-horno')!
     for (const h of hornos) {
-      expect(h.dims.largo).toBe(20)
+      expect(h.dims.largo).toBeLessThanOrEqual(Math.max(zona.ancho, zona.largo))
+      expect(h.dims.largo).toBeGreaterThan(15)
       expect(h.representativo).toBe(true)
       expect(h.instancias).toHaveLength(1)
     }
@@ -32,8 +34,8 @@ describe('construirModelo', () => {
 
   it('declara de dónde sale la cantidad de instancias', () => {
     const mesas = m.equipos.find((e) => e.id === 'puesto-decoracion')!
-    expect(mesas.cantidadOrigen).toBe('dotacion')
-    expect(mesas.instancias).toHaveLength(10)
+    expect(mesas.cantidadOrigen).toBe('minimo_observado')
+    expect(mesas.instancias).toHaveLength(5)
     const esm = m.equipos.find((e) => e.id === 'esmaltado-maquinas')!
     expect(esm.cantidadOrigen).toBe('minimo_observado')
     expect(esm.instancias).toHaveLength(2)

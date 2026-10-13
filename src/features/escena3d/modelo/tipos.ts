@@ -58,7 +58,7 @@ export type FormaEquipo =
   | 'generico'
 
 /** De dónde sale el número de instancias dibujadas. */
-export type OrigenCantidad = 'json' | 'minimo_observado' | 'dotacion' | 'uno'
+export type OrigenCantidad = 'json' | 'minimo_observado' | 'uno'
 
 export interface Instancia {
   /** Centro de la base (Y = 0). */
@@ -75,7 +75,7 @@ export interface Equipo3D {
   etapa: string
   /** largo (eje X local), ancho (eje Z local), alto (Y), en metros. */
   dims: { largo: number; ancho: number; alto: number }
-  /** true si alguna dimensión no viene del JSON (se dibuja con un tamaño típico). */
+  /** true si alguna dimensión no viene del JSON (tamaño típico) o se recortó para caber en la zona. */
   representativo: boolean
   cantidadOrigen: OrigenCantidad
   instancias: Instancia[]
