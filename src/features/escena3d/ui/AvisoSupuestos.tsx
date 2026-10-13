@@ -12,29 +12,35 @@ const TACTIL = 'h-10 xl:h-7 pointer-coarse:h-10'
 
 export function AvisoSupuestos({ modelo }: { modelo: ModeloEscena }) {
   const layout = usePlantStore((s) => s.layout)
-  const oculto = useVista3D((s) => s.avisoOculto)
-  const setOculto = useVista3D((s) => s.setAvisoOculto)
+  const aviso = useVista3D((s) => s.aviso)
+  const setAviso = useVista3D((s) => s.setAviso)
   const textos = useMemo(() => (layout ? supuestosDeEscena(layout, modelo) : []), [layout, modelo])
   if (!textos.length) return null
-
-  if (oculto) {
-    return (
+  // En 'auto' la tarjeta decide por su ancho (container query): aviso en anchas, botón en angostas.
+  const verBoton = aviso === 'cerrado' ? 'inline-flex' : aviso === 'auto' ? 'inline-flex @lg:hidden' : 'hidden'
+  const verAviso = aviso === 'abierto' ? 'block' : aviso === 'auto' ? 'hidden @lg:block' : 'hidden'
+  return (
+    <>
       <button
         type="button"
         data-testid="aviso-supuestos-abrir"
-        onClick={() => setOculto(false)}
+        onClick={() => setAviso('abierto')}
         aria-label="Ver los supuestos de la escena 3D"
-        className={`absolute top-2 left-2 z-20 inline-flex cursor-pointer items-center rounded-md border border-borde bg-surface/90 px-2.5 text-xs font-medium text-aviso shadow-sm ${TACTIL} ${FOCO}`}
+        className={`absolute top-2 left-2 z-20 ${verBoton} cursor-pointer items-center rounded-md border border-borde bg-surface/90 px-2.5 text-xs font-medium text-aviso shadow-sm ${TACTIL} ${FOCO}`}
       >
         Supuestos
       </button>
-    )
-  }
+      <Aviso textos={textos} clase={verAviso} onCerrar={() => setAviso('cerrado')} />
+    </>
+  )
+}
+
+function Aviso({ textos, clase, onCerrar }: { textos: string[]; clase: string; onCerrar: () => void }) {
   return (
     <section
       data-testid="aviso-supuestos"
       aria-label="Supuestos de la escena 3D"
-      className="absolute top-2 left-2 z-20 max-h-[45%] w-[min(21rem,calc(100%-1rem))] overflow-y-auto rounded-lg border border-borde bg-surface/95 py-1 pr-1 pl-2.5 text-xs text-texto shadow-md"
+      className={`absolute top-2 left-2 z-20 ${clase} max-h-[45%] w-[min(21rem,calc(100%-1rem))] overflow-y-auto rounded-lg border border-borde bg-surface/95 py-1 pr-1 pl-2.5 text-xs text-texto shadow-md`}
     >
       <div className="flex items-start gap-1">
         <p className="flex-1 py-1 leading-snug">
@@ -43,7 +49,7 @@ export function AvisoSupuestos({ modelo }: { modelo: ModeloEscena }) {
         </p>
         <button
           type="button"
-          onClick={() => setOculto(true)}
+          onClick={onCerrar}
           aria-label="Ocultar el aviso de supuestos"
           className={`inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-tenue hover:bg-bg hover:text-texto xl:size-7 pointer-coarse:size-10 ${FOCO}`}
         >

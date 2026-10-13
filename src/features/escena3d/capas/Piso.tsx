@@ -2,11 +2,20 @@
 // norte rotulado como supuesto si el layout no lo trae. Colores del tema.
 import { Grid, Html, Line } from '@react-three/drei'
 import { useMemo } from 'react'
+import { Shape } from 'three'
 import type { PlantLayout } from '../../../domain/types'
 import { CELDA, rectPiso, SECCION } from '../geometriaEscena'
 import type { Limites, V3 } from '../modelo/tipos'
 import { mezclar } from '../presentacion'
 import type { Paleta3D } from '../usePaleta3D'
+
+/** Flecha plana de 6 m que apunta al norte del croquis (−Z). */
+const FLECHA = new Shape()
+FLECHA.moveTo(0, 6)
+FLECHA.lineTo(2.2, 0)
+FLECHA.lineTo(0, 1.4)
+FLECHA.lineTo(-2.2, 0)
+FLECHA.closePath()
 
 interface Props {
   limites: Limites
@@ -31,6 +40,9 @@ export function Piso({ limites, planta, paleta }: Props) {
     ]
   }, [env])
   const norte = planta.norte_grados === null ? 'Norte supuesto' : `Norte a ${planta.norte_grados}°`
+  // Esquina noroeste del piso, fuera de lo dibujado; girada si el layout trae el norte.
+  const ancla: V3 = [r.cx - r.w / 2 + 5, 0.03, r.cz - r.h / 2 + 9]
+  const giro = ((planta.norte_grados ?? 0) * Math.PI) / 180
   return (
     <group name="piso">
       <mesh rotation-x={-Math.PI / 2} position={[r.cx, -0.02, r.cz]}>
@@ -45,18 +57,19 @@ export function Piso({ limites, planta, paleta }: Props) {
         cellThickness={0.6}
         sectionThickness={1.1}
         cellColor={mezclar(paleta.fondo, paleta.borde, paleta.oscuro ? 0.9 : 1)}
-        sectionColor={mezclar(paleta.fondo, paleta.tenue, paleta.oscuro ? 0.45 : 0.4)}
+        sectionColor={mezclar(paleta.fondo, paleta.tenue, paleta.oscuro ? 0.28 : 0.4)}
         fadeDistance={limites.tam * 3}
         fadeStrength={1}
       />
       <Line name="envolvente" points={contorno} color={paleta.tenue} lineWidth={1} dashed dashSize={2} gapSize={1.5} />
-      <Html position={[env.x + env.w / 2, 0, r.cz - r.h / 2 + 2]} center zIndexRange={[12, 10]} className="pointer-events-none">
-        <div className="flex items-center gap-1 rounded-md border border-borde bg-surface/90 px-1.5 py-0.5 text-[11px] font-semibold whitespace-nowrap text-tenue shadow-sm">
-          <svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true" style={{ fill: 'currentColor' }}>
-            <path d="M5 0 L10 12 L5 9 L0 12 Z" />
-          </svg>
+      <mesh name="flecha-norte" position={ancla} rotation={[-Math.PI / 2, 0, giro]}>
+        <shapeGeometry args={[FLECHA]} />
+        <meshBasicMaterial color={paleta.tenue} />
+      </mesh>
+      <Html position={[ancla[0], 0.05, ancla[2] + 3]} center zIndexRange={[12, 10]} className="pointer-events-none">
+        <span className="rounded-md border border-borde bg-surface/90 px-1.5 py-0.5 text-[11px] font-semibold whitespace-nowrap text-tenue shadow-sm">
           {norte}
-        </div>
+        </span>
       </Html>
     </group>
   )

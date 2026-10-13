@@ -1,6 +1,6 @@
 // Bordes de las losas: continuos en los recintos cerrados y discontinuos en las áreas abiertas
 // (como en el 2D), con el color de borde de cada zona; y el contorno grueso de la selección
-// (sólido = confirmada, discontinuo = probable para la etapa elegida).
+// (sólido = confirmada, discontinuo = probable para la etapa elegida), que se ve a través de los muros.
 import { Line } from '@react-three/drei'
 import { useEffect, useLayoutEffect, useMemo } from 'react'
 import { BufferAttribute, BufferGeometry, Color, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three'
@@ -85,9 +85,23 @@ function ResalteSeleccion({ losas, color }: { losas: Losa3D[]; color: string }) 
   const { solido, discontinuo } = useMemo(() => puntosResalte(losas, resaltadoDeSeleccion(idx, seleccion)), [losas, idx, seleccion])
   return (
     <>
-      {solido.length > 0 && <Line name="resalte-solido" segments points={solido} color={color} lineWidth={4} toneMapped={false} />}
+      {solido.length > 0 && (
+        <Line name="resalte-solido" segments points={solido} color={color} lineWidth={4} depthTest={false} renderOrder={10} toneMapped={false} />
+      )}
       {discontinuo.length > 0 && (
-        <Line name="resalte-probable" segments points={discontinuo} color={color} lineWidth={3} dashed dashSize={1.2} gapSize={0.8} toneMapped={false} />
+        <Line
+          name="resalte-probable"
+          segments
+          points={discontinuo}
+          color={color}
+          lineWidth={3.5}
+          dashed
+          dashSize={1.2}
+          gapSize={0.8}
+          depthTest={false}
+          renderOrder={10}
+          toneMapped={false}
+        />
       )}
     </>
   )

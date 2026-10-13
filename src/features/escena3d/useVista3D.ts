@@ -40,8 +40,8 @@ interface EstadoVista3D {
   etiquetas: boolean
   muros: boolean
   flujos: boolean
-  /** El aviso de supuestos se descartó en esta sesión. */
-  avisoOculto: boolean
+  /** Aviso de supuestos: 'auto' = abierto en tarjetas anchas y plegado en angostas; o lo que eligió el usuario. */
+  aviso: 'auto' | 'abierto' | 'cerrado'
   hover: Hover | null
   camara: ApiCamara | null
   /** Encuadre a restaurar (al salir del recorrido); lo consume ControlCamara. */
@@ -50,7 +50,7 @@ interface EstadoVista3D {
   setEtiquetas: (v: boolean) => void
   setMuros: (v: boolean) => void
   setFlujos: (v: boolean) => void
-  setAvisoOculto: (v: boolean) => void
+  setAviso: (v: 'abierto' | 'cerrado') => void
   setHover: (h: Hover | null) => void
   setCamara: (c: ApiCamara | null) => void
   setRestaurar: (e: Encuadre | null) => void
@@ -61,7 +61,7 @@ export const useVista3D = create<EstadoVista3D>()((set) => ({
   etiquetas: true,
   muros: true,
   flujos: true,
-  avisoOculto: false,
+  aviso: 'auto',
   hover: null,
   camara: null,
   restaurar: null,
@@ -69,7 +69,7 @@ export const useVista3D = create<EstadoVista3D>()((set) => ({
   setEtiquetas: (etiquetas) => set({ etiquetas }),
   setMuros: (muros) => set({ muros }),
   setFlujos: (flujos) => set({ flujos }),
-  setAvisoOculto: (avisoOculto) => set({ avisoOculto }),
+  setAviso: (aviso) => set({ aviso }),
   setHover: (hover) => set({ hover }),
   setCamara: (camara) => set({ camara }),
   setRestaurar: (restaurar) => set({ restaurar }),

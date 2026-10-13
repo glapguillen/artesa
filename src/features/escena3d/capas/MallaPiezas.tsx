@@ -8,7 +8,7 @@ import type { PiezaUbicada } from '../formas/piezas'
 
 export interface EventosPiezas {
   onClick?: (e: ThreeEvent<MouseEvent>) => void
-  onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
+  onPointerMove?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
 }
 

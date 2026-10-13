@@ -4,6 +4,7 @@
 import type { EstadoOperativo, LiveState } from '../../domain/live'
 import type { LayoutIndex } from '../../domain/selectors'
 import type { Seleccion } from '../../store/usePlantStore'
+import { ESTADO_ETIQUETA, fmtNum, POR_DEFINIR } from '../../ui/tokens'
 import { resaltadoDeSeleccion } from '../planta/planLive'
 import { cimaDeEquipo } from './formas/envolventes'
 import type { Equipo3D, Flujo3D, V3 } from './modelo/tipos'
@@ -53,6 +54,14 @@ export function vistaEquipos(equipos: readonly Equipo3D[], live: LiveState | nul
     out.set(e.id, { estado: vivo?.estado ?? 'sin_datos', calor: calorRelativo(vivo?.metricas), resalte: resalte.get(e.id) ?? null })
   }
   return out
+}
+
+/** Texto del tooltip de un equipo: nombre, estado, instancias y si es representativo. */
+export function tituloEquipo(e: Pick<Equipo3D, 'nombre' | 'instancias' | 'representativo'>, estado: EstadoOperativo): string {
+  const partes = [e.nombre, ESTADO_ETIQUETA[estado]]
+  if (e.instancias.length > 1) partes.push(`${fmtNum(e.instancias.length)} instancias`)
+  if (e.representativo) partes.push(`forma y tamaño representativos ${POR_DEFINIR}`)
+  return partes.join(' · ')
 }
 
 // ---------- Flujos ----------

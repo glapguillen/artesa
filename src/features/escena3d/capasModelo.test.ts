@@ -11,6 +11,7 @@ import {
   particulasDeFlujo,
   radioFlujo,
   realceFlujos,
+  tituloEquipo,
   vistaEquipos,
 } from './capasModelo'
 import { construirModelo } from './modelo/construirModelo'
@@ -63,6 +64,12 @@ describe('equipos en vivo', () => {
     expect([...porEtapa].filter(([, x]) => x.resalte === 'suave').map(([id]) => id).sort()).toEqual(
       m.equipos.filter((e) => e.etapa === 'B2').map((e) => e.id).sort(),
     )
+  })
+
+  it('arma el texto del tooltip con estado, instancias y la advertencia de representativo', () => {
+    const mesas = m.equipos.find((e) => e.id === 'puesto-decoracion')!
+    expect(tituloEquipo(mesas, 'operando')).toBe(`${mesas.nombre} · Operando · 5 instancias · forma y tamaño representativos [POR DEFINIR]`)
+    expect(tituloEquipo({ ...mesas, instancias: mesas.instancias.slice(0, 1), representativo: false }, 'sin_datos')).toBe(`${mesas.nombre} · Sin datos`)
   })
 
   it('marca como representativos los equipos sin medidas completas', () => {

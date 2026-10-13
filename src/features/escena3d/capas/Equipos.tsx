@@ -1,20 +1,20 @@
 // Capa de equipos: primitivas paramétricas por forma, a escala de las dimensiones del modelo y con
 // las instancias del modelo (nunca inventadas). Todas las piezas van en 3 mallas instanciadas
 // (cajas, cilindros y franjas de calor de los hornos) + rombos de "representativo" + contorno de
-// selección. Color del cuerpo = estado en vivo; clic → selecciona el equipo.
-import { useCursor } from '@react-three/drei'
-import type { ThreeEvent } from '@react-three/fiber'
-import { useMemo, useState } from 'react'
+// selección. Color del cuerpo = estado en vivo; clic → selecciona el equipo; hover → cursor de mano
+// y tooltip compartido de la escena (nombre, estado, instancias y si es representativo).
+import { type ThreeEvent, useThree } from '@react-three/fiber'
+import { useEffect, useMemo } from 'react'
 import { Color } from 'three'
 import { usePlantStore } from '../../../store/usePlantStore'
-import { type VistaEquipo, vistaEquipos } from '../capasModelo'
+import { tituloEquipo, type VistaEquipo, vistaEquipos } from '../capasModelo'
 import { mezclarColor } from '../formas/materialFlujo'
 import { type MallaPieza, type PiezaUbicada, piezasPorMalla } from '../formas/piezas'
 import type { ModeloEscena } from '../modelo/tipos'
 import { type Paleta3D, usePaleta3D } from '../usePaleta3D'
+import { useVista3D } from '../useVista3D'
 import { ContornoSeleccion } from './ContornoSeleccion'
-import { EquipoTooltip } from './EquipoTooltip'
-import { MallaPiezas } from './MallaPiezas'
+import { type EventosPiezas, MallaPiezas } from './MallaPiezas'
 import { MarcasRepresentativas } from './MarcasRepresentativas'
 
 /** Color de una pieza: cuerpo = estado; estructura = gris del tema; calor = del borde frío al naranja. */
@@ -39,15 +39,19 @@ const MALLAS: Array<{ malla: MallaPieza; geometria: 'caja' | 'cilindro'; materia
   { malla: 'calor', geometria: 'caja', material: 'basico' },
 ]
 
+/** Más desplazamiento que esto (px) entre pulsar y soltar es un arrastre de cámara, no un clic. */
+const ARRASTRE_PX = 6
+
 export function Equipos({ modelo }: { modelo: ModeloEscena }) {
   const paleta = usePaleta3D()
   const live = usePlantStore((s) => s.live)
   const sel = usePlantStore((s) => s.seleccion)
   const seleccionar = usePlantStore((s) => s.seleccionar)
-  const [hover, setHover] = useState<string | null>(null)
-  useCursor(hover !== null)
+  const setHover = useVista3D((s) => s.setHover)
+  const get = useThree((s) => s.get)
 
   const piezas = useMemo(() => piezasPorMalla(modelo.equipos), [modelo])
+  const porId = useMemo(() => new Map(modelo.equipos.map((e) => [e.id, e])), [modelo])
   const vista = useMemo(() => vistaEquipos(modelo.equipos, live, sel), [modelo, live, sel])
   const colores = useMemo(
     () => ({
@@ -58,26 +62,49 @@ export function Equipos({ modelo }: { modelo: ModeloEscena }) {
     [piezas, vista, paleta],
   )
 
-  const eventos = (malla: MallaPieza) => {
+  // Cursor de mano en el propio <canvas> (como las losas) y tooltip compartido de la escena.
+  const cursor = (valor: string) => {
+    get().gl.domElement.style.cursor = valor
+  }
+  useEffect(
+    () => () => {
+      get().gl.domElement.style.cursor = ''
+    },
+    [get],
+  )
+  const elegir = (id: string, e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > ARRASTRE_PX) return
+    e.stopPropagation()
+    seleccionar({ tipo: 'equipo', id })
+  }
+  const pasar = (id: string, e: ThreeEvent<PointerEvent>) => {
+    // Primero se detiene la propagación: R3F saca el hover de la losa de abajo y luego se pone el nuestro.
+    e.stopPropagation()
+    const eq = porId.get(id)
+    if (!eq) return
+    cursor('pointer')
+    setHover({ id, titulo: tituloEquipo(eq, vista.get(id)?.estado ?? 'sin_datos'), x: e.nativeEvent.clientX, y: e.nativeEvent.clientY })
+  }
+  const salir = () => {
+    cursor('')
+    setHover(null)
+  }
+
+  const eventos = (malla: MallaPieza): EventosPiezas => {
     const idDe = (e: { instanceId?: number }) => (e.instanceId === undefined ? undefined : piezas[malla][e.instanceId]?.equipoId)
     return {
-      onClick: (e: ThreeEvent<MouseEvent>) => {
+      onClick: (e) => {
         const id = idDe(e)
-        if (!id) return
-        e.stopPropagation()
-        seleccionar({ tipo: 'equipo', id })
+        if (id) elegir(id, e)
       },
-      onPointerOver: (e: ThreeEvent<PointerEvent>) => {
+      onPointerMove: (e) => {
         const id = idDe(e)
-        if (!id) return
-        e.stopPropagation()
-        setHover(id)
+        if (id) pasar(id, e)
       },
-      onPointerOut: () => setHover(null),
+      onPointerOut: salir,
     }
   }
 
-  const hovered = hover ? modelo.equipos.find((e) => e.id === hover) : undefined
   return (
     <group name="capa-equipos">
       {MALLAS.map((m) => (
@@ -91,9 +118,8 @@ export function Equipos({ modelo }: { modelo: ModeloEscena }) {
           {...eventos(m.malla)}
         />
       ))}
-      <MarcasRepresentativas modelo={modelo} color={paleta.tenue} onElegir={(id) => seleccionar({ tipo: 'equipo', id })} />
+      <MarcasRepresentativas modelo={modelo} color={paleta.tenue} onElegir={elegir} />
       <ContornoSeleccion modelo={modelo} vista={vista} color={paleta.seleccion} />
-      {hovered && <EquipoTooltip equipo={hovered} estado={vista.get(hovered.id)?.estado ?? 'sin_datos'} />}
     </group>
   )
 }

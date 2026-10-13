@@ -4,14 +4,13 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import type { Mesh } from 'three'
-import { usePlantStore } from '../../../store/usePlantStore'
 import { avanzar, crearMaterialFlujo, geometriaDeTubos, lineal } from '../formas/materialFlujo'
 import { acumuladas, construirTubos, puntoEn } from '../formas/trazos'
 import type { ModeloEscena, V3 } from '../modelo/tipos'
-import { rotuloRuta, rutaEscena } from '../rutaAlarmasModelo'
 import { usePaleta3D } from '../usePaleta3D'
 import { FlechasRuta } from './FlechasRuta'
 import { PasosRuta, RotuloRuta } from './RutaRotulos'
+import { useRutaEscena } from './useRutaEscena'
 
 const RADIO_RUTA = 0.32
 
@@ -48,22 +47,24 @@ function Recorrido({ camino, color }: { camino: V3[]; color: string }) {
   )
 }
 
-export function Ruta({ modelo }: { modelo: ModeloEscena }) {
-  const layout = usePlantStore((s) => s.layout)
-  const idx = usePlantStore((s) => s.idx)
-  const rutaActiva = usePlantStore((s) => s.rutaActiva)
-  const piezas = usePlantStore((s) => (s.rutaActiva ? s.live?.rutas?.[s.rutaActiva]?.piezas_turno : undefined))
+interface Props {
+  modelo: ModeloEscena
+  /**
+   * Dibuja el rótulo de la ruta dentro del lienzo (abajo a la izquierda). La escena base lo apaga
+   * (rotulo={false}) cuando ubica <RotuloRuta3D> entre sus controles superpuestos.
+   */
+  rotulo?: boolean
+}
+
+export function Ruta({ modelo, rotulo = true }: Props) {
   const paleta = usePaleta3D()
-  const ruta = useMemo(
-    () => (rutaActiva && layout && idx ? rutaEscena(layout, idx, modelo, rutaActiva) : null),
-    [rutaActiva, layout, idx, modelo],
-  )
-  if (!ruta) return null
+  const r = useRutaEscena(modelo)
+  if (!r) return null
   return (
-    <group name="capa-ruta" userData={{ ruta: ruta.id }}>
-      <Recorrido camino={ruta.camino} color={paleta.ruta} />
-      <PasosRuta pasos={ruta.pasos} color={paleta.ruta} texto={paleta.superficie} />
-      <RotuloRuta id={ruta.id} texto={rotuloRuta(ruta, piezas)} color={paleta.ruta} />
+    <group name="capa-ruta" userData={{ ruta: r.ruta.id }}>
+      <Recorrido camino={r.ruta.camino} color={paleta.ruta} />
+      <PasosRuta pasos={r.ruta.pasos} color={paleta.ruta} texto={paleta.superficie} />
+      {rotulo && <RotuloRuta id={r.ruta.id} texto={r.rotulo} color={paleta.ruta} />}
     </group>
   )
 }

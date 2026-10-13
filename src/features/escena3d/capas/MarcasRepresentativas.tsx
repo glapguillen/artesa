@@ -10,7 +10,8 @@ import type { ModeloEscena } from '../modelo/tipos'
 interface Props {
   modelo: ModeloEscena
   color: string
-  onElegir: (equipoId: string) => void
+  /** Recibe el evento para que el padre ignore los arrastres de cámara y detenga la propagación. */
+  onElegir: (equipoId: string, e: ThreeEvent<MouseEvent>) => void
 }
 
 const TAM = 0.45
@@ -39,9 +40,7 @@ export function MarcasRepresentativas({ modelo, color, onElegir }: Props) {
   if (!marcas.length) return null
   const elegir = (e: ThreeEvent<MouseEvent>) => {
     const k = e.instanceId === undefined ? undefined : marcas[e.instanceId]
-    if (!k) return
-    e.stopPropagation()
-    onElegir(k.equipoId)
+    if (k) onElegir(k.equipoId, e)
   }
   return (
     <instancedMesh key={marcas.length} ref={ref} name="marcas-representativas" args={[undefined, undefined, marcas.length]} onClick={elegir}>
