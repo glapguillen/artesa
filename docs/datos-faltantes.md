@@ -1,14 +1,14 @@
 # Datos faltantes, ilegibles y contradictorios
 
-Esta lista se actualiza en cada fase. Cada punto se cierra con una respuesta o una medida real. Versión **v0.2**, que ya incorpora el Flujograma ARTESA 2025.
+Esta lista se actualiza en cada fase. Cada punto se cierra con una respuesta o una medida real. Versión **v0.3**, que ya incorpora el Flujograma ARTESA 2025 y la nómina de personal 2026 (solo agregada por sección y cargo).
 
 ## A. Encaminadas por el flujograma: solo falta un sí o un no
 
 | # | Supuesto actual | Base |
 |---|---|---|
-| 1 | **Kerajet = Impresión digital (2.5)**, que se usa en R6–R9, después del esmaltado | KERAjet es una marca de impresoras inkjet para cerámica |
+| 1 | **Kerajet = Impresión digital (2.5)**, que se usa en R6–R9, después del esmaltado | KERAjet es una marca de impresoras inkjet para cerámica, y la nómina tiene un "Operador de Kerajet" |
 | 2 | **Impresión 3D** es un método de formación (RF6), no un área de prototipos | Flujograma, Fase 1 |
-| 3 | **CF = Clasificación final (3.3)** | Está pegada a los hornos y a la bodega |
+| 3 | **CF = Clasificación final (3.3)** | Está pegada a los hornos y a la bodega; la nómina tiene 2 personas en "Clasificación de esmalte" |
 | 4 | **Dos hornos:** el izquierdo de la foto 4 hace la quema de esmalte (3.1) y el derecho la de bizcocho (1.5) | Foto 4: tazas esmaltadas a la izquierda, soportes refractarios a la derecha |
 | 5 | **Trazado** = etapa T. ¿El **Señalado (S)** se hace en la misma zona? | Flujograma, R1–R3 |
 | 6 | **Moliendas:** una prepara pasta (B2) y la otra colores y esmaltes (A2). ¿Cuál es cuál? | El flujograma tiene dos cadenas de stock separadas |
@@ -25,6 +25,19 @@ Esta lista se actualiza en cada fase. Cada punto se cierra con una respuesta o u
 8. **Stocks físicos:** ¿dónde están la pasta líquida (B3), la pasta extrusada (B4) y los esmaltes y colores (A3)? ¿Dónde se preparan los colores (A2): en Laboratorio 1 o en Molienda 2?
 9. **Sistema:** ¿en qué ERP o sistema se lleva este flujograma? ¿Las piscinas, bodegas y clasificaciones ya existen ahí como ubicaciones o estados de inventario? Eso define el contrato de datos de n8n.
 10. **Escala y norte:** necesito 2 medidas reales (o una captura de Google Earth) y confirmar que la parte superior de la hoja es el norte.
+
+## B2. Preguntas que surgen de la nómina
+
+La nómina se usa solo agregada: cuántas personas hay por departamento, sección y cargo (64 en total, 45 en Producción). No se versionan nombres ni datos personales.
+
+1. **Moldero (1 persona):** confirma que existe un taller de moldes. ¿Dónde está? No aparece en el croquis.
+2. **Sección "Ensamblaje y clasificación":** el ensamblaje (por ejemplo, pegar asas) no figura en el flujograma. ¿En qué etapa ocurre y dónde?
+3. **Cargo "Marca"**, en la sección Clasificación de bizcocho: ¿es el marcado del fondo de la pieza o el "Señalado (S)" de las rutas R1 y R2?
+4. **Clasificación de esmalte** aparece en dos secciones distintas (Formación, y Ensamblaje y clasificación). ¿Es la misma función?
+5. **Molinero** está en la sección Formación. ¿Opera la Molienda 1, la 2 o ambas? ¿También el filtro prensa y la extrusora?
+6. **Puestos sin cargo asignado en la nómina:** filtro prensa, extrusora, prensa RAM, impresión 3D, señalado, trazado y calcomanía. ¿Los cubre personal que rota? Por ejemplo, ¿hacen el trazado las decoradoras, o la impresión 3D el diseñador de objetos?
+7. **Embalaje y despachos** está en Bodega PT: confirma que el empaque y el despacho se hacen ahí, aunque el flujograma termina en la Bodega PT.
+8. **Turnos:** ¿cuántos hay y en qué horario? La app simula uno de 8 horas desde las 07:00.
 
 ## C. Faltantes (no aparecen ni en el croquis ni en el flujograma)
 
@@ -43,7 +56,7 @@ Esta lista se actualiza en cada fase. Cada punto se cierra con una respuesta o u
   - Cabinas de esmaltado (en la foto 3 se ven al menos 2).
   - Puestos de decoración (en la foto 2 se ven al menos 5 mesas).
   - Racks de secado.
-- **Personal por zona y turnos.**
+- **Turnos** y rotación habitual del personal. La dotación por sección ya está en el JSON.
 - **Ubicación y orientación de cada foto.** Las del plano son estimadas.
 - **Cámaras de seguridad:** se ve una posible cámara en la foto 1. Faltan las posiciones y una política de qué no mostrar.
 - **Metas de KPIs:** producción por turno, % de bizcocho bueno, mix A/B/C, merma por etapa, OEE e inventario. También faltan el endpoint n8n `plant-state` y los colores corporativos en HEX.
