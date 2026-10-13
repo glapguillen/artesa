@@ -103,6 +103,15 @@ export function cantidadEquipo(e: Equipo): { n: number; origen: OrigenCantidad }
   return { n: 1, origen: 'uno' }
 }
 
+/**
+ * Largo dibujado: el original, recortado al eje mayor de la zona menos una holgura por extremo
+ * (para no atravesar los muros). Nunca queda en cero: mínimo 0,5 m o el original si es menor.
+ */
+export function ajustarLargo(largoOriginal: number, ejeMayorZona: number): number {
+  const disponible = ejeMayorZona - 2 * HOLGURA_LARGO
+  return Math.max(Math.min(largoOriginal, disponible), Math.min(0.5, largoOriginal))
+}
+
 /** Distribuye n instancias en filas dentro de un rectángulo, a lo largo de su eje mayor. */
 export function distribuirEnRect(
   n: number,
@@ -153,11 +162,11 @@ function construirEquipos(l: PlantLayout, zonas: Map<string, Zona>): { equipos: 
     const [lt, at, ht] = DIMS_TIPICAS[forma]
     const d = e.dimensiones
     const b = bbox(z.poligono)
-    // El largo no puede exceder el eje mayor de la zona (evita que el equipo atraviese los muros).
-    const ejeMayor = Math.max(b.x2 - b.x1, b.z2 - b.z1) - 2 * HOLGURA_LARGO
-    const largo = Math.min(d?.largo ?? lt, ejeMayor)
+    const largoOriginal = d?.largo ?? lt
+    const largo = ajustarLargo(largoOriginal, Math.max(b.x2 - b.x1, b.z2 - b.z1))
+    const recortado = largo < largoOriginal
     const dims = { largo, ancho: d?.ancho ?? at, alto: d?.alto ?? ht }
-    const representativo = !(d && d.largo !== null && d.ancho !== null && d.alto !== null) || largo !== (d?.largo ?? lt)
+    const representativo = !(d && d.largo !== null && d.ancho !== null && d.alto !== null) || recortado
     const { n, origen } = cantidadEquipo(e)
     let instancias: Instancia[]
     if (e.posicion) {
@@ -174,7 +183,7 @@ function construirEquipos(l: PlantLayout, zonas: Map<string, Zona>): { equipos: 
       const rect = ejeX ? { x1: b.x1 + paso, x2: b.x1 + paso + tramo, z1: b.z1, z2: b.z2 } : { x1: b.x1, x2: b.x2, z1: b.z1 + paso, z2: b.z1 + paso + tramo }
       instancias = distribuirEnRect(n, rect, dims.largo, dims.ancho, PASILLO[forma])
     }
-    equipos.push({ id: e.id, nombre: e.nombre, tipo: e.tipo, forma, zona: e.zona, etapa: e.etapa, dims, representativo, cantidadOrigen: origen, instancias })
+    equipos.push({ id: e.id, nombre: e.nombre, tipo: e.tipo, forma, zona: e.zona, etapa: e.etapa, dims, representativo, largoOriginal, recortado, cantidadOrigen: origen, instancias })
   }
   return { equipos, sinUbicar }
 }

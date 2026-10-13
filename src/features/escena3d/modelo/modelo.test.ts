@@ -4,7 +4,7 @@ import { indexarLayout, zonasDeRuta } from '../../../domain/selectors'
 import type { PlantLayout } from '../../../domain/types'
 import { validarLayout } from '../../../domain/validate'
 import { caminoPorZonas, encuadreCenital, encuadreGeneral, encuadrePara } from './camara'
-import { areaConSigno, construirModelo, distribuirEnRect, tramos } from './construirModelo'
+import { ajustarLargo, areaConSigno, cantidadEquipo, construirModelo, distribuirEnRect, tramos } from './construirModelo'
 
 const raw: unknown = JSON.parse(readFileSync(new URL('../../../../public/plant-layout.json', import.meta.url), 'utf-8'))
 const r = validarLayout(raw)
@@ -40,6 +40,23 @@ describe('construirModelo', () => {
     expect(esm.cantidadOrigen).toBe('minimo_observado')
     expect(esm.instancias).toHaveLength(2)
     expect(m.equipos.find((e) => e.id === 'kerajet-01')!.cantidadOrigen).toBe('uno')
+  })
+
+  it('cantidadEquipo cubre los tres orígenes y nunca usa la dotación', () => {
+    const base = layout.equipos.find((e) => e.id === 'kerajet-01')!
+    expect(cantidadEquipo({ ...base, cantidad: 3 })).toEqual({ n: 3, origen: 'json' })
+    expect(cantidadEquipo({ ...base, cantidad: null, cantidad_min_observada: 4 })).toEqual({ n: 4, origen: 'minimo_observado' })
+    expect(cantidadEquipo({ ...base, cantidad: null, cantidad_min_observada: undefined, instanciado: true })).toEqual({ n: 1, origen: 'uno' })
+  })
+
+  it('conserva el largo del JSON cuando lo recorta para caber en la zona', () => {
+    const h = m.equipos.find((e) => e.id === 'horno-01')!
+    expect(h.largoOriginal).toBe(20)
+    expect(h.recortado).toBe(true)
+    expect(h.dims.largo).toBeCloseTo(19.5 - 0.8)
+    expect(ajustarLargo(20, 0.5)).toBeGreaterThan(0)
+    expect(ajustarLargo(0.3, 0.2)).toBeCloseTo(0.3)
+    expect(ajustarLargo(4, 10)).toBe(4)
   })
 
   it('no ubica equipos de zonas sin polígono', () => {

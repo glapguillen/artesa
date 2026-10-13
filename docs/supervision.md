@@ -196,6 +196,18 @@ Guarda las capturas en `/tmp/supervision/` y el supervisor **las mira** antes de
 | O12 | El remoto público tiene otras ramas ajenas al proyecto (`feat/aforo-inteligente-mvp`, `codex/…`). Se revisaron: `config.example.yaml` tiene `api_key: ""`, sin secretos | S2 | — |
 | O13 | Bien: `fetch(..., { cache: 'no-store' })` en `useBootstrap` (facilita F4), carga diferida de `Scene3DView` ya en `App.tsx` y `CONFIG.debug` previsto para `?debug` | F4, V14, V15 | `src/app/useBootstrap.ts`, `src/App.tsx`, `src/config.ts` |
 
+### 3.1 Decisiones del agente principal sobre la ronda 0 (commit `97c6e4d`)
+
+Comunicadas por mensaje. Todavía **no** se han verificado: se comprueban en la Ronda 1.
+
+| Obs. | Decisión | Qué se verificará en la Ronda 1 |
+|---|---|---|
+| O4 | **Adoptada.** `puesto-decoracion` tiene `cantidad_min_observada: 5` en el JSON y se eliminó la estimación por dotación. La regla vive en `src/features/escena3d/modelo/construirModelo.ts` → `cantidadEquipo`: `cantidad ?? cantidad_min_observada ?? 1`, con el origen declarado (`'json' \| 'minimo_observado' \| 'uno'`) | El JSON trae el campo y la fuente (foto-2) está en `notas`. Hay un test unitario de `cantidadEquipo` con los 3 orígenes. El panel o tooltip muestra el origen ("mín. observado (foto 2)" o "representativo · [POR DEFINIR]"). La dotación no se usa para contar equipos (grep) |
+| O5 | **Adoptada.** El largo de un equipo se recorta al eje mayor de su zona menos 0,4 m por extremo y queda marcado como representativo | Los hornos no atraviesan muros (captura cenital y lateral). El panel declara el ajuste, p. ej. "Largo según croquis 20 m (aprox.) · dibujado 18,7 m para caber en la zona", sin ocultar el dato del JSON. Hay un test del recorte. Una zona más corta que 0,8 m no produce un largo ≤ 0 |
+| O10 | **Adoptada.** El README documenta que `responsable` lleva un cargo, nunca un nombre | Texto presente en el README |
+| O2, O3, O6 | **En las instrucciones del 3D:** alturas y envolvente supuestas y declaradas en la UI. Las zonas y los equipos sin ubicar van fuera de la planta, en un panel aparte | V3, V6 y U3 en la Ronda 1 |
+| O1 | **Pendiente:** el integrador de la Fase 1 crea `npm run smoke` | F2 en la Ronda 1 |
+
 ---
 
 ## 4. Acuerdos de diferimiento
@@ -221,4 +233,4 @@ Verificación: comandos y resultados; capturas revisadas (/tmp/supervision/…)
 Estado de bloqueantes de rondas anteriores: …
 ```
 
-*(Sin rondas todavía.)*
+*(Sin rondas todavía. La Ronda 1 se hará cuando terminen la Fase 1 y la construcción del 3D, a pedido del agente principal.)*

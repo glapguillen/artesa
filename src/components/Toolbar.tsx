@@ -4,13 +4,14 @@ import { ViewTabs } from './ViewTabs'
 
 export function Toolbar() {
   return (
-    <nav
+    <div
       data-testid="toolbar"
+      role="group"
       aria-label="Herramientas de las vistas"
       className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2"
     >
       <ViewTabs />
       <RouteChips />
-    </nav>
+    </div>
   )
 }

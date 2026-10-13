@@ -77,6 +77,10 @@ export interface Equipo3D {
   dims: { largo: number; ancho: number; alto: number }
   /** true si alguna dimensión no viene del JSON (tamaño típico) o se recortó para caber en la zona. */
   representativo: boolean
+  /** Largo según el JSON (o típico si es null) antes de ajustarlo a la zona. */
+  largoOriginal: number
+  /** true si el largo dibujado es menor que largoOriginal para caber en la zona. */
+  recortado: boolean
   cantidadOrigen: OrigenCantidad
   instancias: Instancia[]
 }
