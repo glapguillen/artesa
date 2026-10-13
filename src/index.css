@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* Modo oscuro por clase en <html> (la app la pone según el tema elegido o el del sistema). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Tokens de color. Las vistas SVG/React Flow los usan como var(--c-…); Tailwind los expone abajo. */
+:root {
+  color-scheme: light;
+  --c-bg: #f6f5f2;
+  --c-surface: #ffffff;
+  --c-surface-2: #f1efea;
+  --c-border: #e2ded6;
+  --c-text: #1f2328;
+  --c-muted: #5c6168;
+  --c-accent: #c2410c;
+
+  --c-estado-operando: #15803d;
+  --c-estado-espera: #b45309;
+  --c-estado-detenido: #dc2626;
+  --c-estado-mantenimiento: #7c3aed;
+  --c-estado-sin_datos: #9ca3af;
+
+  --c-fase-nivel_0: #475569;
+  --c-fase-A: #8a5a2b;
+  --c-fase-B: #8a5a2b;
+  --c-fase-F1: #c2410c;
+  --c-fase-F2: #1d4ed8;
+  --c-fase-F3: #15803d;
+  --c-fase-venta: #6b7280;
+
+  --c-ruta: #db2777;
+  --c-seleccion: #0ea5e9;
+  /* Opacidad del color de grupo de las zonas (más baja en modo oscuro). */
+  --zona-opacidad: 0.85;
+}
+
+.dark {
+  color-scheme: dark;
+  --c-bg: #121417;
+  --c-surface: #1b1e22;
+  --c-surface-2: #23272d;
+  --c-border: #343a42;
+  --c-text: #e8e6e3;
+  --c-muted: #a2a8b0;
+  --c-accent: #fb923c;
+
+  --c-estado-operando: #22c55e;
+  --c-estado-espera: #f59e0b;
+  --c-estado-detenido: #f87171;
+  --c-estado-mantenimiento: #a78bfa;
+  --c-estado-sin_datos: #6b7280;
+
+  --c-fase-nivel_0: #94a3b8;
+  --c-fase-A: #c99a6b;
+  --c-fase-B: #c99a6b;
+  --c-fase-F1: #fb923c;
+  --c-fase-F2: #60a5fa;
+  --c-fase-F3: #4ade80;
+  --c-fase-venta: #9ca3af;
+
+  --c-ruta: #f472b6;
+  --c-seleccion: #38bdf8;
+  --zona-opacidad: 0.55;
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-borde: var(--c-border);
+  --color-texto: var(--c-text);
+  --color-tenue: var(--c-muted);
+  --color-acento: var(--c-accent);
+  --color-ruta: var(--c-ruta);
+  --color-seleccion: var(--c-seleccion);
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
