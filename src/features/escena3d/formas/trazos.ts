@@ -136,3 +136,16 @@ export function construirTubos(trazos: readonly Trazo[], lados = 6): GeometriaTu
   }
   return g
 }
+
+/** Punto medio y dirección horizontal de cada tramo (flechas de sentido de la ruta). */
+export function mediosDeTramos(puntos: readonly V3[]): Array<{ pos: V3; dir: V3 }> {
+  const out: Array<{ pos: V3; dir: V3 }> = []
+  for (let i = 0; i + 1 < puntos.length; i++) {
+    const a = puntos[i]!
+    const b = puntos[i + 1]!
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2])
+    if (L < 1e-6) continue
+    out.push({ pos: mezclar(a, b, 0.5), dir: [(b[0] - a[0]) / L, (b[1] - a[1]) / L, (b[2] - a[2]) / L] })
+  }
+  return out
+}

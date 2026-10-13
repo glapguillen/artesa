@@ -8,6 +8,7 @@ import { CONFIANZA, etiquetaFuente, etiquetaPrecisionDim, etiquetaTipoEquipo, no
 import { ChipEtapa, ChipZona } from './chips'
 import { SeccionAlarmas } from './listas'
 import { ChipEstado, Chips, Datos, Fila, PorDefinir, Seccion, SinDatos, Texto, Vacio, ValorVivo } from './piezas'
+import { Representacion3D } from './Representacion3D'
 
 /** "20 m" o [POR DEFINIR]. */
 function Metros({ v }: { v: number | null | undefined }) {
@@ -127,6 +128,7 @@ export function EquipoDetalle({ equipo }: { equipo: Equipo }) {
   return (
     <>
       <Ficha equipo={equipo} />
+      <Representacion3D equipo={equipo} />
       <EnVivo equipo={equipo} />
       <SeccionAlarmas titulo="Alarmas del equipo" alarmas={alarmasDeSeleccion(live, idx, { tipo: 'equipo', id: equipo.id })} />
     </>

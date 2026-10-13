@@ -174,25 +174,3 @@ export function instanciasPorForma(equipos: readonly Equipo3D[]): Map<FormaEquip
   for (const e of equipos) out.set(e.forma, (out.get(e.forma) ?? 0) + e.instancias.length)
   return out
 }
-
-/** Caja envolvente de una instancia (para el contorno de selección y el rombo de "representativo"). */
-export function envolventes(e: Equipo3D, holgura = 0.25): Array<{ pos: V3; rotY: number; escala: V3 }> {
-  const { largo, ancho, alto } = e.dims
-  return e.instancias.map((i) => ({
-    pos: [i.pos[0], i.pos[1] + alto / 2, i.pos[2]],
-    rotY: i.rotY,
-    escala: [largo + 2 * holgura, alto + holgura, ancho + 2 * holgura],
-  }))
-}
-
-/** Punto sobre el equipo (centro de sus instancias, por encima del más alto) para marcas y balizas. */
-export function cimaDeEquipo(e: Equipo3D, sobre = 0.9): V3 | null {
-  if (!e.instancias.length) return null
-  let x = 0
-  let z = 0
-  for (const i of e.instancias) {
-    x += i.pos[0]
-    z += i.pos[2]
-  }
-  return [x / e.instancias.length, e.dims.alto + sobre, z / e.instancias.length]
-}

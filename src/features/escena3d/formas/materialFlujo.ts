@@ -1,7 +1,7 @@
 // Material de los tubos de flujo y de la ruta: color por vértice, guiones que avanzan en el
 // sentido del trazo (discontinuos) o pulsos de brillo (sólidos). Un solo material para todos los
 // tubos de una capa: un draw call. Sin texturas ni recursos externos.
-import { BufferAttribute, BufferGeometry, Color, NormalBlending, ShaderMaterial } from 'three'
+import { BufferAttribute, BufferGeometry, Color, type Mesh, NormalBlending, ShaderMaterial } from 'three'
 import type { V3 } from '../modelo/tipos'
 import type { GeometriaTubos } from './trazos'
 
@@ -54,6 +54,15 @@ export function crearMaterialFlujo(velocidad = 4, periodo = 3): ShaderMaterial {
     blending: NormalBlending,
     toneMapped: false,
   })
+}
+
+/** Avanza la animación del material de una malla (en useFrame) y fija su atenuación global. */
+export function avanzar(malla: Mesh | null, dt: number, atenuar = 1): void {
+  const m = malla?.material
+  if (!(m instanceof ShaderMaterial)) return
+  const u = m.uniforms
+  if (u.uTiempo) u.uTiempo.value += Math.min(dt, 0.1)
+  if (u.uAtenuar) u.uAtenuar.value = atenuar
 }
 
 /** BufferGeometry a partir de los arreglos de construirTubos. */
