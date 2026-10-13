@@ -10,7 +10,7 @@ Stack: Vite + React 19 (<19.4, por R3F) + TypeScript estricto + zustand + Tailwi
 - Un id sin datos en vivo se muestra en gris ("Sin datos") y nunca rompe la app (`noUncheckedIndexedAccess` está activo).
 - Componentes de menos de 200 líneas y sin lógica de datos; el estado global vive en `src/store/usePlantStore.ts`.
 - UI en español, modo claro y oscuro con las variables de `src/index.css` (`var(--c-…)` o clases `bg-surface`, `text-tenue`, `border-borde`…), usable desde 360 px de ancho.
-- Solo dependencias MIT/Apache/BSD/ISC/CC0; nada AGPL. Los assets 3D llevan su licencia en `public/models/LICENSES.md`.
+- Solo dependencias MIT/Apache/BSD/ISC/CC0 en lo que se publica; nada AGPL (lightningcss, MPL-2.0, es solo de compilación). Los assets 3D llevan su licencia en `public/models/LICENSES.md`.
 - El repositorio es público: nunca versiones datos personales (nombres, cédulas, correos, teléfonos, salarios). La nómina entra solo agregada en `personal.dotacion`.
 - Credenciales y URLs privadas en `.env` (no versionado).
 - Antes de dar algo por terminado: `npm run typecheck && npm run lint && npm test && npm run build`.
