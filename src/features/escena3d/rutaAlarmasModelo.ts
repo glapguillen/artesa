@@ -3,7 +3,7 @@
 import type { Alarma, LiveState, NivelAlarma } from '../../domain/live'
 import { type LayoutIndex, zonaPrincipalDeEtapa, zonasDeRuta } from '../../domain/selectors'
 import type { PlantLayout } from '../../domain/types'
-import { fmtNum } from '../../ui/tokens'
+import { fmtNum, NIVEL_ALARMA_ETIQUETA } from '../../ui/tokens'
 import { pasosPorZona } from '../planta/planLive'
 import { caminoPorZonas } from './modelo/camara'
 import type { ModeloEscena, V3 } from './modelo/tipos'
@@ -129,4 +129,12 @@ export function balizasDeAlarmas(m: ModeloEscena, idx: LayoutIndex | null, live:
 /** Color de la baliza: crítica = detenido (rojo), advertencia = espera (ámbar), información = tenue. */
 export function colorNivel(nivel: NivelAlarma, p: Pick<Paleta3D, 'estado' | 'tenue'>): string {
   return nivel === 'critica' ? p.estado.detenido : nivel === 'advertencia' ? p.estado.espera : p.tenue
+}
+
+/** Etiqueta accesible del botón de una baliza (sin repetir el nombre si el mensaje ya lo trae). */
+export function etiquetaBaliza(b: Pick<Baliza, 'nivel' | 'nombre' | 'alarmas'>): string {
+  const n = b.alarmas.length
+  const nivel = NIVEL_ALARMA_ETIQUETA[b.nivel].toLowerCase()
+  const mensajes = b.alarmas.map((a) => (a.mensaje.startsWith(b.nombre) ? a.mensaje : `${b.nombre}: ${a.mensaje}`)).join(' ')
+  return `Alarma ${nivel}${n > 1 ? ` (${n} alarmas)` : ''}. ${mensajes} Abrir el detalle.`
 }

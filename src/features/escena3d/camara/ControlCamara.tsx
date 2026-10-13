@@ -13,6 +13,7 @@ import { destinoDeSeleccion } from '../presentacion'
 import { type ApiCamara, useVista3D } from '../useVista3D'
 import { ajustarEncuadre, type Caja3, cajaPlanta } from './ajuste'
 import { useTour } from './estadoTour'
+import { seleccion3DActual, useSeleccion3D } from './useSeleccion3D'
 
 /** Inclinación máxima: 85° desde la vertical, para no pasar bajo el piso. */
 const MAX_POLAR = (85 * Math.PI) / 180
@@ -22,15 +23,13 @@ const FACTOR_DISTANCIA_MAX = 2.2
 const MARGEN_PLANTA = 1.04
 const MARGEN_DETALLE = 1.35
 
-const destinoActual = (m: ModeloEscena) => {
-  const s = usePlantStore.getState()
-  return destinoDeSeleccion(m, s.idx, s.seleccion)
-}
+const destinoActual = (m: ModeloEscena) => destinoDeSeleccion(m, usePlantStore.getState().idx, seleccion3DActual())
 
 export function ControlCamara({ modelo }: { modelo: ModeloEscena }) {
   const ref = useRef<CameraControls>(null)
   const idx = usePlantStore((s) => s.idx)
-  const clave = usePlantStore((s) => (s.seleccion ? `${s.seleccion.tipo}:${s.seleccion.id}` : ''))
+  const sel = useSeleccion3D()
+  const clave = sel ? `${sel.tipo}:${sel.id}` : ''
   const restaurar = useVista3D((s) => s.restaurar)
   const camara = useThree((s) => s.camera) as PerspectiveCamera
   const { width, height } = useThree((s) => s.size)

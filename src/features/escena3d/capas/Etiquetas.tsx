@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { usePlantStore } from '../../../store/usePlantStore'
 import { resaltadoDeSeleccion } from '../../planta/planLive'
+import { useSeleccion3D } from '../camara/useSeleccion3D'
 import { anchoEtiquetaPx, anclaEtiqueta, type CandidatoEtiqueta, disponerEtiquetas, ESPESOR_LOSA } from '../geometriaEscena'
 import type { Losa3D, ModeloEscena, V2 } from '../modelo/tipos'
 import { esRayada } from '../presentacion'
@@ -67,7 +68,7 @@ function Etiqueta({ losa, ancla, resalte, seleccionada, etapaElegida }: Etiqueta
 
 export function Etiquetas({ modelo, todas }: { modelo: ModeloEscena; todas: boolean }) {
   const idx = usePlantStore((s) => s.idx)
-  const seleccion = usePlantStore((s) => s.seleccion)
+  const seleccion = useSeleccion3D()
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   const resalte = useMemo(() => resaltadoDeSeleccion(idx, seleccion), [idx, seleccion])

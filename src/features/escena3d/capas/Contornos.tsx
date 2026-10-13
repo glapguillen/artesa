@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useMemo } from 'react'
 import { BufferAttribute, BufferGeometry, Color, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three'
 import { usePlantStore } from '../../../store/usePlantStore'
 import { resaltadoDeSeleccion } from '../../planta/planLive'
+import { useSeleccion3D } from '../camara/useSeleccion3D'
 import { ESPESOR_LOSA } from '../geometriaEscena'
 import type { Losa3D, ModeloEscena, V3 } from '../modelo/tipos'
 import type { Paleta3D } from '../usePaleta3D'
@@ -81,7 +82,7 @@ function puntosResalte(losas: Losa3D[], resalte: Map<string, 'solido' | 'discont
 
 function ResalteSeleccion({ losas, color }: { losas: Losa3D[]; color: string }) {
   const idx = usePlantStore((s) => s.idx)
-  const seleccion = usePlantStore((s) => s.seleccion)
+  const seleccion = useSeleccion3D()
   const { solido, discontinuo } = useMemo(() => puntosResalte(losas, resaltadoDeSeleccion(idx, seleccion)), [losas, idx, seleccion])
   return (
     <>

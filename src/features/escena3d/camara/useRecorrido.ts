@@ -25,6 +25,7 @@ function alTeclado(e: KeyboardEvent) {
 
 export function useRecorrido() {
   const activo = useTour((s) => s.activo)
+  const global = useTour((s) => s.global)
   const pausado = useTour((s) => s.pausado)
   const indice = useTour((s) => s.indice)
   const pasos = useTour((s) => s.pasos)
@@ -41,8 +42,8 @@ export function useRecorrido() {
   }, [activo, pausado, indice])
 
   useEffect(() => {
-    if (activo && !esSeleccionDelPaso(seleccion, pasos[indice])) useTour.getState().detener(false)
-  }, [activo, seleccion, pasos, indice])
+    if (activo && !esSeleccionDelPaso(seleccion, pasos[indice], global)) useTour.getState().detener(false)
+  }, [activo, global, seleccion, pasos, indice])
 
   useEffect(() => {
     if (!activo) return

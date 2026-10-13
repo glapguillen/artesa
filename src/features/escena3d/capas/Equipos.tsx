@@ -22,7 +22,7 @@ function colorPieza(out: Color, p: PiezaUbicada, v: VistaEquipo | undefined, pal
   if (p.rol === 'calor') mezclarColor(out, paleta.borde, paleta.fase.F1, v?.calor ?? 0)
   else if (p.rol === 'estructura') mezclarColor(out, paleta.tenue, paleta.superficie, paleta.oscuro ? 0.35 : 0.15)
   else out.set(paleta.estado[v?.estado ?? 'sin_datos'])
-  if (v?.resalte && p.rol !== 'calor') out.lerp(new Color(paleta.seleccion), v.resalte === 'fuerte' ? 0.45 : 0.25)
+  if (v?.resalte && p.rol !== 'calor') out.lerp(new Color(paleta.seleccion), v.resalte === 'fuerte' ? 0.3 : 0.15)
   return out
 }
 

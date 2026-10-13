@@ -15,7 +15,7 @@ import {
   vistaEquipos,
 } from './capasModelo'
 import { construirModelo } from './modelo/construirModelo'
-import { ALTURA_RUTA, balizasDeAlarmas, colorNivel, rotuloRuta, rutaEscena } from './rutaAlarmasModelo'
+import { ALTURA_RUTA, balizasDeAlarmas, colorNivel, etiquetaBaliza, rotuloRuta, rutaEscena } from './rutaAlarmasModelo'
 
 const raw: unknown = JSON.parse(readFileSync(new URL('../../../public/plant-layout.json', import.meta.url), 'utf-8'))
 const r = validarLayout(raw)
@@ -152,6 +152,9 @@ describe('alarmas', () => {
     expect(b[1]!.alarmas.map((a) => a.id)).toEqual(['esmaltado-2', 'info-etapa'])
     expect(b[2]!.nombre).toBe(m.losas.find((s) => s.id === 'z-cf')!.nombre)
     expect(balizasDeAlarmas(m, idx, null)).toEqual([])
+    expect(etiquetaBaliza(b[1]!)).toBe(`Alarma advertencia (2 alarmas). ${b[1]!.nombre}: esmaltado-2 ${b[1]!.nombre}: info-etapa Abrir el detalle.`)
+    const propio = { ...b[0]!, alarmas: [alarma(`${b[0]!.nombre}: temperatura fuera de rango.`, 'critica', null)] }
+    expect(etiquetaBaliza(propio)).toBe(`Alarma crítica. ${b[0]!.nombre}: temperatura fuera de rango. Abrir el detalle.`)
   })
 
   it('colorea por nivel con la paleta del tema', () => {

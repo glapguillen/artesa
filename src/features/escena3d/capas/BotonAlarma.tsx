@@ -1,8 +1,7 @@
 // Botón "!" en la cima de una baliza de alarma: abre el detalle de su referencia. Área táctil de
 // 40 px; el número indica cuántas alarmas activas tiene esa referencia.
 import type { SyntheticEvent } from 'react'
-import { NIVEL_ALARMA_ETIQUETA } from '../../../ui/tokens'
-import type { Baliza } from '../rutaAlarmasModelo'
+import { type Baliza, etiquetaBaliza } from '../rutaAlarmasModelo'
 import { HtmlEscena as Html } from './HtmlEscena'
 
 interface Props {
@@ -20,16 +19,15 @@ const parar = (e: SyntheticEvent) => e.stopPropagation()
 
 export function BotonAlarma({ baliza: b, color, texto, onElegir }: Props) {
   const n = b.alarmas.length
-  const nivel = NIVEL_ALARMA_ETIQUETA[b.nivel].toLowerCase()
   const mensajes = b.alarmas.map((a) => a.mensaje).join(' ')
   const chico = b.nivel === 'info'
   return (
-    <Html position={[b.pos[0], b.cima, b.pos[2]]} center zIndexRange={[28, 25]}>
+    <Html position={[b.pos[0], b.cima, b.pos[2]]} center zIndexRange={[19, 17]}>
       <button
         type="button"
         data-alarma-3d={b.clave}
         data-nivel={b.nivel}
-        aria-label={`Alarma ${nivel} en ${b.nombre}${n > 1 ? ` (${n} alarmas)` : ''}: ${mensajes} Abrir el detalle.`}
+        aria-label={etiquetaBaliza(b)}
         title={mensajes}
         onClick={(e) => {
           e.stopPropagation()

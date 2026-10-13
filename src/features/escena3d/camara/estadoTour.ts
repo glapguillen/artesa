@@ -1,14 +1,21 @@
-// Estado del recorrido de presentación. Cada paso selecciona su etapa en el store global (así el
-// panel, el 2D y el diagrama la muestran) y la cámara vuela por la selección. Al salir con
-// "Salir" o Esc se restauran la vista y la selección previas.
+// Estado del recorrido de presentación. En pantallas anchas cada paso selecciona su etapa en el
+// store global (así el panel, el 2D y el diagrama la muestran) y la cámara vuela por la selección.
+// En angostas el panel de detalle es una hoja que taparía la escena: el paso se resalta solo en 3D
+// (useSeleccion3D) sin abrir el panel. Al salir con "Salir" o Esc se restauran vista y selección.
 import { create } from 'zustand'
 import { type Seleccion, usePlantStore } from '../../../store/usePlantStore'
 import type { Encuadre } from '../modelo/tipos'
 import { useVista3D } from '../useVista3D'
 import { pasoAcotado, type PasoRecorrido } from './tour'
 
+/** Ancho desde el que el panel de detalle va al costado y no tapa la escena (lg de Tailwind). */
+const CONSULTA_ANCHA = '(min-width: 1024px)'
+const pantallaAncha = () => typeof window === 'undefined' || !window.matchMedia || window.matchMedia(CONSULTA_ANCHA).matches
+
 interface EstadoTour {
   activo: boolean
+  /** true: cada paso selecciona su etapa en el store global; false: solo se resalta en 3D. */
+  global: boolean
   pausado: boolean
   indice: number
   pasos: PasoRecorrido[]
@@ -22,6 +29,7 @@ interface EstadoTour {
 
 export const useTour = create<EstadoTour>()((set, get) => ({
   activo: false,
+  global: true,
   pausado: false,
   indice: 0,
   pasos: [],
@@ -32,16 +40,18 @@ export const useTour = create<EstadoTour>()((set, get) => ({
       seleccion: usePlantStore.getState().seleccion,
       camara: useVista3D.getState().camara?.estado(true) ?? null,
     }
-    set({ activo: true, pausado: false, indice: 0, pasos, previo })
+    const global = pantallaAncha()
+    set({ activo: true, global, pausado: false, indice: 0, pasos, previo })
+    if (!global) usePlantStore.getState().seleccionar(null)
     get().ir(0)
   },
   ir: (i) => {
-    const { pasos, activo } = get()
+    const { pasos, activo, global } = get()
     if (!activo) return
     const indice = pasoAcotado(i, pasos.length)
     set({ indice })
-    const codigo = pasos[indice]?.etapas[0]?.codigo
-    if (codigo) usePlantStore.getState().seleccionar({ tipo: 'etapa', id: codigo })
+    const codigo = etapaDelPaso(pasos[indice])
+    if (codigo && global) usePlantStore.getState().seleccionar({ tipo: 'etapa', id: codigo })
   },
   setPausado: (pausado) => set({ pausado }),
   detener: (restaurar) => {
@@ -55,7 +65,14 @@ export const useTour = create<EstadoTour>()((set, get) => ({
   },
 }))
 
-/** ¿La selección pertenece al paso en curso? (si no, el usuario eligió otra cosa). */
-export function esSeleccionDelPaso(sel: Seleccion | null, paso: PasoRecorrido | undefined): boolean {
+/** Etapa que representa al paso (la primera del grupo). */
+export const etapaDelPaso = (p: PasoRecorrido | undefined) => p?.etapas[0]?.codigo ?? null
+
+/**
+ * ¿La selección global es la que corresponde al recorrido? Con selección global, una etapa del
+ * paso; sin ella, ninguna. Si no, el usuario eligió otra cosa y el recorrido se detiene.
+ */
+export function esSeleccionDelPaso(sel: Seleccion | null, paso: PasoRecorrido | undefined, global = true): boolean {
+  if (!global) return sel === null
   return !!sel && !!paso && sel.tipo === 'etapa' && paso.etapas.some((e) => e.codigo === sel.id)
 }

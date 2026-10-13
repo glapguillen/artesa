@@ -8,7 +8,7 @@ export function PasosRuta({ pasos, color, texto }: { pasos: PasoRuta[]; color: s
   return (
     <>
       {pasos.map((p) => (
-        <Html key={p.zonaId} position={p.pos} center zIndexRange={[24, 21]} pointerEvents="none">
+        <Html key={p.zonaId} position={p.pos} center zIndexRange={[16, 14]} pointerEvents="none">
           <span
             aria-hidden="true"
             data-paso-zona-3d={p.zonaId}
@@ -29,7 +29,7 @@ const esquinaInferior = (_el: unknown, _cam: unknown, size: { width: number; hei
 export function RotuloRuta({ id, texto, color }: { id: string; texto: string; color: string }) {
   const ancho = useThree((s) => s.size.width)
   return (
-    <Html calculatePosition={esquinaInferior} zIndexRange={[26, 26]} pointerEvents="none">
+    <Html calculatePosition={esquinaInferior} zIndexRange={[16, 16]} pointerEvents="none">
       <p
         data-testid="ruta-rotulo-3d"
         data-ruta-activa={id}
