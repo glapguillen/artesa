@@ -59,10 +59,10 @@ export function vistaEquipos(equipos: readonly Equipo3D[], live: LiveState | nul
 
 /** Radio del tubo (m) según el caudal relativo 0–1 (de caudalRelativo, como en 2D); fino sin dato. */
 export function radioFlujo(rel: number | null): number {
-  if (rel === null || !Number.isFinite(rel)) return 0.1
+  if (rel === null || !Number.isFinite(rel)) return 0.07
   // Se cuantiza en décimos para no reconstruir la geometría con cada lectura.
   const q = Math.round(Math.min(1, Math.max(0, rel)) * 10) / 10
-  return 0.14 + 0.3 * q
+  return 0.1 + 0.2 * q
 }
 
 /** Largo de la punta de flecha de un flujo según el radio de su tubo (m). */

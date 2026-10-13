@@ -6,6 +6,7 @@ import type { PlantLayout } from '../../domain/types'
 import type { Seleccion } from '../../store/usePlantStore'
 import { POR_DEFINIR } from '../../ui/tokens'
 import { patronDeGrupo } from '../planta/planModel'
+import { type Caja3, cajaEquipo, cajaLosa } from './camara/ajuste'
 import { encuadrePara } from './modelo/camara'
 import { ALTO_MURO_EDIFICIO, ALTO_TABIQUE } from './modelo/catalogo'
 import type { Encuadre, ModeloEscena } from './modelo/tipos'
@@ -68,31 +69,34 @@ export function colorLosa(p: Paleta3D, e: EntradaColorLosa): { relleno: string; 
   return { relleno, borde }
 }
 
-/** A dónde va la cámara al seleccionar algo, o por qué no puede ir (no está en el croquis). */
+/** A dónde va la cámara al seleccionar algo (encuadre y caja a ver entera), o por qué no puede ir. */
 export type Destino =
-  | { tipo: 'escena'; encuadre: Encuadre; zonaId: string | null }
+  | { tipo: 'escena'; encuadre: Encuadre; caja: Caja3 | null; zonaId: string | null }
   | { tipo: 'sin_ubicar'; nombre: string }
+
+function destinoZona(m: ModeloEscena, id: string): Destino | null {
+  const s = m.losas.find((l) => l.id === id)
+  const e = encuadrePara(m, 'zona', id)
+  return s && e ? { tipo: 'escena', encuadre: e, caja: cajaLosa(s), zonaId: id } : null
+}
 
 export function destinoDeSeleccion(m: ModeloEscena, idx: LayoutIndex | null, sel: Seleccion | null): Destino | null {
   if (!sel || !idx) return null
   if (sel.tipo === 'zona') {
-    const e = encuadrePara(m, 'zona', sel.id)
-    if (e) return { tipo: 'escena', encuadre: e, zonaId: sel.id }
     const z = idx.zonasPorId.get(sel.id)
-    return z ? { tipo: 'sin_ubicar', nombre: z.nombre } : null
+    return destinoZona(m, sel.id) ?? (z ? { tipo: 'sin_ubicar', nombre: z.nombre } : null)
   }
   if (sel.tipo === 'equipo') {
     const q = idx.equiposPorId.get(sel.id)
+    const e3 = m.equipos.find((e) => e.id === sel.id)
     const e = encuadrePara(m, 'equipo', sel.id)
-    if (e) return { tipo: 'escena', encuadre: e, zonaId: q?.zona ?? null }
+    if (e3 && e) return { tipo: 'escena', encuadre: e, caja: cajaEquipo(e3), zonaId: e3.zona }
     return q ? { tipo: 'sin_ubicar', nombre: q.nombre } : null
   }
   const etapa = idx.etapasPorCodigo.get(sel.id)
   if (!etapa) return null
   const z = zonaPrincipalDeEtapa(idx, sel.id)
-  const e = z ? encuadrePara(m, 'zona', z.id) : null
-  if (z && e) return { tipo: 'escena', encuadre: e, zonaId: z.id }
-  return { tipo: 'sin_ubicar', nombre: `${etapa.codigo} · ${etapa.nombre_corto}` }
+  return (z && destinoZona(m, z.id)) || { tipo: 'sin_ubicar', nombre: `${etapa.codigo} · ${etapa.nombre_corto}` }
 }
 
 const m1 = (v: number) => v.toLocaleString('es-EC', { maximumFractionDigits: 1 })

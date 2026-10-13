@@ -1,5 +1,6 @@
 // Botón "!" en la cima de una baliza de alarma: abre el detalle de su referencia. Área táctil de
 // 40 px; el número indica cuántas alarmas activas tiene esa referencia.
+import type { SyntheticEvent } from 'react'
 import { NIVEL_ALARMA_ETIQUETA } from '../../../ui/tokens'
 import type { Baliza } from '../rutaAlarmasModelo'
 import { HtmlEscena as Html } from './HtmlEscena'
@@ -10,6 +11,12 @@ interface Props {
   texto: string
   onElegir: () => void
 }
+
+/**
+ * El clic del botón no debe llegar al lienzo (R3F lo tomaría como un clic en la escena). El
+ * movimiento sí pasa, para que R3F actualice el hover al entrar o salir del botón.
+ */
+const parar = (e: SyntheticEvent) => e.stopPropagation()
 
 export function BotonAlarma({ baliza: b, color, texto, onElegir }: Props) {
   const n = b.alarmas.length
@@ -24,7 +31,12 @@ export function BotonAlarma({ baliza: b, color, texto, onElegir }: Props) {
         data-nivel={b.nivel}
         aria-label={`Alarma ${nivel} en ${b.nombre}${n > 1 ? ` (${n} alarmas)` : ''}: ${mensajes} Abrir el detalle.`}
         title={mensajes}
-        onClick={onElegir}
+        onClick={(e) => {
+          e.stopPropagation()
+          onElegir()
+        }}
+        onPointerDown={parar}
+        onPointerUp={parar}
         className="grid size-10 cursor-pointer place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-seleccion"
       >
         <span

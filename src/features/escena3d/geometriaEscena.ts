@@ -67,32 +67,24 @@ export function anclaEtiqueta(s: Losa3D): V2 {
 }
 
 /**
- * Punto de la losa donde un clic la selecciona: el centroide si está dentro y libre de equipos;
- * si no, el punto libre de una malla interior más cercano al centroide.
+ * Puntos de la losa donde un clic la selecciona, del más cercano al centroide al más lejano: el
+ * centroide si está dentro, y los de una malla interior, sin pisar la huella de sus equipos.
  */
-export function puntoLibre(s: Losa3D, equipos: Equipo3D[]): V2 {
+export function puntosLibres(s: Losa3D, equipos: Equipo3D[], n = 16): V2[] {
   const propios = equipos.filter((e) => e.zona === s.id)
   const pol = s.contorno as Punto[]
   const libre = (p: V2) => puntoEnPoligono(p, pol) && !propios.some((e) => e.instancias.some((i) => enHuella(p, i, e.dims)))
-  if (libre(s.centro)) return s.centro
   const xs = s.contorno.map((p) => p[0])
   const zs = s.contorno.map((p) => p[1])
   const [x1, x2, z1, z2] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)]
-  const n = 16
-  let mejor: V2 | null = null
-  let dMejor = Infinity
-  for (let i = 1; i < n; i++) {
-    for (let j = 1; j < n; j++) {
-      const p: V2 = [x1 + ((x2 - x1) * i) / n, z1 + ((z2 - z1) * j) / n]
-      const d = Math.hypot(p[0] - s.centro[0], p[1] - s.centro[1])
-      if (d < dMejor && libre(p)) {
-        mejor = p
-        dMejor = d
-      }
-    }
-  }
-  return mejor ?? anclaEtiqueta(s)
+  const cands: V2[] = [s.centro]
+  for (let i = 1; i < n; i++) for (let j = 1; j < n; j++) cands.push([x1 + ((x2 - x1) * i) / n, z1 + ((z2 - z1) * j) / n])
+  const d = (p: V2) => Math.hypot(p[0] - s.centro[0], p[1] - s.centro[1])
+  return cands.filter(libre).sort((a, b) => d(a) - d(b))
 }
+
+/** El mejor punto de clic de la losa (o el ancla de la etiqueta si los equipos la cubren entera). */
+export const puntoLibre = (s: Losa3D, equipos: Equipo3D[]): V2 => puntosLibres(s, equipos)[0] ?? anclaEtiqueta(s)
 
 export interface CandidatoEtiqueta {
   id: string

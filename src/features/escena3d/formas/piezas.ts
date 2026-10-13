@@ -43,7 +43,7 @@ const FORMAS: Record<FormaEquipo, (d: Dims) => Pieza[]> = {
     return [
       caja('estructura', [-L / 2 + b / 2, H / 2, 0], [b, H, W * 1.1]),
       caja('cuerpo', [b / 2, H * 0.42, 0], [L - b, H * 0.84, W]),
-      caja('calor', [b / 2, H * 0.55, 0], [(L - b) * 0.96, H * 0.14, W * 1.06]),
+      caja('calor', [b / 2, H * 0.55, 0], [(L - b) * 0.96, H * 0.2, W * 1.06]),
     ]
   },
   // Tambor horizontal sobre una base.

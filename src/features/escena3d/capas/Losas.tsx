@@ -49,7 +49,7 @@ function crearTrama(): CanvasTexture {
 export function Losas({ modelo, paleta }: { modelo: ModeloEscena; paleta: Paleta3D }) {
   const seleccionar = usePlantStore((s) => s.seleccionar)
   const setHover = useVista3D((s) => s.setHover)
-  const lienzo = useThree((s) => s.gl.domElement)
+  const get = useThree((s) => s.get)
   const grupos = useMemo(() => agruparLosas(modelo.losas, ESPESOR_LOSA, estilo), [modelo.losas])
   useEffect(() => () => grupos.forEach((g) => g.geometria.dispose()), [grupos])
   const [trama] = useState(crearTrama)
@@ -62,12 +62,16 @@ export function Losas({ modelo, paleta }: { modelo: ModeloEscena; paleta: Paleta
   }, [grupos, lineales])
   const nombres = useMemo(() => new Map(modelo.losas.map((l) => [l.id, l.nombre])), [modelo.losas])
 
+  // El cursor de mano va en el propio <canvas> (no en <body>) y se limpia al desmontar.
+  const cursor = (valor: string) => {
+    get().gl.domElement.style.cursor = valor
+  }
   useEffect(
     () => () => {
-      lienzo.style.cursor = ''
+      get().gl.domElement.style.cursor = ''
       setHover(null)
     },
-    [lienzo, setHover],
+    [get, setHover],
   )
 
   const zonaDe = (g: GrupoLosas, e: ThreeEvent<PointerEvent | MouseEvent>) =>
@@ -82,19 +86,19 @@ export function Losas({ modelo, paleta }: { modelo: ModeloEscena; paleta: Paleta
   const alMover = (g: GrupoLosas) => (e: ThreeEvent<PointerEvent>) => {
     const id = zonaDe(g, e)
     if (!id) return
-    lienzo.style.cursor = 'pointer'
+    cursor('pointer')
     const titulo = `${nombres.get(id) ?? id} · ${ESTADO_ETIQUETA[estados[id] ?? 'sin_datos']}`
     setHover({ id, titulo, x: e.nativeEvent.clientX, y: e.nativeEvent.clientY })
   }
   const alSalir = () => {
-    lienzo.style.cursor = ''
+    cursor('')
     setHover(null)
   }
 
   return (
     <group name="losas">
       {grupos.map((g) => (
-        <mesh key={g.clave} geometry={g.geometria} onClick={alClic(g)} onPointerMove={alMover(g)} onPointerOut={alSalir}>
+        <mesh key={g.clave} geometry={g.geometria} userData={{ caras: g.caras }} onClick={alClic(g)} onPointerMove={alMover(g)} onPointerOut={alSalir}>
           <meshLambertMaterial
             vertexColors
             transparent={g.abierta}

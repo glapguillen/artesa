@@ -57,7 +57,7 @@ export function SinUbicar3D({ modelo }: { modelo: ModeloEscena }) {
       data-testid="sin-ubicar-3d"
       role="group"
       aria-label="Sin ubicar en el croquis"
-      className="flex shrink-0 items-center gap-1.5 overflow-x-auto border-t border-borde px-3 py-2 text-xs @2xl:flex-wrap"
+      className="flex shrink-0 items-center gap-1.5 overflow-x-auto border-t border-borde px-3 py-2 text-xs"
     >
       <span className="shrink-0 text-tenue" title="Existen en el layout pero no tienen polígono: no se dibujan dentro de la planta">
         Sin ubicar en el croquis:

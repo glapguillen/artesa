@@ -1,5 +1,6 @@
 // Aviso breve y descartable de lo que la escena supone (escala, norte, alturas en corte, envolventes
-// sin dibujar, equipos representativos). Al cerrarlo queda un botón "Supuestos" para volver a verlo.
+// sin dibujar, equipos representativos): una línea y el detalle plegable. Al cerrarlo queda un
+// botón "Supuestos" para volver a verlo.
 import { useMemo } from 'react'
 import { usePlantStore } from '../../../store/usePlantStore'
 import type { ModeloEscena } from '../modelo/tipos'
@@ -7,6 +8,7 @@ import { supuestosDeEscena } from '../presentacion'
 import { useVista3D } from '../useVista3D'
 
 const FOCO = 'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-seleccion'
+const TACTIL = 'h-10 xl:h-7 pointer-coarse:h-10'
 
 export function AvisoSupuestos({ modelo }: { modelo: ModeloEscena }) {
   const layout = usePlantStore((s) => s.layout)
@@ -22,7 +24,7 @@ export function AvisoSupuestos({ modelo }: { modelo: ModeloEscena }) {
         data-testid="aviso-supuestos-abrir"
         onClick={() => setOculto(false)}
         aria-label="Ver los supuestos de la escena 3D"
-        className={`absolute top-2 left-2 z-20 inline-flex h-10 cursor-pointer items-center rounded-md border border-borde bg-surface/90 px-2.5 text-xs font-medium text-aviso shadow-sm xl:h-8 pointer-coarse:h-10 ${FOCO}`}
+        className={`absolute top-2 left-2 z-20 inline-flex cursor-pointer items-center rounded-md border border-borde bg-surface/90 px-2.5 text-xs font-medium text-aviso shadow-sm ${TACTIL} ${FOCO}`}
       >
         Supuestos
       </button>
@@ -32,26 +34,37 @@ export function AvisoSupuestos({ modelo }: { modelo: ModeloEscena }) {
     <section
       data-testid="aviso-supuestos"
       aria-label="Supuestos de la escena 3D"
-      className="absolute top-2 left-2 z-20 max-h-[45%] w-[min(24rem,calc(100%-1rem))] overflow-y-auto rounded-lg border border-borde bg-surface/95 p-2.5 text-xs text-texto shadow-md"
+      className="absolute top-2 left-2 z-20 max-h-[45%] w-[min(21rem,calc(100%-1rem))] overflow-y-auto rounded-lg border border-borde bg-surface/95 py-1 pr-1 pl-2.5 text-xs text-texto shadow-md"
     >
-      <div className="mb-1 flex items-start justify-between gap-2">
-        <p className="font-semibold text-aviso">Layout preliminar · lo que la escena supone</p>
+      <div className="flex items-start gap-1">
+        <p className="flex-1 py-1 leading-snug">
+          <span className="font-semibold text-aviso">Layout preliminar:</span> escala, norte y alturas supuestos; equipos con tamaño
+          representativo.
+        </p>
         <button
           type="button"
           onClick={() => setOculto(true)}
           aria-label="Ocultar el aviso de supuestos"
-          className={`-mt-1 -mr-1 inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-tenue hover:bg-bg hover:text-texto xl:size-7 pointer-coarse:size-10 ${FOCO}`}
+          className={`inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-tenue hover:bg-bg hover:text-texto xl:size-7 pointer-coarse:size-10 ${FOCO}`}
         >
           <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth={1.75}>
             <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
           </svg>
         </button>
       </div>
-      <ul className="list-disc space-y-0.5 pl-4 leading-snug text-tenue">
-        {textos.map((t) => (
-          <li key={t}>{t}</li>
-        ))}
-      </ul>
+      <details className="group">
+        <summary className={`inline-flex cursor-pointer list-none items-center gap-1 rounded-md text-tenue hover:text-texto ${TACTIL} ${FOCO}`}>
+          <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true" className="transition-transform group-open:rotate-90" style={{ fill: 'currentColor' }}>
+            <path d="M3 1.5 7.5 5 3 8.5z" />
+          </svg>
+          Detalle de los supuestos
+        </summary>
+        <ul className="list-disc space-y-0.5 pr-1.5 pb-1.5 pl-4 leading-snug text-tenue">
+          {textos.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+      </details>
     </section>
   )
 }

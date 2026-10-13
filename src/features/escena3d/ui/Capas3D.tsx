@@ -31,7 +31,7 @@ export function Capas3D() {
       <button
         ref={boton}
         type="button"
-        className={`${CLASE_BOTON} border border-borde bg-surface-2 @2xl:hidden`}
+        className={`${CLASE_BOTON} border border-borde bg-surface-2 @4xl:hidden`}
         aria-expanded={abierto}
         aria-controls={id}
         onClick={() => setAbierto(!abierto)}
@@ -50,7 +50,7 @@ export function Capas3D() {
             boton.current?.focus()
           }
         }}
-        className={`${abierto ? 'flex' : 'hidden'} absolute top-full right-0 z-30 mt-1 w-max max-w-[calc(100vw-2rem)] flex-col items-end gap-2 rounded-lg border border-borde bg-surface p-2 shadow-lg @2xl:static @2xl:mt-0 @2xl:flex @2xl:flex-row @2xl:flex-wrap @2xl:items-center @2xl:border-0 @2xl:bg-transparent @2xl:p-0 @2xl:shadow-none`}
+        className={`${abierto ? 'flex' : 'hidden'} absolute top-full right-0 z-30 mt-1 w-max max-w-[calc(100vw-2rem)] flex-col items-end gap-2 rounded-lg border border-borde bg-surface p-2 shadow-lg @4xl:static @4xl:mt-0 @4xl:flex @4xl:flex-row @4xl:flex-wrap @4xl:items-center @4xl:border-0 @4xl:bg-transparent @4xl:p-0 @4xl:shadow-none`}
       >
         <div className={CLASE_GRUPO} role="group" aria-label="Capas de la escena">
           <Boton etiqueta="Etiquetas de todas las zonas" pulsado={etiquetas} onClick={() => setEtiquetas(!etiquetas)}>

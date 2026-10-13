@@ -50,6 +50,7 @@ export function Escena({ modelo, planta, visible, descripcionId }: Props) {
 
   return (
     <Canvas
+      flat
       dpr={[1, 2]}
       frameloop={visible ? 'always' : 'never'}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}

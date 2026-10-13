@@ -35,7 +35,7 @@ export function ParticulasFlujo({ flujos, contraste }: { flujos: readonly FlujoV
             largo: acum[acum.length - 1] ?? 1,
             fase: k / n,
             velocidad: 3 + 5 * (f.rel ?? 0),
-            radio: f.radio * 1.9,
+            radio: f.radio * 1.5,
             color: f.color,
           }))
         }),
