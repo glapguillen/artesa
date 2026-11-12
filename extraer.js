@@ -19,7 +19,7 @@ const Articulo = z.object({
   tiempo_estandar: z.number().nullable().describe("Columna TIEMPO, p. ej. 240,00 -> 240"),
   ruta: z.string().nullable().describe("Letras tras la palabra 'ruta', p. ej. 'STDE'"),
   malas: z.number().nullable().describe("Piezas malas anotadas a mano; null si la casilla está vacía"),
-  registros: z.array(Registro).describe("Un elemento por cada bloque de fecha con datos manuscritos"),
+  registros: z.array(Registro).describe("Un elemento por cada bloque de fecha con datos manuscritos en la fila del artículo, más los registros de este artículo anotados fuera de la tabla"),
 });
 
 export const HojaSchema = z.object({
@@ -31,7 +31,7 @@ export const HojaSchema = z.object({
   observaciones: z.string().nullable(),
   operario1: z.string().nullable().describe("Nombre manuscrito sobre la tabla; si hay dos personas ('Sonia-Tania'), la primera"),
   operario2: z.string().nullable().describe("Segunda persona cuando sobre la tabla hay dos nombres; null si solo hay uno"),
-  notas: z.string().nullable().describe("Otras anotaciones a mano fuera de las casillas (nombres junto a observaciones, horas sueltas bajo la tabla); null si no hay"),
+  notas: z.string().nullable().describe("Anotaciones a mano fuera de las casillas que no son un registro de producción (comentarios, nombres junto a observaciones, horas sueltas); null si no hay"),
   articulos: z.array(Articulo),
   dudas: z.array(z.string()).describe("Campos que no se leen con seguridad, cada uno en una frase corta en español"),
 });
@@ -42,7 +42,8 @@ La hoja tiene datos impresos (orden, sección, fecha de emisión, cliente, obser
 - Su nombre sobre la tabla. A veces son dos personas, escritas juntas con un guion ("Sonia-Tania"): van separadas en operario1 y operario2. Nombre y apellido de una sola persona ("Ana Pérez") van juntos en operario1. A veces es solo una firma.
 - A la derecha, hasta tres bloques de columnas. Cada bloque tiene arriba una fecha, que vale para todos los artículos de la hoja, y debajo las casillas CANT (piezas hechas), TMPO (dos horas apiladas: inicio arriba, fin abajo) y PER (personas). Un artículo solo tiene registro en un bloque si en su fila hay algo escrito; es normal que un artículo tenga datos en el segundo bloque y no en el primero.
 - Bajo "malas", a veces, un número de piezas defectuosas.
-- A veces anotaciones sueltas fuera de las casillas; van en "notas", no en los registros.
+- A veces un registro más fuera de la tabla. La hoja solo tiene sitio para tres fechas, así que cuando el trabajo sigue un cuarto día el operario lo anota debajo o al lado de la tabla, con la misma forma que un bloque: una fecha y, junto a ella, cantidad, dos horas y a veces personas. Eso es un registro de producción, no una nota: añádelo a los registros del artículo al que corresponde. Suele ser el último artículo de la hoja; compruébalo con las cantidades, porque lo normal es que esa cantidad complete lo que le faltaba a un artículo para llegar a su cantidad a producir. Di en "dudas" que ese registro estaba fuera de la tabla y a qué artículo lo asignaste, para que el revisor lo confirme.
+- A veces otras anotaciones sueltas (comentarios, tiempos de capacitación, nombres, horas sin fecha ni cantidad). Solo eso va en "notas", transcrito tal cual.
 
 La impresión puede estar desplazada respecto a las líneas de la tabla; guíate por el orden de los artículos, no por las líneas.
 
