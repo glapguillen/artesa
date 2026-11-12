@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artesa · Hojas de producción</title>
+<style>
+  :root {
+    --fondo: #f6f1ea; --panel: #fffdf9; --tinta: #2a2420; --tenue: #7a6f66; --linea: #e2d9cd;
+    --acento: #1f5c7a; --acento-tinta: #fff; --ok: #2f7d4f; --ok-fondo: #e2f1e7;
+    --pend-fondo: #f0e9df; --aviso: #8a5a00; --aviso-fondo: #fcefcf; --error: #a3302a; --error-fondo: #fbe4e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fondo: #1b1816; --panel: #25211e; --tinta: #efe8df; --tenue: #a69a8e; --linea: #3a342f;
+      --acento: #6db4d6; --acento-tinta: #10222c; --ok: #7fd0a0; --ok-fondo: #1f3a2b;
+      --pend-fondo: #322c27; --aviso: #f0c66a; --aviso-fondo: #3d3118; --error: #f19a93; --error-fondo: #43221f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--panel); border-bottom: 1px solid var(--linea); }
+  .barra { max-width: 860px; margin: auto; padding: 10px 16px 0; }
+  .marca { font-weight: 700; letter-spacing: .12em; font-size: 14px; }
+  .marca span { color: var(--tenue); font-weight: 400; letter-spacing: 0; margin-left: 8px; }
+  nav { display: flex; gap: 4px; margin-top: 8px; }
+  nav button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 14px; font: inherit; color: var(--tenue); cursor: pointer; }
+  nav button[aria-selected=true] { color: var(--tinta); border-color: var(--acento); font-weight: 600; }
+  main { max-width: 860px; margin: auto; padding: 16px; }
+  .panel { background: var(--panel); border: 1px solid var(--linea); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+  h3 { font-size: 14px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .06em; color: var(--tenue); }
+  .boton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 8px;
+    border: 1px solid var(--linea); background: var(--panel); color: var(--tinta); font: inherit; font-weight: 600; cursor: pointer; }
+  .boton.primario { background: var(--acento); color: var(--acento-tinta); border-color: var(--acento); }
+  .boton:disabled { opacity: .55; cursor: default; }
+  .boton.mini { min-height: 34px; padding: 0 10px; font-weight: 500; font-size: 14px; }
+  .acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .captura { display: grid; gap: 12px; justify-items: start; }
+  .captura p { margin: 0; color: var(--tenue); }
+  #vista { max-width: 100%; max-height: 340px; border-radius: 8px; border: 1px solid var(--linea); display: block; }
+  .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  label { display: grid; gap: 3px; font-size: 13px; color: var(--tenue); }
+  input { width: 100%; min-height: 40px; padding: 6px 9px; border: 1px solid var(--linea); border-radius: 6px; background: var(--fondo); color: var(--tinta); font: inherit; }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+  .ancho { grid-column: 1 / -1; }
+  .articulo { border-top: 1px solid var(--linea); margin-top: 14px; padding-top: 14px; }
+  .tabla { overflow-x: auto; margin-top: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { text-align: left; font-weight: 600; color: var(--tenue); font-size: 12px; padding: 4px 6px; white-space: nowrap; }
+  td { padding: 3px 4px; border-top: 1px solid var(--linea); }
+  td input { min-width: 74px; }
+  .lectura td { padding: 7px 6px; font-variant-numeric: tabular-nums; }
+  .nota { border-radius: 8px; padding: 10px 12px; margin: 0 0 12px; font-size: 14px; }
+  .nota ul { margin: 4px 0 0; padding-left: 18px; }
+  .aviso { background: var(--aviso-fondo); color: var(--aviso); }
+  .error { background: var(--error-fondo); color: var(--error); }
+  .exito { background: var(--ok-fondo); color: var(--ok); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--pend-fondo); color: var(--tenue); }
+  .chip.registrada { background: var(--ok-fondo); color: var(--ok); }
+  .orden { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  .orden .num { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .orden .sub { color: var(--tenue); font-size: 14px; }
+  .fila { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .tenue { color: var(--tenue); }
+  a { color: var(--acento); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="barra">
+    <div class="marca">ARTESA<span>Hojas de producción diaria</span></div>
+    <nav role="tablist">
+      <button role="tab" id="tab-capturar" aria-selected="true">Capturar</button>
+      <button role="tab" id="tab-ordenes" aria-selected="false">Órdenes</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="capturar">
+    <div id="mensaje"></div>
+    <div class="panel captura">
+      <h2>Foto de la hoja</h2>
+      <p>Toma una foto de la hoja completa, con buena luz. No importa si queda girada.</p>
+      <img id="vista" alt="Foto seleccionada" hidden>
+      <input type="file" id="archivo" accept="image/*" capture="environment" hidden>
+      <div class="acciones" style="margin-top:0">
+        <button class="boton" id="elegir">Tomar o elegir foto</button>
+        <button class="boton primario" id="leer" hidden>Leer hoja</button>
+      </div>
+    </div>
+    <form id="revision" hidden></form>
+  </section>
+
+  <section id="ordenes" hidden></section>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fechaCorta = (iso) => (iso ? iso.slice(0, 10).split("-").reverse().join("/") : "—");
+
+let foto = null;        // { imagen (base64), mime }
+let extraccion = null;  // lo que devolvió el modelo, sin editar
+
+async function api(ruta, cuerpo) {
+  const r = await fetch(ruta, cuerpo ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
+  const datos = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(datos.error || "Error " + r.status);
+  return datos;
+}
+
+function mensaje(clase, html) {
+  $("#mensaje").innerHTML = html ? `<div class="nota ${clase}" role="status">${html}</div>` : "";
+}
+
+// ---------- Pestañas ----------
+function mostrar(pestana) {
+  for (const p of ["capturar", "ordenes"]) {
+    $("#" + p).hidden = p !== pestana;
+    $("#tab-" + p).setAttribute("aria-selected", p === pestana);
+  }
+  if (pestana === "ordenes") listarOrdenes();
+}
+$("#tab-capturar").onclick = () => mostrar("capturar");
+$("#tab-ordenes").onclick = () => mostrar("ordenes");
+
+// ---------- Captura ----------
+$("#elegir").onclick = () => $("#archivo").click();
+
+$("#archivo").onchange = async (e) => {
+  const archivo = e.target.files[0];
+  e.target.value = "";
+  if (!archivo) return;
+  try {
+    // Se reduce en el navegador: basta para leer la letra y sube mucho más rápido.
+    const bmp = await createImageBitmap(archivo, { imageOrientation: "from-image" });
+    const escala = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+    const lienzo = document.createElement("canvas");
+    lienzo.width = Math.round(bmp.width * escala);
+    lienzo.height = Math.round(bmp.height * escala);
+    lienzo.getContext("2d").drawImage(bmp, 0, 0, lienzo.width, lienzo.height);
+    const url = lienzo.toDataURL("image/jpeg", 0.85);
+    foto = { imagen: url.split(",")[1], mime: "image/jpeg" };
+    $("#vista").src = url;
+    $("#vista").hidden = false;
+    $("#leer").hidden = false;
+    $("#elegir").textContent = "Cambiar foto";
+    $("#revision").hidden = true;
+    mensaje();
+  } catch {
+    mensaje("error", "No se pudo abrir esa imagen. Prueba con otra foto.");
+  }
+};
+
+$("#leer").onclick = async () => {
+  const boton = $("#leer");
+  boton.disabled = true;
+  boton.textContent = "Leyendo la hoja…";
+  mensaje();
+  try {
+    const r = await api("/api/extraer", foto);
+    extraccion = r.datos;
+    if (!r.datos.es_hoja_produccion) {
+      mensaje("error", "La foto no parece una Hoja de Producción Diaria. Toma otra foto.");
+      return;
+    }
+    pintarRevision(r.datos, r.ya_registrada);
+  } catch (err) {
+    mensaje("error", esc(err.message));
+  } finally {
+    boton.disabled = false;
+    boton.textContent = "Leer hoja";
+  }
+};
+
+// ---------- Revisión ----------
+const campo = (etiqueta, nombre, valor, extra = "") =>
+  `<label>${etiqueta}<input name="${nombre}" value="${esc(valor)}" ${extra}></label>`;
+
+const filaRegistro = (r = {}) => `
+  <tr class="registro">
+    <td><input type="date" data-c="fecha" value="${esc(r.fecha)}" aria-label="Fecha"></td>
+    <td><input type="number" min="0" inputmode="numeric" data-c="cantidad" value="${esc(r.cantidad)}" aria-label="Cantidad"></td>
+    <td><input type="time" data-c="hora_inicio" value="${esc(r.hora_inicio)}" aria-label="Hora de inicio"></td>
+    <td><input type="time" data-c="hora_fin" value="${esc(r.hora_fin)}" aria-label="Hora de fin"></td>
+    <td><input type="number" min="0" inputmode="numeric" data-c="personas" value="${esc(r.personas)}" aria-label="Personas"></td>
+    <td><button type="button" class="boton mini quitar" aria-label="Quitar registro">Quitar</button></td>
+  </tr>`;
+
+function pintarRevision(d, yaRegistrada) {
+  const avisos = [];
+  if (yaRegistrada) avisos.push(`<div class="nota aviso">Esta orden y sección ya se registraron el ${fechaCorta(yaRegistrada)}. Si guardas, se reemplaza el registro anterior.</div>`);
+  if (d.dudas?.length) avisos.push(`<div class="nota aviso"><strong>Revisa estos datos:</strong><ul>${d.dudas.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`);
+
+  $("#revision").innerHTML = `
+    <div class="panel">
+      <h2>Revisa y corrige</h2>
+      ${avisos.join("")}
+      <div class="campos">
+        ${campo("Orden #", "numero_orden", d.numero_orden, "required")}
+        ${campo("Sección", "seccion", d.seccion, "required")}
+        ${campo("Fecha de emisión", "fecha_emision", d.fecha_emision, 'type="date"')}
+        ${campo("Operario", "operario", d.operario)}
+        ${campo("Cliente", "cliente", d.cliente)}
+        ${campo("Observaciones", "observaciones", d.observaciones)}
+      </div>
+      ${d.articulos.map((a) => `
+        <div class="articulo">
+          <h3>Artículo</h3>
+          <div class="campos">
+            ${campo("Código", "codigo", a.codigo)}
+            ${campo("Descripción", "descripcion", a.descripcion)}
+            ${campo("Decoración", "decoracion", a.decoracion)}
+            ${campo("Producir", "cantidad_producir", a.cantidad_producir, 'type="number" min="0" inputmode="numeric"')}
+            ${campo("Tiempo", "tiempo_estandar", a.tiempo_estandar, 'type="number" min="0" step="0.01" inputmode="decimal"')}
+            ${campo("Ruta", "ruta", a.ruta)}
+            ${campo("Malas", "malas", a.malas, 'type="number" min="0" inputmode="numeric"')}
+          </div>
+          <div class="tabla">
+            <table>
+              <thead><tr><th>Fecha</th><th>Cant.</th><th>Inicio</th><th>Fin</th><th>Pers.</th><th></th></tr></thead>
+              <tbody>${a.registros.map(filaRegistro).join("")}</tbody>
+            </table>
+          </div>
+          <button type="button" class="boton mini agregar" style="margin-top:8px">Añadir registro</button>
+        </div>`).join("")}
+      <div class="acciones">
+        <button class="boton primario" id="guardar">Guardar hoja</button>
+      </div>
+    </div>`;
+  $("#revision").hidden = false;
+  $("#revision").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+$("#revision").onclick = (e) => {
+  if (e.target.matches(".quitar")) e.target.closest("tr").remove();
+  if (e.target.matches(".agregar")) $("tbody", e.target.closest(".articulo")).insertAdjacentHTML("beforeend", filaRegistro());
+};
+
+function leerRevision() {
+  const f = $("#revision");
+  const valor = (raiz, nombre) => $(`[name=${nombre}]`, raiz).value.trim();
+  const datos = {};
+  for (const n of ["numero_orden", "seccion", "fecha_emision", "operario", "cliente", "observaciones"]) datos[n] = valor(f, n);
+  datos.articulos = [...f.querySelectorAll(".articulo")].map((el) => {
+    const a = {};
+    for (const n of ["codigo", "descripcion", "decoracion", "cantidad_producir", "tiempo_estandar", "ruta", "malas"]) a[n] = valor(el, n);
+    a.registros = [...el.querySelectorAll(".registro")].map((tr) =>
+      Object.fromEntries([...tr.querySelectorAll("[data-c]")].map((i) => [i.dataset.c, i.value])));
+    return a;
+  });
+  return datos;
+}
+
+$("#revision").onsubmit = async (e) => {
+  e.preventDefault();
+  const boton = $("#guardar");
+  boton.disabled = true;
+  boton.textContent = "Guardando…";
+  try {
+    const datos = leerRevision();
+    await api("/api/hojas", { datos, extraccion, ...foto });
+    mensaje("exito", `Hoja guardada: orden ${esc(datos.numero_orden)}, sección ${esc(datos.seccion)}.`);
+    $("#revision").hidden = true;
+    $("#vista").hidden = true;
+    $("#leer").hidden = true;
+    $("#elegir").textContent = "Tomar o elegir otra foto";
+    foto = extraccion = null;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    mensaje("error", esc(err.message));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    boton.disabled = false;
+    boton.textContent = "Guardar hoja";
+  }
+};
+
+// ---------- Órdenes ----------
+const chips = (secciones) => `<div class="chips">${secciones.map((s) =>
+  `<span class="chip ${s.estado}">${esc(s.seccion)} · ${s.estado === "registrada" ? "registrada" : "pendiente"}</span>`).join("")}</div>`;
+
+async function listarOrdenes() {
+  const cont = $("#ordenes");
+  cont.innerHTML = `<p class="tenue">Cargando…</p>`;
+  try {
+    const ordenes = await api("/api/ordenes");
+    cont.innerHTML = ordenes.length
+      ? ordenes.map((o) => `
+          <button class="panel orden" data-numero="${esc(o.numero)}">
+            <div class="fila"><span class="num">Orden ${esc(o.numero)}</span><span class="sub">${fechaCorta(o.fecha_emision)}</span></div>
+            <div class="sub">${esc(o.articulos ?? "")}${o.cliente ? " — " + esc(o.cliente) : ""}</div>
+            ${chips(o.secciones)}
+          </button>`).join("")
+      : `<div class="panel"><p class="tenue" style="margin:0">Todavía no hay órdenes. Captura la primera hoja en la pestaña Capturar.</p></div>`;
+  } catch (err) {
+    cont.innerHTML = `<div class="nota error">${esc(err.message)}</div>`;
+  }
+}
+
+$("#ordenes").onclick = async (e) => {
+  if (e.target.closest("#volver")) return listarOrdenes();
+  const tarjeta = e.target.closest(".orden");
+  if (!tarjeta) return;
+  const cont = $("#ordenes");
+  try {
+    const o = await api("/api/ordenes/" + encodeURIComponent(tarjeta.dataset.numero));
+    const nombreArt = (id) => { const a = o.articulos.find((x) => x.id === id); return a ? `${a.descripcion} ${a.decoracion}`.trim() : ""; };
+    cont.innerHTML = `
+      <button class="boton mini" id="volver" style="margin-bottom:12px">← Órdenes</button>
+      <div class="panel">
+        <div class="fila"><h2>Orden ${esc(o.numero)}</h2><span class="tenue">${fechaCorta(o.fecha_emision)}</span></div>
+        <div class="tenue">${esc(o.cliente ?? "")}${o.observaciones ? " · " + esc(o.observaciones) : ""}</div>
+        <div class="tabla"><table class="lectura">
+          <thead><tr><th>Código</th><th>Artículo</th><th>Producir</th><th>Tiempo</th><th>Ruta</th></tr></thead>
+          <tbody>${o.articulos.map((a) => `<tr><td>${esc(a.codigo)}</td><td>${esc(a.descripcion)} ${esc(a.decoracion)}</td>
+            <td>${esc(a.cantidad_producir ?? "—")}</td><td>${esc(a.tiempo_estandar ?? "—")}</td><td>${esc(a.ruta ?? "—")}</td></tr>`).join("")}</tbody>
+        </table></div>
+      </div>
+      ${o.hojas.map((h) => `
+        <div class="panel">
+          <div class="fila">
+            <h2>${esc(h.seccion)}</h2>
+            <span class="chip ${h.estado}">${h.estado === "registrada" ? "registrada" : "pendiente"}</span>
+          </div>
+          ${h.estado !== "registrada" ? `<p class="tenue" style="margin:0">Falta la hoja de esta sección.</p>` : `
+            <div class="tenue">${esc(h.operario ?? "Sin operario")}${h.tiene_foto ? ` · <a href="/api/hojas/${h.id}/foto" target="_blank" rel="noopener">Ver foto</a>` : ""}</div>
+            <div class="tabla"><table class="lectura">
+              <thead><tr><th>Artículo</th><th>Fecha</th><th>Cant.</th><th>Inicio</th><th>Fin</th><th>Pers.</th></tr></thead>
+              <tbody>${h.articulos.flatMap((a) => a.registros.map((r) => `<tr><td>${esc(nombreArt(a.articulo_id))}</td><td>${fechaCorta(r.fecha)}</td>
+                <td>${esc(r.cantidad ?? "—")}</td><td>${esc(r.hora_inicio ?? "—")}</td><td>${esc(r.hora_fin ?? "—")}</td><td>${esc(r.personas ?? "—")}</td></tr>`)).join("")
+                || `<tr><td colspan="6" class="tenue">Sin registros</td></tr>`}</tbody>
+            </table></div>
+            ${h.articulos.some((a) => a.malas != null) ? `<div class="tenue" style="margin-top:6px">Malas: ${h.articulos.filter((a) => a.malas != null).map((a) => `${esc(nombreArt(a.articulo_id))} ${a.malas}`).join(", ")}</div>` : ""}`}
+        </div>`).join("")}`;
+    window.scrollTo({ top: 0 });
+  } catch (err) {
+    cont.innerHTML = `<div class="nota error">${esc(err.message)}</div>`;
+  }
+};
+</script>
+</body>
+</html>
