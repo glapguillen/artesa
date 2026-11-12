@@ -38,7 +38,15 @@
   .acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
   .captura { display: grid; gap: 12px; justify-items: start; }
   .captura p { margin: 0; color: var(--tenue); }
-  #vista { max-width: 100%; max-height: 340px; border-radius: 8px; border: 1px solid var(--linea); display: block; }
+  .vista { max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid var(--linea); display: block; margin-bottom: 12px; }
+  #cola { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 8px; }
+  #cola li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px; border: 1px solid var(--linea); border-radius: 8px; }
+  #cola li.abierta { border-color: var(--acento); }
+  #cola li.resumen { border: 0; padding: 0 2px; font-size: 14px; }
+  #cola img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; }
+  #cola .info { flex: 1; min-width: 130px; display: grid; gap: 3px; justify-items: start; font-size: 14px; }
+  .chip.aviso { background: var(--aviso-fondo); color: var(--aviso); }
+  .chip.mal { background: var(--error-fondo); color: var(--error); }
   .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
   label { display: grid; gap: 3px; font-size: 13px; color: var(--tenue); }
   input { width: 100%; min-height: 40px; padding: 6px 9px; border: 1px solid var(--linea); border-radius: 6px; background: var(--fondo); color: var(--tinta); font: inherit; }
@@ -90,14 +98,15 @@
   <section id="capturar">
     <div id="mensaje"></div>
     <div class="panel captura">
-      <h2>Foto de la hoja</h2>
-      <p>Toma una foto de la hoja completa, con buena luz. No importa si queda girada.</p>
-      <img id="vista" alt="Foto seleccionada" hidden>
-      <input type="file" id="archivo" accept="image/*" capture="environment" hidden>
+      <h2>Fotos de las hojas</h2>
+      <p>Toma las fotos una tras otra, o carga varias de la galería. Cada hoja se lee sola mientras sigues con la siguiente.</p>
+      <input type="file" id="camara" accept="image/*" capture="environment" hidden>
+      <input type="file" id="galeria" accept="image/*" multiple hidden>
       <div class="acciones" style="margin-top:0">
-        <button class="boton" id="elegir">Tomar o elegir foto</button>
-        <button class="boton primario" id="leer" hidden>Leer hoja</button>
+        <button class="boton primario" id="tomar">Tomar foto</button>
+        <button class="boton" id="cargar">Cargar varias</button>
       </div>
+      <ul id="cola" aria-live="polite"></ul>
     </div>
     <form id="revision" hidden></form>
   </section>
@@ -110,8 +119,10 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fechaCorta = (iso) => (iso ? iso.slice(0, 10).split("-").reverse().join("/") : "—");
 
-let foto = null;        // { imagen (base64), mime }
-let extraccion = null;  // lo que devolvió el modelo, sin editar
+let cola = [];      // fotos en curso: { id, url, imagen, mime, estado, datos, extraccion, yaRegistrada, error }
+let actual = null;  // foto abierta en la revisión
+let leyendo = 0;
+let serie = 0;
 
 async function api(ruta, cuerpo) {
   const r = await fetch(ruta, cuerpo ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
@@ -158,53 +169,118 @@ $("#tab-capturar").onclick = () => mostrar("capturar");
 $("#tab-ordenes").onclick = () => mostrar("ordenes");
 
 // ---------- Captura ----------
-$("#elegir").onclick = () => $("#archivo").click();
-
-$("#archivo").onchange = async (e) => {
-  const archivo = e.target.files[0];
+$("#tomar").onclick = () => $("#camara").click();
+$("#cargar").onclick = () => $("#galeria").click();
+$("#camara").onchange = $("#galeria").onchange = (e) => {
+  const archivos = [...e.target.files];
   e.target.value = "";
-  if (!archivo) return;
-  try {
-    // Se reduce en el navegador: basta para leer la letra y sube mucho más rápido.
-    const bmp = await createImageBitmap(archivo, { imageOrientation: "from-image" });
-    const escala = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
-    const lienzo = document.createElement("canvas");
-    lienzo.width = Math.round(bmp.width * escala);
-    lienzo.height = Math.round(bmp.height * escala);
-    lienzo.getContext("2d").drawImage(bmp, 0, 0, lienzo.width, lienzo.height);
-    const url = lienzo.toDataURL("image/jpeg", 0.85);
-    foto = { imagen: url.split(",")[1], mime: "image/jpeg" };
-    $("#vista").src = url;
-    $("#vista").hidden = false;
-    $("#leer").hidden = false;
-    $("#elegir").textContent = "Cambiar foto";
-    $("#revision").hidden = true;
-    mensaje();
-  } catch {
-    mensaje("error", "No se pudo abrir esa imagen. Prueba con otra foto.");
+  agregar(archivos);
+};
+
+// Se reduce en el navegador: basta para leer la letra y sube mucho más rápido.
+async function preparar(archivo) {
+  const bmp = await createImageBitmap(archivo, { imageOrientation: "from-image" });
+  const escala = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+  const lienzo = document.createElement("canvas");
+  lienzo.width = Math.round(bmp.width * escala);
+  lienzo.height = Math.round(bmp.height * escala);
+  lienzo.getContext("2d").drawImage(bmp, 0, 0, lienzo.width, lienzo.height);
+  const url = lienzo.toDataURL("image/jpeg", 0.85);
+  return { url, imagen: url.split(",")[1], mime: "image/jpeg" };
+}
+
+async function agregar(archivos) {
+  mensaje();
+  let fallidas = 0;
+  for (const archivo of archivos) {
+    try {
+      cola.push({ id: ++serie, estado: "pendiente", ...(await preparar(archivo)) });
+      pintarCola();
+      procesar();
+    } catch { fallidas++; }
+  }
+  if (fallidas) mensaje("error", fallidas === 1 ? "No se pudo abrir una de las imágenes." : `No se pudieron abrir ${fallidas} imágenes.`);
+}
+
+// Lee hasta tres fotos a la vez.
+function procesar() {
+  while (leyendo < 3) {
+    const f = cola.find((x) => x.estado === "pendiente");
+    if (!f) return;
+    f.estado = "leyendo";
+    leyendo++;
+    api("/api/extraer", { imagen: f.imagen, mime: f.mime })
+      .then((r) => {
+        f.extraccion = r.datos;
+        f.datos = r.datos;
+        f.yaRegistrada = r.ya_registrada;
+        f.estado = r.datos.es_hoja_produccion ? "lista" : "no_hoja";
+      })
+      .catch((err) => { f.estado = "error"; f.error = err.message; })
+      .finally(() => {
+        leyendo--;
+        pintarCola();
+        if (!actual && f.estado === "lista") abrir(f.id, false);
+        procesar();
+      });
+  }
+  pintarCola();
+}
+
+const ESTADOS = {
+  pendiente: ["En espera", ""], leyendo: ["Leyendo…", ""], lista: ["Por revisar", "aviso"],
+  guardada: ["Guardada", "registrada"], no_hoja: ["No es una hoja", "mal"], error: ["Error", "mal"],
+};
+
+function pintarCola() {
+  const porRevisar = cola.filter((f) => f.estado === "lista").length;
+  $("#cola").innerHTML = cola.map((f) => {
+    const [texto, clase] = ESTADOS[f.estado];
+    const d = f.datos;
+    const titulo = d?.numero_orden ? `Orden ${esc(d.numero_orden)} · ${esc(d.seccion ?? "")}` : `Foto ${f.id}`;
+    return `<li class="${actual === f.id ? "abierta" : ""}" data-id="${f.id}">
+      <img src="${f.url}" alt="">
+      <div class="info"><strong>${titulo}</strong>
+        <span class="chip ${clase}">${texto}</span>${f.estado === "error" ? `<span class="tenue"> ${esc(f.error)}</span>` : ""}</div>
+      ${f.estado === "lista" && actual !== f.id ? `<button type="button" class="boton mini" data-a="abrir">Revisar</button>` : ""}
+      ${f.estado === "error" ? `<button type="button" class="boton mini" data-a="reintentar">Reintentar</button>` : ""}
+      ${f.estado !== "leyendo" ? `<button type="button" class="boton mini" data-a="quitar" aria-label="Quitar foto ${f.id}">Quitar</button>` : ""}
+    </li>`;
+  }).join("") + (cola.length > 1 ? `<li class="resumen tenue">${cola.length} fotos · ${porRevisar} por revisar · ${cola.filter((f) => f.estado === "guardada").length} guardadas</li>` : "");
+}
+
+$("#cola").onclick = (e) => {
+  const accion = e.target.dataset.a;
+  const id = Number(e.target.closest("li")?.dataset.id);
+  const f = cola.find((x) => x.id === id);
+  if (!accion || !f) return;
+  if (accion === "abrir") abrir(id, true);
+  if (accion === "reintentar") { f.estado = "pendiente"; procesar(); }
+  if (accion === "quitar") {
+    cola = cola.filter((x) => x.id !== id);
+    if (actual === id) cerrarRevision();
+    pintarCola();
   }
 };
 
-$("#leer").onclick = async () => {
-  const boton = $("#leer");
-  boton.disabled = true;
-  boton.textContent = "Leyendo la hoja…";
-  mensaje();
-  try {
-    const r = await api("/api/extraer", foto);
-    extraccion = r.datos;
-    if (!r.datos.es_hoja_produccion) {
-      mensaje("error", "La foto no parece una Hoja de Producción Diaria. Toma otra foto.");
-      return;
-    }
-    pintarRevision(r.datos, r.ya_registrada);
-  } catch (err) {
-    mensaje("error", esc(err.message));
-  } finally {
-    boton.disabled = false;
-    boton.textContent = "Leer hoja";
-  }
-};
+function abrir(id, desplazar) {
+  if (actual && actual !== id) guardarEdicion();
+  const f = cola.find((x) => x.id === id);
+  actual = id;
+  pintarCola();
+  pintarRevision(f.datos, f.yaRegistrada, f.url, desplazar);
+}
+
+// Conserva lo corregido si se cambia de hoja antes de guardar.
+function guardarEdicion() {
+  const f = cola.find((x) => x.id === actual);
+  if (f && f.estado === "lista") f.datos = { ...f.datos, ...leerRevision(), dudas: f.datos.dudas };
+}
+
+function cerrarRevision() {
+  actual = null;
+  $("#revision").hidden = true;
+}
 
 // ---------- Revisión ----------
 const campo = (etiqueta, nombre, valor, extra = "") =>
@@ -220,7 +296,7 @@ const filaRegistro = (r = {}) => `
     <td><button type="button" class="boton mini quitar" aria-label="Quitar registro">Quitar</button></td>
   </tr>`;
 
-function pintarRevision(d, yaRegistrada) {
+function pintarRevision(d, yaRegistrada, url, desplazar) {
   const avisos = [];
   if (yaRegistrada) avisos.push(`<div class="nota aviso">Esta orden y sección ya se registraron el ${fechaCorta(yaRegistrada)}. Si guardas, se reemplaza el registro anterior.</div>`);
   if (d.dudas?.length) avisos.push(`<div class="nota aviso"><strong>Revisa estos datos:</strong><ul>${d.dudas.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`);
@@ -228,6 +304,7 @@ function pintarRevision(d, yaRegistrada) {
   $("#revision").innerHTML = `
     <div class="panel">
       <h2>Revisa y corrige</h2>
+      <img class="vista" src="${url}" alt="Foto de la hoja">
       ${avisos.join("")}
       <div class="campos">
         ${campo("Orden #", "numero_orden", d.numero_orden, "required")}
@@ -253,7 +330,7 @@ function pintarRevision(d, yaRegistrada) {
           <div class="tabla">
             <table>
               <thead><tr><th>Fecha</th><th>Cant.</th><th>Inicio</th><th>Fin</th><th>Pers.</th><th></th></tr></thead>
-              <tbody>${a.registros.map(filaRegistro).join("")}</tbody>
+              <tbody>${(a.registros ?? []).map(filaRegistro).join("")}</tbody>
             </table>
           </div>
           <button type="button" class="boton mini agregar" style="margin-top:8px">Añadir registro</button>
@@ -263,7 +340,7 @@ function pintarRevision(d, yaRegistrada) {
       </div>
     </div>`;
   $("#revision").hidden = false;
-  $("#revision").scrollIntoView({ behavior: "smooth", block: "start" });
+  if (desplazar) $("#revision").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 $("#revision").onclick = (e) => {
@@ -288,19 +365,22 @@ function leerRevision() {
 
 $("#revision").onsubmit = async (e) => {
   e.preventDefault();
+  const f = cola.find((x) => x.id === actual);
   const boton = $("#guardar");
   boton.disabled = true;
   boton.textContent = "Guardando…";
   try {
     const datos = leerRevision();
-    await api("/api/hojas", { datos, extraccion, ...foto });
-    mensaje("exito", `Hoja guardada: orden ${esc(datos.numero_orden)}, sección ${esc(datos.seccion)}.`);
-    $("#revision").hidden = true;
-    $("#vista").hidden = true;
-    $("#leer").hidden = true;
-    $("#elegir").textContent = "Tomar o elegir otra foto";
-    foto = extraccion = null;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    await api("/api/hojas", { datos, extraccion: f.extraccion, imagen: f.imagen, mime: f.mime });
+    f.estado = "guardada";
+    f.datos = { ...f.datos, ...datos };
+    f.imagen = null;
+    cerrarRevision();
+    const siguiente = cola.find((x) => x.estado === "lista");
+    mensaje("exito", `Hoja guardada: orden ${esc(datos.numero_orden)}, sección ${esc(datos.seccion)}.` +
+      (siguiente ? " Sigue con la siguiente." : ""));
+    if (siguiente) abrir(siguiente.id, true);
+    else { pintarCola(); window.scrollTo({ top: 0, behavior: "smooth" }); }
   } catch (err) {
     mensaje("error", esc(err.message));
     window.scrollTo({ top: 0, behavior: "smooth" });
