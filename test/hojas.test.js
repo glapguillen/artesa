@@ -58,3 +58,34 @@ test("rechaza hojas sin orden o sin sección", async () => {
   await assert.rejects(guardarHoja({ datos: { ...hoja("TRAZADO", "", []), numero_orden: " " } }), /orden/);
   await assert.rejects(guardarHoja({ datos: { ...hoja("", "", []) } }), /sección/);
 });
+
+test("reconoce el artículo aunque la foto corte el código o la decoración", async () => {
+  const cortada = hoja("DECORADO", "Thalya", [{ fecha: "2026-09-16", cantidad: 1 }]);
+  cortada.articulos[0].codigo = "626";
+  cortada.articulos[0].decoracion = "SOL AZUL";
+  await guardarHoja({ datos: cortada });
+  const o = await detalleOrden(ORDEN);
+  assert.deepEqual(o.articulos.map((a) => [a.codigo, a.decoracion]), [["0944 626", "GIRASOL AZUL"]]);
+});
+
+test("varios artículos con registros en bloques distintos y rutas cortas", async () => {
+  const { verificar } = await import("../extraer.js");
+  const datos = {
+    numero_orden: ORDEN, seccion: "DECORADO", fecha_emision: "2026-08-20", cliente: "STOCK FABRICA", articulos: [
+      { codigo: "0907 462", descripcion: "MANTEQUILLERO CHORDELEG", decoracion: "FLORES DEL CAMPO", cantidad_producir: 12, ruta: "DE",
+        registros: [{ fecha: "2026-08-25", cantidad: 2, hora_inicio: "16:40", hora_fin: "17:30" }, { fecha: "2026-08-26", cantidad: 10, hora_inicio: "2:00", hora_fin: "8:21" }] },
+      { codigo: "0883 462", descripcion: "TAPA TETERA GUALACEO", decoracion: "FLORES DEL CAMPO", cantidad_producir: 5, ruta: "DE",
+        registros: [{ fecha: "2026-08-26", cantidad: 6, hora_inicio: "14:35", hora_fin: "7:00" }] },
+    ],
+  };
+  const avisos = verificar(datos);
+  assert.equal(avisos.length, 2);
+  assert.match(avisos[0], /TAPA TETERA.*fin \(7:00\)/);
+  assert.match(avisos[1], /6 piezas y la orden pide 5/);
+
+  await limpiar();
+  await guardarHoja({ datos });
+  const o = await detalleOrden(ORDEN);
+  assert.deepEqual(o.hojas.map((h) => [h.seccion, h.estado]), [["DECORADO", "registrada"], ["ESMALT", "pendiente"]]);
+  assert.deepEqual(o.hojas[0].articulos.map((a) => a.registros.length), [2, 1]);
+});

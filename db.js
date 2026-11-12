@@ -80,26 +80,29 @@ export async function guardarHoja({ datos, extraccion, foto, fotoMime }) {
     const ordenId = orden.rows[0].id;
 
     const articulos = [];
+    const existentes = (await db.query("SELECT id, codigo, descripcion, decoracion FROM orden_articulos WHERE orden_id = $1", [ordenId])).rows;
     for (const a of datos.articulos) {
-      const r = await db.query(
-        `INSERT INTO orden_articulos (orden_id, codigo, descripcion, decoracion, cantidad_producir, tiempo_estandar, ruta)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT (orden_id, codigo, decoracion) DO UPDATE SET
-           descripcion       = EXCLUDED.descripcion,
-           cantidad_producir = COALESCE(EXCLUDED.cantidad_producir, orden_articulos.cantidad_producir),
-           tiempo_estandar   = COALESCE(EXCLUDED.tiempo_estandar, orden_articulos.tiempo_estandar),
-           ruta              = COALESCE(EXCLUDED.ruta, orden_articulos.ruta)
-         RETURNING id`,
-        [
-          ordenId,
-          texto(a.codigo),
-          texto(a.descripcion),
-          texto(a.decoracion),
-          entero(a.cantidad_producir),
-          numero(a.tiempo_estandar),
-          textoONull(normalizar(a.ruta).replace(/[^A-Z]/g, "")),
-        ],
+      const ruta = textoONull(normalizar(a.ruta).replace(/[^A-Z]/g, ""));
+      // Si la foto cortó el código o la decoración, se reconoce el artículo que ya tenía la orden.
+      const cola = (x, y) => normalizar(x).endsWith(normalizar(y)) || normalizar(y).endsWith(normalizar(x));
+      const previo = existentes.find(
+        (e) => normalizar(e.descripcion) === normalizar(a.descripcion) && cola(e.codigo, a.codigo) && cola(e.decoracion, a.decoracion),
       );
+      const masLargo = (x, y) => (texto(y).length > texto(x).length ? texto(y) : texto(x));
+      const r = previo
+        ? await db.query(
+            `UPDATE orden_articulos SET codigo = $2, decoracion = $3,
+               cantidad_producir = COALESCE($4, cantidad_producir), tiempo_estandar = COALESCE($5, tiempo_estandar), ruta = COALESCE($6, ruta)
+             WHERE id = $1 RETURNING id`,
+            [previo.id, masLargo(previo.codigo, a.codigo), masLargo(previo.decoracion, a.decoracion), entero(a.cantidad_producir), numero(a.tiempo_estandar), ruta],
+          )
+        : await db.query(
+            `INSERT INTO orden_articulos (orden_id, codigo, descripcion, decoracion, cantidad_producir, tiempo_estandar, ruta)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             ON CONFLICT (orden_id, codigo, decoracion) DO UPDATE SET descripcion = EXCLUDED.descripcion
+             RETURNING id`,
+            [ordenId, texto(a.codigo), texto(a.descripcion), texto(a.decoracion), entero(a.cantidad_producir), numero(a.tiempo_estandar), ruta],
+          );
       articulos.push({ id: r.rows[0].id, ...a });
     }
 

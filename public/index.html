@@ -207,6 +207,7 @@ function pintarRevision(d, yaRegistrada) {
         ${campo("Operario", "operario", d.operario)}
         ${campo("Cliente", "cliente", d.cliente)}
         ${campo("Observaciones", "observaciones", d.observaciones)}
+        <div class="ancho">${campo("Notas (anotaciones a mano fuera de la tabla)", "notas", d.notas)}</div>
       </div>
       ${d.articulos.map((a) => `
         <div class="articulo">
@@ -245,7 +246,7 @@ function leerRevision() {
   const f = $("#revision");
   const valor = (raiz, nombre) => $(`[name=${nombre}]`, raiz).value.trim();
   const datos = {};
-  for (const n of ["numero_orden", "seccion", "fecha_emision", "operario", "cliente", "observaciones"]) datos[n] = valor(f, n);
+  for (const n of ["numero_orden", "seccion", "fecha_emision", "operario", "cliente", "observaciones", "notas"]) datos[n] = valor(f, n);
   datos.articulos = [...f.querySelectorAll(".articulo")].map((el) => {
     const a = {};
     for (const n of ["codigo", "descripcion", "decoracion", "cantidad_producir", "tiempo_estandar", "ruta", "malas"]) a[n] = valor(el, n);
@@ -328,6 +329,7 @@ $("#ordenes").onclick = async (e) => {
           </div>
           ${h.estado !== "registrada" ? `<p class="tenue" style="margin:0">Falta la hoja de esta sección.</p>` : `
             <div class="tenue">${esc(h.operario ?? "Sin operario")}${h.tiene_foto ? ` · <a href="/api/hojas/${h.id}/foto" target="_blank" rel="noopener">Ver foto</a>` : ""}</div>
+            ${h.notas ? `<div class="tenue">Notas: ${esc(h.notas)}</div>` : ""}
             <div class="tabla"><table class="lectura">
               <thead><tr><th>Artículo</th><th>Fecha</th><th>Cant.</th><th>Inicio</th><th>Fin</th><th>Pers.</th></tr></thead>
               <tbody>${h.articulos.flatMap((a) => a.registros.map((r) => `<tr><td>${esc(nombreArt(a.articulo_id))}</td><td>${fechaCorta(r.fecha)}</td>
