@@ -26,8 +26,18 @@ npm start                      # http://localhost:3000
 Las tablas se crean solas al arrancar (`schema.sql`).
 
 La cámara del celular solo se abre si la página se sirve por HTTPS (o en `localhost`).
-La aplicación no tiene inicio de sesión: debe publicarse dentro de la red interna o detrás
-de un acceso con contraseña.
+
+El acceso se protege con una contraseña compartida, `APP_PASSWORD`. Con `NODE_ENV=production`
+la aplicación no arranca si no está definida.
+
+## Despliegue en Render
+
+El archivo `render.yaml` describe el servicio web y la base PostgreSQL:
+
+1. En Render: **New → Blueprint** y elegir este repositorio y rama.
+2. Render pide dos valores, que se escriben ahí mismo y no se guardan en el repositorio:
+   `ANTHROPIC_API_KEY` (clave de la API de Anthropic) y `APP_PASSWORD` (contraseña de acceso).
+3. Aplicar. `DATABASE_URL` se conecta sola a la base creada.
 
 ## Tablas
 

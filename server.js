@@ -1,13 +1,21 @@
 import "dotenv/config";
 import express from "express";
+import { accesoActivo, entrar, estado, exigirSesion, salir } from "./acceso.js";
 import { extraerHoja } from "./extraer.js";
 import { ErrorDeDatos, detalleOrden, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
 
 const MIMES = ["image/jpeg", "image/png", "image/webp"];
 
 export const app = express();
+app.set("trust proxy", 1); // detrás del proxy HTTPS del servicio en la nube
 app.use(express.json({ limit: "20mb" }));
 app.use(express.static(new URL("./public", import.meta.url).pathname));
+
+app.get("/salud", (_req, res) => res.send("ok"));
+app.get("/api/sesion", estado);
+app.post("/api/entrar", entrar);
+app.post("/api/salir", salir);
+app.use("/api", exigirSesion);
 
 function imagenDe(cuerpo) {
   const { imagen, mime } = cuerpo ?? {};
@@ -59,6 +67,13 @@ app.use((err, _req, res, _next) => {
 });
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  if (!accesoActivo()) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("Falta APP_PASSWORD: en producción la aplicación no arranca sin contraseña de acceso.");
+      process.exit(1);
+    }
+    console.warn("Aviso: sin APP_PASSWORD cualquiera que abra la página puede usarla.");
+  }
   await migrar();
   const puerto = Number(process.env.PORT) || 3000;
   app.listen(puerto, () => console.log(`Artesa · hojas de producción en http://localhost:${puerto}`));

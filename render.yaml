@@ -1,0 +1,27 @@
+# Despliegue en Render: New → Blueprint → elegir este repositorio.
+services:
+  - type: web
+    name: artesa-hojas
+    runtime: node
+    plan: free
+    branch: ccr-b43cdb47-ahk9z9
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /salud
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: artesa-db
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false   # se escribe en el panel de Render
+      - key: APP_PASSWORD
+        sync: false   # se escribe en el panel de Render
+
+databases:
+  - name: artesa-db
+    plan: free
+    databaseName: artesa
+    user: artesa
