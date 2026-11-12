@@ -171,35 +171,69 @@ $("#tab-ordenes").onclick = () => mostrar("ordenes");
 // ---------- Captura ----------
 $("#tomar").onclick = () => $("#camara").click();
 $("#cargar").onclick = () => $("#galeria").click();
-$("#camara").onchange = $("#galeria").onchange = (e) => {
-  const archivos = [...e.target.files];
+$("#camara").onchange = $("#galeria").onchange = async (e) => {
+  // El campo se vacía al final: en algunos celulares, vaciarlo antes invalida las fotos elegidas.
+  await agregar([...e.target.files]);
   e.target.value = "";
-  agregar(archivos);
 };
 
-// Se reduce en el navegador: basta para leer la letra y sube mucho más rápido.
-async function preparar(archivo) {
-  const bmp = await createImageBitmap(archivo, { imageOrientation: "from-image" });
-  const escala = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+function dibujar(fuente, ancho, alto) {
+  const escala = Math.min(1, 2000 / Math.max(ancho, alto));
   const lienzo = document.createElement("canvas");
-  lienzo.width = Math.round(bmp.width * escala);
-  lienzo.height = Math.round(bmp.height * escala);
-  lienzo.getContext("2d").drawImage(bmp, 0, 0, lienzo.width, lienzo.height);
+  lienzo.width = Math.round(ancho * escala);
+  lienzo.height = Math.round(alto * escala);
+  lienzo.getContext("2d").drawImage(fuente, 0, 0, lienzo.width, lienzo.height);
   const url = lienzo.toDataURL("image/jpeg", 0.85);
+  if (url.length < 1000) throw new Error("la imagen quedó vacía");
   return { url, imagen: url.split(",")[1], mime: "image/jpeg" };
+}
+
+const comoImg = (url) => new Promise((ok, mal) => {
+  const img = new Image();
+  img.onload = () => ok(img);
+  img.onerror = () => mal(new Error("formato no admitido por el navegador"));
+  img.src = url;
+});
+
+// Se reduce en el navegador: basta para leer la letra y sube mucho más rápido.
+// Hay tres caminos porque no todos los navegadores de celular abren las fotos igual.
+async function preparar(archivo) {
+  if (!archivo.size) throw new Error("el archivo llegó vacío (¿foto en la nube sin descargar?)");
+  try {
+    const bmp = await createImageBitmap(archivo);
+    try { return dibujar(bmp, bmp.width, bmp.height); } finally { bmp.close?.(); }
+  } catch {}
+  const blobUrl = URL.createObjectURL(archivo);
+  try {
+    const img = await comoImg(blobUrl);
+    return dibujar(img, img.naturalWidth, img.naturalHeight);
+  } catch (err) {
+    // Último recurso: enviar la foto tal cual, si el servidor admite su formato y tamaño.
+    if (!["image/jpeg", "image/png", "image/webp"].includes(archivo.type) || archivo.size > 4_500_000) throw err;
+    const url = await new Promise((ok, mal) => {
+      const lector = new FileReader();
+      lector.onload = () => ok(lector.result);
+      lector.onerror = () => mal(new Error("no se pudo leer el archivo"));
+      lector.readAsDataURL(archivo);
+    });
+    return { url, imagen: url.split(",")[1], mime: archivo.type };
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
 }
 
 async function agregar(archivos) {
   mensaje();
-  let fallidas = 0;
+  const fallos = [];
   for (const archivo of archivos) {
     try {
       cola.push({ id: ++serie, estado: "pendiente", ...(await preparar(archivo)) });
       pintarCola();
       procesar();
-    } catch { fallidas++; }
+    } catch (err) { fallos.push(`${archivo.name || "foto"}: ${err.message}`); }
   }
-  if (fallidas) mensaje("error", fallidas === 1 ? "No se pudo abrir una de las imágenes." : `No se pudieron abrir ${fallidas} imágenes.`);
+  if (fallos.length)
+    mensaje("error", `No se ${fallos.length === 1 ? "pudo abrir una imagen" : `pudieron abrir ${fallos.length} imágenes`}.<ul>${fallos.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>`);
 }
 
 // Lee hasta tres fotos a la vez.
