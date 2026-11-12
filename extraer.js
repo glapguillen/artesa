@@ -11,8 +11,9 @@ const Registro = z.object({
 });
 
 const Articulo = z.object({
-  codigo: z.string().describe("Código impreso, p. ej. '0944 626'"),
-  descripcion: z.string().describe("Nombre de la pieza, p. ej. 'BANDEJA HOJA #2'"),
+  codigo_bizcocho: z.string().describe("Primer grupo del código impreso (4 dígitos), p. ej. '0944'; vacío si la foto lo corta por completo"),
+  bizcocho: z.string().describe("Nombre de la pieza, impreso junto al código, p. ej. 'BANDEJA HOJA #2'"),
+  codigo_decoracion: z.string().describe("Segundo grupo del código impreso (3 dígitos), p. ej. '626'"),
   decoracion: z.string().describe("Segunda línea del artículo (decoración), p. ej. 'GIRASOL AZUL'; vacío si no hay"),
   cantidad_producir: z.number().nullable(),
   tiempo_estandar: z.number().nullable().describe("Columna TIEMPO, p. ej. 240,00 -> 240"),
@@ -28,7 +29,8 @@ export const HojaSchema = z.object({
   fecha_emision: z.string().nullable().describe("Fecha impresa arriba a la derecha, AAAA-MM-DD"),
   cliente: z.string().nullable(),
   observaciones: z.string().nullable(),
-  operario: z.string().nullable().describe("Nombre o nombres manuscritos sobre la tabla, p. ej. 'Sonia-Tania'"),
+  operario1: z.string().nullable().describe("Nombre manuscrito sobre la tabla; si hay dos personas ('Sonia-Tania'), la primera"),
+  operario2: z.string().nullable().describe("Segunda persona cuando sobre la tabla hay dos nombres; null si solo hay uno"),
   notas: z.string().nullable().describe("Otras anotaciones a mano fuera de las casillas (nombres junto a observaciones, horas sueltas bajo la tabla); null si no hay"),
   articulos: z.array(Articulo),
   dudas: z.array(z.string()).describe("Campos que no se leen con seguridad, cada uno en una frase corta en español"),
@@ -36,15 +38,15 @@ export const HojaSchema = z.object({
 
 const INSTRUCCIONES = `Vas a transcribir una "Hoja de Producción Diaria" de un taller de cerámica a partir de una foto tomada con el celular. La foto puede venir girada, inclinada, algo movida o con la hoja encima de un montón de otras hojas; transcribe solo la hoja de arriba, en su orientación correcta.
 
-La hoja tiene datos impresos (orden, sección, fecha de emisión, cliente, observaciones y uno o varios artículos, cada uno con código, nombre, decoración en la línea de abajo, cantidad a producir, tiempo y ruta) y datos escritos a mano por el operario:
-- Su nombre sobre la tabla (a veces dos nombres, o solo una firma).
+La hoja tiene datos impresos (orden, sección, fecha de emisión, cliente, observaciones y uno o varios artículos, cada uno con un código de dos grupos de dígitos ("0944 626": el primero identifica el bizcocho, que es la pieza, y el segundo la decoración), el nombre del bizcocho a continuación, el nombre de la decoración en la línea de abajo, cantidad a producir, tiempo y ruta) y datos escritos a mano por el operario:
+- Su nombre sobre la tabla. A veces son dos personas, escritas juntas con un guion ("Sonia-Tania"): van separadas en operario1 y operario2. Nombre y apellido de una sola persona ("Ana Pérez") van juntos en operario1. A veces es solo una firma.
 - A la derecha, hasta tres bloques de columnas. Cada bloque tiene arriba una fecha, que vale para todos los artículos de la hoja, y debajo las casillas CANT (piezas hechas), TMPO (dos horas apiladas: inicio arriba, fin abajo) y PER (personas). Un artículo solo tiene registro en un bloque si en su fila hay algo escrito; es normal que un artículo tenga datos en el segundo bloque y no en el primero.
 - Bajo "malas", a veces, un número de piezas defectuosas.
 - A veces anotaciones sueltas fuera de las casillas; van en "notas", no en los registros.
 
 La impresión puede estar desplazada respecto a las líneas de la tabla; guíate por el orden de los artículos, no por las líneas.
 
-Estos datos se guardan en la base de datos de producción y antes los revisa una persona, así que importa más ser fiel que completar. Si una casilla está vacía devuelve null. Si el borde de la foto corta un texto (un código o una decoración a los que les falta el principio), devuelve solo lo que se ve y dilo en "dudas"; no lo completes. Si un valor manuscrito admite más de una lectura, elige la más probable y menciónalo en "dudas" diciendo qué campo es y qué alternativas ves. Reserva "dudas" para lo que el revisor deba comprobar contra el papel: no anotes ahí casillas vacías, círculos o subrayados sobre texto impreso, ni valores que lees con claridad.
+Estos datos se guardan en la base de datos de producción y antes los revisa una persona, así que importa más ser fiel que completar. Si una casilla está vacía devuelve null. Si el borde de la foto corta un texto (un código o una decoración a los que les falta el principio), devuelve solo lo que se ve (el grupo de tres dígitos pegado al nombre de la pieza es siempre el de la decoración) y dilo en "dudas"; no lo completes. Si un valor manuscrito admite más de una lectura, elige la más probable y menciónalo en "dudas" diciendo qué campo es y qué alternativas ves. Reserva "dudas" para lo que el revisor deba comprobar contra el papel: no anotes ahí casillas vacías, círculos o subrayados sobre texto impreso, ni valores que lees con claridad.
 
 Las fechas manuscritas van en día-mes-año, con guiones, puntos o barras; las barras suelen parecer unos ("2610812026" es 26/08/2026). Usa la fecha de emisión impresa para resolver dígitos dudosos: el trabajo se hace ese día o en las semanas siguientes. Las horas pueden venir con punto, guion o dos puntos ("7.00", "15-33") y la jornada va aproximadamente de 7:00 a 17:30; devuélvelas como HH:MM tal como están escritas, aunque parezcan un error.`;
 
@@ -53,7 +55,7 @@ export function verificar(d) {
   const avisos = [];
   const minutos = (h) => (/^\d{1,2}:\d{2}$/.test(h ?? "") ? Number(h.split(":")[0]) * 60 + Number(h.split(":")[1]) : null);
   for (const a of d.articulos ?? []) {
-    const nombre = [a.descripcion, a.decoracion].filter(Boolean).join(" ") || a.codigo || "Artículo";
+    const nombre = [a.bizcocho, a.decoracion].filter(Boolean).join(" ") || "Artículo";
     let hechas = 0;
     for (const r of a.registros ?? []) {
       hechas += Number(r.cantidad) || 0;

@@ -366,7 +366,8 @@ function pintarRevision(d, yaRegistrada, url, desplazar) {
         ${campo("Orden #", "numero_orden", d.numero_orden, "required")}
         ${campo("Sección", "seccion", d.seccion, "required")}
         ${campo("Fecha de emisión", "fecha_emision", d.fecha_emision, 'type="date"')}
-        ${campo("Operario", "operario", d.operario)}
+        ${campo("Operario 1", "operario1", d.operario1)}
+        ${campo("Operario 2", "operario2", d.operario2)}
         ${campo("Cliente", "cliente", d.cliente)}
         ${campo("Observaciones", "observaciones", d.observaciones)}
         <div class="ancho">${campo("Notas (anotaciones a mano fuera de la tabla)", "notas", d.notas)}</div>
@@ -375,8 +376,9 @@ function pintarRevision(d, yaRegistrada, url, desplazar) {
         <div class="articulo">
           <h3>Artículo</h3>
           <div class="campos">
-            ${campo("Código", "codigo", a.codigo)}
-            ${campo("Descripción", "descripcion", a.descripcion)}
+            ${campo("Código de bizcocho", "codigo_bizcocho", a.codigo_bizcocho, 'inputmode="numeric"')}
+            ${campo("Bizcocho", "bizcocho", a.bizcocho)}
+            ${campo("Código de decoración", "codigo_decoracion", a.codigo_decoracion, 'inputmode="numeric"')}
             ${campo("Decoración", "decoracion", a.decoracion)}
             ${campo("Producir", "cantidad_producir", a.cantidad_producir, 'type="number" min="0" inputmode="numeric"')}
             ${campo("Tiempo", "tiempo_estandar", a.tiempo_estandar, 'type="number" min="0" step="0.01" inputmode="decimal"')}
@@ -408,10 +410,10 @@ function leerRevision() {
   const f = $("#revision");
   const valor = (raiz, nombre) => $(`[name=${nombre}]`, raiz).value.trim();
   const datos = {};
-  for (const n of ["numero_orden", "seccion", "fecha_emision", "operario", "cliente", "observaciones", "notas"]) datos[n] = valor(f, n);
+  for (const n of ["numero_orden", "seccion", "fecha_emision", "operario1", "operario2", "cliente", "observaciones", "notas"]) datos[n] = valor(f, n);
   datos.articulos = [...f.querySelectorAll(".articulo")].map((el) => {
     const a = {};
-    for (const n of ["codigo", "descripcion", "decoracion", "cantidad_producir", "tiempo_estandar", "ruta", "malas"]) a[n] = valor(el, n);
+    for (const n of ["codigo_bizcocho", "bizcocho", "codigo_decoracion", "decoracion", "cantidad_producir", "tiempo_estandar", "ruta", "malas"]) a[n] = valor(el, n);
     a.registros = [...el.querySelectorAll(".registro")].map((tr) =>
       Object.fromEntries([...tr.querySelectorAll("[data-c]")].map((i) => [i.dataset.c, i.value])));
     return a;
@@ -474,15 +476,15 @@ $("#ordenes").onclick = async (e) => {
   const cont = $("#ordenes");
   try {
     const o = await api("/api/ordenes/" + encodeURIComponent(tarjeta.dataset.numero));
-    const nombreArt = (id) => { const a = o.articulos.find((x) => x.id === id); return a ? `${a.descripcion} ${a.decoracion}`.trim() : ""; };
+    const nombreArt = (id) => { const a = o.articulos.find((x) => x.id === id); return a ? `${a.bizcocho} ${a.decoracion}`.trim() : ""; };
     cont.innerHTML = `
       <button class="boton mini" id="volver" style="margin-bottom:12px">← Órdenes</button>
       <div class="panel">
         <div class="fila"><h2>Orden ${esc(o.numero)}</h2><span class="tenue">${fechaCorta(o.fecha_emision)}</span></div>
         <div class="tenue">${esc(o.cliente ?? "")}${o.observaciones ? " · " + esc(o.observaciones) : ""}</div>
         <div class="tabla"><table class="lectura">
-          <thead><tr><th>Código</th><th>Artículo</th><th>Producir</th><th>Tiempo</th><th>Ruta</th></tr></thead>
-          <tbody>${o.articulos.map((a) => `<tr><td>${esc(a.codigo)}</td><td>${esc(a.descripcion)} ${esc(a.decoracion)}</td>
+          <thead><tr><th>Cód.</th><th>Bizcocho</th><th>Cód.</th><th>Decoración</th><th>Producir</th><th>Tiempo</th><th>Ruta</th></tr></thead>
+          <tbody>${o.articulos.map((a) => `<tr><td>${esc(a.codigo_bizcocho)}</td><td>${esc(a.bizcocho)}</td><td>${esc(a.codigo_decoracion)}</td><td>${esc(a.decoracion)}</td>
             <td>${esc(a.cantidad_producir ?? "—")}</td><td>${esc(a.tiempo_estandar ?? "—")}</td><td>${esc(a.ruta ?? "—")}</td></tr>`).join("")}</tbody>
         </table></div>
       </div>
@@ -493,7 +495,7 @@ $("#ordenes").onclick = async (e) => {
             <span class="chip ${h.estado}">${h.estado === "registrada" ? "registrada" : "pendiente"}</span>
           </div>
           ${h.estado !== "registrada" ? `<p class="tenue" style="margin:0">Falta la hoja de esta sección.</p>` : `
-            <div class="tenue">${esc(h.operario ?? "Sin operario")}${h.tiene_foto ? ` · <a href="/api/hojas/${h.id}/foto" target="_blank" rel="noopener">Ver foto</a>` : ""}</div>
+            <div class="tenue">${esc([h.operario1, h.operario2].filter(Boolean).join(" y ") || "Sin operario")}${h.tiene_foto ? ` · <a href="/api/hojas/${h.id}/foto" target="_blank" rel="noopener">Ver foto</a>` : ""}</div>
             ${h.notas ? `<div class="tenue">Notas: ${esc(h.notas)}</div>` : ""}
             <div class="tabla"><table class="lectura">
               <thead><tr><th>Artículo</th><th>Fecha</th><th>Cant.</th><th>Inicio</th><th>Fin</th><th>Pers.</th></tr></thead>

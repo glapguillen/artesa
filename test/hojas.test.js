@@ -4,12 +4,12 @@ import { detalleOrden, guardarHoja, hojaExistente, listarOrdenes, migrar, pool }
 
 const ORDEN = "TEST-0076660";
 const articulo = (registros, malas = "") => ({
-  codigo: "0944 626", descripcion: "BANDEJA HOJA #2", decoracion: "GIRASOL AZUL",
+  codigo_bizcocho: "0944", bizcocho: "BANDEJA HOJA #2", codigo_decoracion: "626", decoracion: "GIRASOL AZUL",
   cantidad_producir: 12, tiempo_estandar: 240, ruta: "STDE", malas, registros,
 });
 const hoja = (seccion, operario, registros) => ({
   numero_orden: ORDEN, seccion, fecha_emision: "2026-09-14", cliente: "ANDRADE PATRICIO",
-  observaciones: "MARCA VEGA", operario, articulos: [articulo(registros)],
+  observaciones: "MARCA VEGA", operario1: operario, operario2: operario === "Sonia" ? "Tania" : null, articulos: [articulo(registros)],
 });
 const limpiar = () => pool.query("DELETE FROM ordenes WHERE numero = $1", [ORDEN]);
 
@@ -61,20 +61,23 @@ test("rechaza hojas sin orden o sin sección", async () => {
 
 test("reconoce el artículo aunque la foto corte el código o la decoración", async () => {
   const cortada = hoja("DECORADO", "Thalya", [{ fecha: "2026-09-16", cantidad: 1 }]);
-  cortada.articulos[0].codigo = "626";
+  cortada.articulos[0].codigo_bizcocho = "";
   cortada.articulos[0].decoracion = "SOL AZUL";
   await guardarHoja({ datos: cortada });
   const o = await detalleOrden(ORDEN);
-  assert.deepEqual(o.articulos.map((a) => [a.codigo, a.decoracion]), [["0944 626", "GIRASOL AZUL"]]);
+  assert.deepEqual(o.articulos.map((a) => [a.codigo, a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion]),
+    [["0944 626", "0944", "BANDEJA HOJA #2", "626", "GIRASOL AZUL"]]);
+  const esmalt = o.hojas.find((h) => h.seccion === "ESMALT");
+  assert.deepEqual([esmalt.operario1, esmalt.operario2], ["Sonia", "Tania"]);
 });
 
 test("varios artículos con registros en bloques distintos y rutas cortas", async () => {
   const { verificar } = await import("../extraer.js");
   const datos = {
     numero_orden: ORDEN, seccion: "DECORADO", fecha_emision: "2026-08-20", cliente: "STOCK FABRICA", articulos: [
-      { codigo: "0907 462", descripcion: "MANTEQUILLERO CHORDELEG", decoracion: "FLORES DEL CAMPO", cantidad_producir: 12, ruta: "DE",
+      { codigo_bizcocho: "0907", codigo_decoracion: "462", bizcocho: "MANTEQUILLERO CHORDELEG", decoracion: "FLORES DEL CAMPO", cantidad_producir: 12, ruta: "DE",
         registros: [{ fecha: "2026-08-25", cantidad: 2, hora_inicio: "16:40", hora_fin: "17:30" }, { fecha: "2026-08-26", cantidad: 10, hora_inicio: "2:00", hora_fin: "8:21" }] },
-      { codigo: "0883 462", descripcion: "TAPA TETERA GUALACEO", decoracion: "FLORES DEL CAMPO", cantidad_producir: 5, ruta: "DE",
+      { codigo_bizcocho: "0883", codigo_decoracion: "462", bizcocho: "TAPA TETERA GUALACEO", decoracion: "FLORES DEL CAMPO", cantidad_producir: 5, ruta: "DE",
         registros: [{ fecha: "2026-08-26", cantidad: 6, hora_inicio: "14:35", hora_fin: "7:00" }] },
     ],
   };

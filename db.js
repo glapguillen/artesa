@@ -80,28 +80,33 @@ export async function guardarHoja({ datos, extraccion, foto, fotoMime }) {
     const ordenId = orden.rows[0].id;
 
     const articulos = [];
-    const existentes = (await db.query("SELECT id, codigo, descripcion, decoracion FROM orden_articulos WHERE orden_id = $1", [ordenId])).rows;
+    const existentes = (await db.query(
+      "SELECT id, codigo_bizcocho, bizcocho, codigo_decoracion, decoracion FROM orden_articulos WHERE orden_id = $1", [ordenId])).rows;
     for (const a of datos.articulos) {
       const ruta = textoONull(normalizar(a.ruta).replace(/[^A-Z]/g, ""));
-      // Si la foto cortó el código o la decoración, se reconoce el artículo que ya tenía la orden.
+      const codigoDe = (cb, cd) => [texto(cb), texto(cd)].filter(Boolean).join(" ");
+      // Si la foto cortó un código o la decoración, se reconoce el artículo que ya tenía la orden.
       const cola = (x, y) => normalizar(x).endsWith(normalizar(y)) || normalizar(y).endsWith(normalizar(x));
       const previo = existentes.find(
-        (e) => normalizar(e.descripcion) === normalizar(a.descripcion) && cola(e.codigo, a.codigo) && cola(e.decoracion, a.decoracion),
+        (e) => normalizar(e.bizcocho) === normalizar(a.bizcocho) && cola(e.codigo_bizcocho, a.codigo_bizcocho) &&
+          cola(e.codigo_decoracion, a.codigo_decoracion) && cola(e.decoracion, a.decoracion),
       );
       const masLargo = (x, y) => (texto(y).length > texto(x).length ? texto(y) : texto(x));
+      const cb = previo ? masLargo(previo.codigo_bizcocho, a.codigo_bizcocho) : texto(a.codigo_bizcocho);
+      const cd = previo ? masLargo(previo.codigo_decoracion, a.codigo_decoracion) : texto(a.codigo_decoracion);
       const r = previo
         ? await db.query(
-            `UPDATE orden_articulos SET codigo = $2, decoracion = $3,
-               cantidad_producir = COALESCE($4, cantidad_producir), tiempo_estandar = COALESCE($5, tiempo_estandar), ruta = COALESCE($6, ruta)
+            `UPDATE orden_articulos SET codigo = $2, codigo_bizcocho = $3, codigo_decoracion = $4, decoracion = $5,
+               cantidad_producir = COALESCE($6, cantidad_producir), tiempo_estandar = COALESCE($7, tiempo_estandar), ruta = COALESCE($8, ruta)
              WHERE id = $1 RETURNING id`,
-            [previo.id, masLargo(previo.codigo, a.codigo), masLargo(previo.decoracion, a.decoracion), entero(a.cantidad_producir), numero(a.tiempo_estandar), ruta],
+            [previo.id, codigoDe(cb, cd), cb, cd, masLargo(previo.decoracion, a.decoracion), entero(a.cantidad_producir), numero(a.tiempo_estandar), ruta],
           )
         : await db.query(
-            `INSERT INTO orden_articulos (orden_id, codigo, descripcion, decoracion, cantidad_producir, tiempo_estandar, ruta)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
-             ON CONFLICT (orden_id, codigo, decoracion) DO UPDATE SET descripcion = EXCLUDED.descripcion
+            `INSERT INTO orden_articulos (orden_id, codigo, codigo_bizcocho, bizcocho, codigo_decoracion, decoracion, cantidad_producir, tiempo_estandar, ruta)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             ON CONFLICT (orden_id, codigo, decoracion) DO UPDATE SET bizcocho = EXCLUDED.bizcocho
              RETURNING id`,
-            [ordenId, texto(a.codigo), texto(a.descripcion), texto(a.decoracion), entero(a.cantidad_producir), numero(a.tiempo_estandar), ruta],
+            [ordenId, codigoDe(cb, cd), cb, texto(a.bizcocho), cd, texto(a.decoracion), entero(a.cantidad_producir), numero(a.tiempo_estandar), ruta],
           );
       articulos.push({ id: r.rows[0].id, ...a });
     }
@@ -119,14 +124,14 @@ export async function guardarHoja({ datos, extraccion, foto, fotoMime }) {
 
     const seccionId = await resolverSeccion(db, datos.seccion);
     const hoja = await db.query(
-      `INSERT INTO hojas (orden_id, seccion_id, estado, operario, notas, foto, foto_mime, extraccion, registrada_en)
-       VALUES ($1, $2, 'registrada', $3, $4, $5, $6, $7, now())
+      `INSERT INTO hojas (orden_id, seccion_id, estado, operario1, operario2, notas, foto, foto_mime, extraccion, registrada_en)
+       VALUES ($1, $2, 'registrada', $3, $4, $5, $6, $7, $8, now())
        ON CONFLICT (orden_id, seccion_id) DO UPDATE SET
-         estado = 'registrada', operario = EXCLUDED.operario, notas = EXCLUDED.notas,
+         estado = 'registrada', operario1 = EXCLUDED.operario1, operario2 = EXCLUDED.operario2, notas = EXCLUDED.notas,
          foto = COALESCE(EXCLUDED.foto, hojas.foto), foto_mime = COALESCE(EXCLUDED.foto_mime, hojas.foto_mime),
          extraccion = EXCLUDED.extraccion, registrada_en = now()
        RETURNING id`,
-      [ordenId, seccionId, textoONull(datos.operario), textoONull(datos.notas), foto ?? null, fotoMime ?? null, extraccion ?? null],
+      [ordenId, seccionId, textoONull(datos.operario1), textoONull(datos.operario2), textoONull(datos.notas), foto ?? null, fotoMime ?? null, extraccion ?? null],
     );
     const hojaId = hoja.rows[0].id;
 
@@ -159,7 +164,7 @@ export async function guardarHoja({ datos, extraccion, foto, fotoMime }) {
 export async function listarOrdenes() {
   const { rows } = await pool.query(
     `SELECT o.numero, o.fecha_emision, o.cliente, o.observaciones,
-            (SELECT string_agg(DISTINCT a.descripcion || CASE WHEN a.decoracion <> '' THEN ' · ' || a.decoracion ELSE '' END, ', ')
+            (SELECT string_agg(DISTINCT a.bizcocho || CASE WHEN a.decoracion <> '' THEN ' · ' || a.decoracion ELSE '' END, ', ')
                FROM orden_articulos a WHERE a.orden_id = o.id) AS articulos,
             COALESCE((SELECT json_agg(json_build_object('seccion', s.nombre, 'estado', h.estado)
                                       ORDER BY position(s.letra in COALESCE(r.ruta, '')), s.id)
@@ -179,7 +184,7 @@ export async function detalleOrden(numeroOrden) {
   const ruta = articulos.map((a) => a.ruta ?? "").join("");
   const hojas = (
     await pool.query(
-      `SELECT h.id, h.estado, h.operario, h.notas, h.registrada_en, h.foto IS NOT NULL AS tiene_foto, s.nombre AS seccion, s.letra
+      `SELECT h.id, h.estado, h.operario1, h.operario2, h.notas, h.registrada_en, h.foto IS NOT NULL AS tiene_foto, s.nombre AS seccion, s.letra
          FROM hojas h JOIN secciones s ON s.id = h.seccion_id WHERE h.orden_id = $1`,
       [orden.id],
     )

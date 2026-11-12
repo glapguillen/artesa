@@ -45,8 +45,8 @@ El archivo `render.yaml` describe el servicio web y la base PostgreSQL:
 |---|---|
 | `secciones` | Catálogo de secciones y su letra en la ruta |
 | `ordenes` | Número de orden, fecha de emisión, cliente, observaciones |
-| `orden_articulos` | Artículos de la orden: código, descripción, decoración, cantidad, tiempo, ruta |
-| `hojas` | Una por orden y sección: estado, operario, foto, lectura original |
+| `orden_articulos` | Artículos de la orden: código y nombre del bizcocho, código y nombre de la decoración, cantidad, tiempo, ruta |
+| `hojas` | Una por orden y sección: estado, operario 1 y 2, foto, lectura original |
 | `hoja_articulos` | Piezas malas por artículo en cada hoja |
 | `registros` | Cada bloque manuscrito: fecha, cantidad, hora de inicio y fin, personas |
 
