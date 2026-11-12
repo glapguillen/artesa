@@ -58,12 +58,14 @@ app.use((err, _req, res, _next) => {
   if (err instanceof ErrorDeDatos) return res.status(400).json({ error: err.message });
   if (err.type === "entity.too.large") return res.status(413).json({ error: "La imagen es demasiado grande" });
   console.error(err);
-  const sinCredenciales = /apiKey|authToken|authentication/i.test(err.message ?? "");
-  res.status(500).json({
-    error: sinCredenciales
-      ? "El servidor no tiene configurada la clave de la API de Anthropic (ANTHROPIC_API_KEY)"
-      : "Error del servidor: " + (err.message ?? "desconocido"),
-  });
+  // Errores de la API de lectura, explicados para quien usa la aplicación.
+  const mensaje =
+    err.status === 401 ? "La clave de la API de Anthropic no es válida o fue revocada (ANTHROPIC_API_KEY)"
+    : err.status === 429 ? "La API de Anthropic está saturada o sin cupo. Intenta de nuevo en un momento."
+    : err.status === 400 && /credit|billing/i.test(err.message ?? "") ? "La cuenta de Anthropic no tiene saldo"
+    : /apiKey|authToken/i.test(err.message ?? "") ? "El servidor no tiene configurada la clave de la API de Anthropic (ANTHROPIC_API_KEY)"
+    : "Error del servidor: " + (err.message ?? "desconocido");
+  res.status(500).json({ error: mensaje });
 });
 
 if (import.meta.url === `file://${process.argv[1]}`) {
