@@ -197,8 +197,28 @@ const comoImg = (url) => new Promise((ok, mal) => {
 
 // Se reduce en el navegador: basta para leer la letra y sube mucho más rápido.
 // Hay tres caminos porque no todos los navegadores de celular abren las fotos igual.
+// Las fotos HEIC (formato de muchas cámaras de celular) se convierten a JPEG antes de abrirlas.
+let conversor;
+const esHeic = (a) => /\.(heic|heif)$/i.test(a.name || "") || /hei[cf]/i.test(a.type || "");
+async function deHeic(archivo) {
+  conversor ??= new Promise((ok, mal) => {
+    const s = document.createElement("script");
+    s.src = "/vendor/heic-to.js";
+    s.onload = ok;
+    s.onerror = () => { conversor = null; mal(new Error("no se pudo descargar el conversor de fotos HEIC")); };
+    document.head.append(s);
+  });
+  await conversor;
+  try {
+    return await HeicTo({ blob: archivo, type: "image/jpeg", quality: 0.9 });
+  } catch {
+    throw new Error("no se pudo convertir la foto HEIC");
+  }
+}
+
 async function preparar(archivo) {
   if (!archivo.size) throw new Error("el archivo llegó vacío (¿foto en la nube sin descargar?)");
+  if (esHeic(archivo)) archivo = await deHeic(archivo);
   try {
     const bmp = await createImageBitmap(archivo);
     try { return dibujar(bmp, bmp.width, bmp.height); } finally { bmp.close?.(); }
@@ -225,13 +245,15 @@ async function preparar(archivo) {
 async function agregar(archivos) {
   mensaje();
   const fallos = [];
-  for (const archivo of archivos) {
+  for (const [i, archivo] of archivos.entries()) {
+    if (archivos.length > 1 || esHeic(archivo)) mensaje("aviso", `Preparando foto ${i + 1} de ${archivos.length}…`);
     try {
       cola.push({ id: ++serie, estado: "pendiente", ...(await preparar(archivo)) });
       pintarCola();
       procesar();
     } catch (err) { fallos.push(`${archivo.name || "foto"}: ${err.message}`); }
   }
+  mensaje();
   if (fallos.length)
     mensaje("error", `No se ${fallos.length === 1 ? "pudo abrir una imagen" : `pudieron abrir ${fallos.length} imágenes`}.<ul>${fallos.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>`);
 }

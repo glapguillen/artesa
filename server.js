@@ -11,6 +11,10 @@ app.set("trust proxy", 1); // detrás del proxy HTTPS del servicio en la nube
 app.use(express.json({ limit: "20mb" }));
 app.use(express.static(new URL("./public", import.meta.url).pathname));
 
+// Conversor de fotos HEIC para el navegador; solo se descarga cuando hace falta.
+app.get("/vendor/heic-to.js", (_req, res) =>
+  res.sendFile(new URL("./node_modules/heic-to/dist/iife/heic-to.js", import.meta.url).pathname, { maxAge: "7d" }));
+
 app.get("/salud", (_req, res) => res.send("ok"));
 app.get("/api/sesion", estado);
 app.post("/api/entrar", entrar);
