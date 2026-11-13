@@ -26,7 +26,7 @@ let iaApagada = null; // motivo, si la IA falló por clave o saldo; se reintenta
 let iaPausada = null; // { motivo, hasta }: cuota agotada; se vuelve a intentar pasado un rato
 const motivoSinIA = () => iaApagada ?? (iaPausada && iaPausada.hasta > Date.now() ? iaPausada.motivo : null);
 const modoLectura = () => (!proveedor() || motivoSinIA() ? "local" : "ia");
-app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura() }));
+app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura(), motivo: proveedor() ? motivoSinIA() : null }));
 
 app.get("/salud", (_req, res) => res.send("ok"));
 app.get("/api/sesion", estado);

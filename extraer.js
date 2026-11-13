@@ -131,6 +131,11 @@ function resumen(mensaje) {
   try { m = JSON.parse(m.slice(m.indexOf("{"))).error?.message ?? m; } catch {}
   return m.replace(/\s+/g, " ").slice(0, 160);
 }
+// Segundos de espera que Google indica en un error 429 ("retryDelay": "23s" o "retry in 23.4s").
+function esperaPedida(mensaje) {
+  const m = String(mensaje ?? "").match(/retryDelay"?\s*:\s*"(\d+(?:\.\d+)?)s"|retry in (\d+(?:\.\d+)?)\s*s/i);
+  return m ? Math.ceil(Number(m[1] ?? m[2])) : null;
+}
 const PEDIDO = "Transcribe esta hoja. Responde solo con el JSON pedido.";
 
 async function conGemini(imagenBase64, mime) {
@@ -166,6 +171,13 @@ async function conGemini(imagenBase64, mime) {
         if (conEsquema && err.status === 400 && /schema/i.test(err.message)) { conEsquema = false; continue; }
         // Modelos que no admiten el nivel de razonamiento: se pide sin él.
         if (pensar && err.status === 400 && /think/i.test(err.message)) { pensar = false; continue; }
+        // Límite por minuto de la cuota gratuita: Google dice cuánto esperar; si es poco, se espera y se repite.
+        const pausa = esperaPedida(err.message);
+        if (err.status === 429 && pausa != null && pausa <= 65 && intento < 3) {
+          console.log(`Gemini pide esperar ${pausa} s (límite por minuto); se reintenta.`);
+          await espera((pausa + 1) * 1000);
+          continue;
+        }
         // Saturación o fallo pasajero de Google: hasta tres intentos con espera creciente.
         if ((err.status >= 500 || err.status === 429 && /overload|unavailable|try again/i.test(err.message)) && intento < 3) {
           await espera(intento * 2500);
@@ -186,8 +198,15 @@ async function conGemini(imagenBase64, mime) {
     const detalle = ` (código ${err.status}: ${resumen(err.message)})`;
     if (err.status === 404)
       throw new ErrorDeLectura(`El modelo de Gemini "${modeloGemini()}" no existe para esta clave; pon en GEMINI_MODEL uno de los que lista Google AI Studio` + detalle, { apagar: true });
-    if (err.status === 429)
-      throw new ErrorDeLectura("Se agotó la cuota gratuita de Gemini por ahora", { pausar: true });
+    if (err.status === 429) {
+      // Cuota del día agotada: no tiene sentido reintentar hasta que Google la renueve.
+      const diaria = /per.?day|daily|PerDay/i.test(err.message);
+      const pausa = esperaPedida(err.message);
+      const minutos = diaria ? 60 : Math.max(2, Math.ceil((pausa ?? 120) / 60));
+      throw new ErrorDeLectura(
+        (diaria ? "Se agotó la cuota gratuita diaria de Gemini" : "Se alcanzó el límite por minuto de la cuota gratuita de Gemini") + detalle,
+        { pausar: true, minutos });
+    }
     if (err.status === 400 && /api.?key/i.test(err.message) || err.status === 401 || err.status === 403)
       throw new ErrorDeLectura("La clave de Gemini no es válida o no tiene permiso (GEMINI_API_KEY)", { apagar: true });
     // Tras tres intentos fallidos se pasa unos minutos a la lectura local, en vez de dejar fotos en error.

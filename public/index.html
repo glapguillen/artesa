@@ -333,7 +333,13 @@ $("#catalogo").onclick = async (e) => {
 // y lo manuscrito se escribe a mano.
 let modo = null;
 let avisoSinIA = false;
-const config = () => (modo ??= api("/api/config").then((c) => c.lectura).catch(() => { modo = null; return "local"; }));
+let modoHasta = 0;
+let motivoLocal = null; // por qué la página pasó a la lectura gratuita, si fue por un fallo de Gemini
+const config = () => {
+  if (Date.now() > modoHasta) { modo = null; motivoLocal = null; } // se vuelve a preguntar cada minuto: Gemini puede volver tras una pausa
+  return (modo ??= (modoHasta = Date.now() + 60_000,
+    api("/api/config").then((c) => c.lectura).catch(() => { modo = null; return "local"; })));
+};
 
 let lector;
 function crearLector() {
@@ -443,16 +449,22 @@ async function leerLocal(f) {
 }
 
 async function leer(f) {
-  if ((await config()) === "local") return leerLocal(f);
+  if ((await config()) === "local") {
+    // Si se está en modo gratuito por un fallo de Gemini (no por falta de clave), se anota por qué.
+    if (!f.motivo) f.motivo = motivoLocal ?? (await api("/api/config").catch(() => ({}))).motivo ?? null;
+    return leerLocal(f);
+  }
   try {
     return await api("/api/extraer", { imagen: f.imagen, mime: f.mime });
   } catch (err) {
     if (!err.sinIA) throw err;
     // La IA no está disponible (sin saldo o sin clave): se sigue con la lectura gratuita.
     modo = Promise.resolve("local");
+    modoHasta = Date.now() + 60_000;
+    f.motivo = motivoLocal = err.message;
     if (!avisoSinIA) {
       avisoSinIA = true;
-      mensaje("aviso", `${esc(err.message)}. Se usa la lectura gratuita: lo impreso se lee de la foto y lo manuscrito se escribe a mano.`);
+      mensaje("aviso", `${esc(err.message)}. Mientras tanto se usa la lectura gratuita (lo manuscrito se escribe a mano); se vuelve a Gemini sola cuando pase.`);
     }
     return leerLocal(f);
   }
@@ -516,7 +528,10 @@ function pintarCola() {
     const texto = f.estado === "leyendo"
       ? `${f.paso ?? base} ${Math.round((Date.now() - f.inicio) / 1000)} s`
       : base;
-    const detalle = f.segundos != null && f.estado !== "error" ? `<span class="tenue">${esc(f.lector)} · ${f.segundos} s</span>` : "";
+    const detalle = f.segundos != null && f.estado !== "error"
+      ? `<span class="tenue">${esc(f.lector)} · ${f.segundos} s</span>` +
+        (f.lector === "lectura gratuita" && f.motivo ? `<span class="tenue" style="display:block">Sin Gemini: ${esc(f.motivo)}. Toca Releer en un rato para leer lo manuscrito.</span>` : "")
+      : "";
     const d = f.datos;
     const titulo = d?.numero_orden ? `Orden ${esc(d.numero_orden)} · ${esc(d.seccion ?? "")}` : `Foto ${f.id}`;
     return `<li class="${actual === f.id ? "abierta" : ""}" data-id="${f.id}">
@@ -525,6 +540,7 @@ function pintarCola() {
         <span class="chip ${clase}">${texto}</span>${f.estado === "error" ? `<span class="tenue"> ${esc(f.error)}</span>` : detalle}</div>
       ${f.estado === "lista" && actual !== f.id ? `<button type="button" class="boton mini" data-a="abrir">Revisar</button>` : ""}
       ${f.estado === "error" ? `<button type="button" class="boton mini" data-a="reintentar">Reintentar</button>` : ""}
+      ${f.estado === "lista" && f.lector === "lectura gratuita" && f.motivo && actual !== f.id ? `<button type="button" class="boton mini" data-a="reintentar">Releer</button>` : ""}
       ${f.estado !== "leyendo" ? `<button type="button" class="boton mini" data-a="quitar" aria-label="Quitar foto ${f.id}">Quitar</button>` : ""}
     </li>`;
   }).join("") + (cola.length > 1 ? `<li class="resumen tenue">${cola.length} fotos · ${porRevisar} por revisar · ${cola.filter((f) => f.estado === "guardada").length} guardadas</li>` : "");
@@ -536,7 +552,11 @@ $("#cola").onclick = (e) => {
   const f = cola.find((x) => x.id === id);
   if (!accion || !f) return;
   if (accion === "abrir") abrir(id, true);
-  if (accion === "reintentar") { f.estado = "pendiente"; procesar(); }
+  if (accion === "reintentar") {
+    f.estado = "pendiente"; f.motivo = null; f.segundos = null;
+    modo = null; motivoLocal = null; // pregunta de nuevo si Gemini ya está disponible
+    procesar();
+  }
   if (accion === "quitar") {
     cola = cola.filter((x) => x.id !== id);
     if (actual === id) cerrarRevision();
