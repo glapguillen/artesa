@@ -120,6 +120,10 @@ export function interpretar(texto, secciones = SECCIONES) {
     notas: null,
     articulos: articulos(lineas),
   };
+  return conDudas(datos);
+}
+
+function conDudas(datos) {
   const faltan = [
     !datos.numero_orden && "el número de orden",
     !datos.seccion && "la sección",
@@ -132,4 +136,15 @@ export function interpretar(texto, secciones = SECCIONES) {
     ...(datos.articulos.length ? ["Los nombres y cantidades de los artículos leídos de la foto son aproximados: compáralos con la hoja."] : []),
   ];
   return datos;
+}
+
+// Une la lectura de la foto entera con la de su zona de texto ampliada: cada campo sale de la
+// pasada que lo leyó. El cliente se lee mejor ampliado; fecha y artículos, en la foto entera.
+export function combinar(entera, ampliada) {
+  const d = { ...entera };
+  for (const k of ["numero_orden", "seccion", "fecha_emision", "observaciones"]) d[k] = entera[k] ?? ampliada[k];
+  d.cliente = ampliada.cliente ?? entera.cliente;
+  d.articulos = ampliada.articulos.length > entera.articulos.length ? ampliada.articulos : entera.articulos;
+  d.es_hoja_produccion = entera.es_hoja_produccion || ampliada.es_hoja_produccion;
+  return conDudas(d);
 }

@@ -306,17 +306,42 @@ async function ocr(f) {
   for (const grados of [0, 270, 90, 180]) {
     f.paso = `Leyendo… (giro ${grados}°)`;
     pintarCola();
-    const { data } = await lector.recognize(await girada(f.url, grados));
+    const lienzo = await girada(f.url, grados);
+    const { data } = await lector.recognize(lienzo, {}, { text: true, blocks: true });
     const puntos = (/PRODUC/i.test(data.text) ? 2 : 0) + (/ORDEN|SECCI/i.test(data.text) ? 1 : 0);
-    if (!mejor || puntos > mejor.puntos || (puntos === mejor.puntos && data.confidence > mejor.c)) mejor = { puntos, c: data.confidence, texto: data.text };
+    if (!mejor || puntos > mejor.puntos || (puntos === mejor.puntos && data.confidence > mejor.c)) mejor = { puntos, c: data.confidence, data, lienzo };
     if (puntos >= 3) break;
   }
-  return mejor.texto;
+  return { entera: mejor.data.text, ampliada: await zonaAmpliada(lector, mejor, f) };
+}
+
+// Segunda pasada: recorta la zona donde están las palabras leídas con seguridad y la lee ampliada.
+// Ayuda sobre todo cuando la hoja ocupa solo parte de la foto y la letra queda pequeña.
+async function zonaAmpliada(lector, mejor, f) {
+  const palabras = (mejor.data.blocks ?? []).flatMap((b) => b.paragraphs.flatMap((p) => p.lines.flatMap((l) => l.words)))
+    .filter((p) => p.confidence > 70 && p.text.length > 2);
+  if (palabras.length <= 5) return null;
+  const { width: W, height: H } = mejor.lienzo;
+  const x0 = Math.max(0, Math.min(...palabras.map((p) => p.bbox.x0)) - 60);
+  const y0 = Math.max(0, Math.min(...palabras.map((p) => p.bbox.y0)) - 60);
+  const x1 = Math.min(W, Math.max(...palabras.map((p) => p.bbox.x1)) + 60);
+  const y1 = Math.min(H, Math.max(...palabras.map((p) => p.bbox.y1)) + 120);
+  const ancho = x1 - x0, alto = y1 - y0;
+  if (ancho * alto > W * H * 0.8) return null;
+  const escala = Math.min(2.5, 2600 / Math.max(ancho, alto));
+  const recorte = document.createElement("canvas");
+  recorte.width = Math.round(ancho * escala);
+  recorte.height = Math.round(alto * escala);
+  recorte.getContext("2d").drawImage(mejor.lienzo, x0, y0, ancho, alto, 0, 0, recorte.width, recorte.height);
+  f.paso = "Leyendo… (zona ampliada)";
+  pintarCola();
+  return (await lector.recognize(recorte)).data.text;
 }
 
 async function leerLocal(f) {
-  const { interpretar } = await import("/lectura-local.js");
-  const d = interpretar(await ocr(f));
+  const { interpretar, combinar } = await import("/lectura-local.js");
+  const { entera, ampliada } = await ocr(f);
+  const d = ampliada ? combinar(interpretar(entera), interpretar(ampliada)) : interpretar(entera);
   let yaRegistrada = null;
   // Si la orden ya está en la base (por otra sección), sus datos revisados valen más que lo leído.
   if (d.numero_orden) {

@@ -108,3 +108,12 @@ GIRASOL AZUL ruta STDE malas`;
   assert.equal(interpretar("Seccion EsMaA LT\nORDEN % 0076582\n24-08-2006").seccion, "ESMALT");
   assert.equal(interpretar("Seccion EsMaA LT\nORDEN % 0076582\n24-08-2006").fecha_emision, null);
 });
+
+test("lectura gratuita: combina la foto entera con la zona ampliada", async () => {
+  const { interpretar, combinar } = await import("../public/lectura-local.js");
+  const entera = interpretar("GRUPO: 14-09-2026\nCLIENTE: ST ICA\nSeccion DECORADO\nORDEN 4 0076662\n0944 108 BANDEJA HOJA #2 12 156,00\nFLORAL AZUL ruta TDE");
+  const ampliada = interpretar("CLIENTE: ANDRADE PATRICIO\nSeccion DECORAD0\nORDEN 0076668");
+  const d = combinar(entera, ampliada);
+  assert.deepEqual([d.numero_orden, d.seccion, d.fecha_emision, d.cliente, d.articulos.length], ["0076662", "DECORADO", "2026-09-14", "ANDRADE PATRICIO", 1]);
+  assert.ok(!d.dudas.some((x) => /No se pudo leer/.test(x)));
+});
