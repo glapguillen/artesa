@@ -22,8 +22,9 @@ app.use("/vendor/tesseract-core", express.static(desde("./node_modules/tesseract
 app.use("/vendor/tesseract-lang", express.static(desde("./node_modules/@tesseract.js-data/spa/4.0.0_best_int"), { maxAge: "7d" }));
 
 // Sin clave de la API de Anthropic (o con LECTURA=local) la foto se lee en el propio celular.
+let iaApagada = null; // motivo, si la IA falló por saldo o clave; se reintenta al reiniciar el servidor
 const modoLectura = () =>
-  process.env.LECTURA === "local" || !process.env.ANTHROPIC_API_KEY ? "local" : "ia";
+  process.env.LECTURA === "local" || !process.env.ANTHROPIC_API_KEY || iaApagada ? "local" : "ia";
 app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura() }));
 
 app.get("/salud", (_req, res) => res.send("ok"));
@@ -41,7 +42,7 @@ function imagenDe(cuerpo) {
 
 // Lee la foto y devuelve los datos para que el usuario los revise. No guarda nada.
 app.post("/api/extraer", async (req, res) => {
-  if (modoLectura() === "local") return res.status(409).json({ error: "La lectura con IA está desactivada en este servidor" });
+  if (modoLectura() === "local") return res.status(409).json({ error: iaApagada ?? "La lectura con IA está desactivada en este servidor", sin_ia: true });
   const { imagen, mime } = imagenDe(req.body);
   const datos = await extraerHoja(imagen, mime);
   const existente = await hojaExistente(datos.numero_orden, datos.seccion);
@@ -81,7 +82,11 @@ app.use((err, _req, res, _next) => {
     : err.status === 400 && /credit|billing/i.test(err.message ?? "") ? "La cuenta de Anthropic no tiene saldo"
     : /apiKey|authToken/i.test(err.message ?? "") ? "El servidor no tiene configurada la clave de la API de Anthropic (ANTHROPIC_API_KEY)"
     : "Error del servidor: " + (err.message ?? "desconocido");
-  res.status(500).json({ error: mensaje });
+  // Sin saldo o sin clave válida, la IA no volverá a funcionar hasta que alguien lo arregle:
+  // se apaga para todo el servidor y el celular pasa a la lectura gratuita.
+  const sinIA = err.status === 401 || err.status === 403 || /saldo|clave/.test(mensaje);
+  if (sinIA) iaApagada = mensaje;
+  res.status(500).json({ error: mensaje, sin_ia: sinIA });
 });
 
 if (import.meta.url === `file://${process.argv[1]}`) {

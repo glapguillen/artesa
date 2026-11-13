@@ -128,7 +128,7 @@ async function api(ruta, cuerpo) {
   const r = await fetch(ruta, cuerpo ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
   const datos = await r.json().catch(() => ({}));
   if (r.status === 401 && ruta !== "/api/entrar") pedirClave();
-  if (!r.ok) throw new Error(datos.error || "Error " + r.status);
+  if (!r.ok) throw Object.assign(new Error(datos.error || "Error " + r.status), { sinIA: Boolean(datos.sin_ia) });
   return datos;
 }
 
@@ -263,6 +263,7 @@ async function agregar(archivos) {
 // "ia": el servidor lee la foto con la API de Claude. "local": el celular lee lo impreso con un OCR gratuito
 // y lo manuscrito se escribe a mano.
 let modo = null;
+let avisoSinIA = false;
 const config = () => (modo ??= api("/api/config").then((c) => c.lectura).catch(() => { modo = null; return "local"; }));
 
 let lector;
@@ -343,7 +344,19 @@ async function leerLocal(f) {
 }
 
 async function leer(f) {
-  return (await config()) === "local" ? leerLocal(f) : api("/api/extraer", { imagen: f.imagen, mime: f.mime });
+  if ((await config()) === "local") return leerLocal(f);
+  try {
+    return await api("/api/extraer", { imagen: f.imagen, mime: f.mime });
+  } catch (err) {
+    if (!err.sinIA) throw err;
+    // La IA no está disponible (sin saldo o sin clave): se sigue con la lectura gratuita.
+    modo = Promise.resolve("local");
+    if (!avisoSinIA) {
+      avisoSinIA = true;
+      mensaje("aviso", `${esc(err.message)}. Se usa la lectura gratuita: lo impreso se lee de la foto y lo manuscrito se escribe a mano.`);
+    }
+    return leerLocal(f);
+  }
 }
 
 // Con IA lee hasta tres fotos a la vez; el lector local, de una en una.
