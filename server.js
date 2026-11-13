@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { accesoActivo, entrar, estado, exigirSesion, salir } from "./acceso.js";
-import { extraerHoja } from "./extraer.js";
+import { ErrorDeLectura, extraerHoja, proveedor } from "./extraer.js";
 import { ErrorDeDatos, catalogo, detalleOrden, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
 
 const MIMES = ["image/jpeg", "image/png", "image/webp"];
@@ -22,9 +22,11 @@ app.use("/vendor/tesseract-core", express.static(desde("./node_modules/tesseract
 app.use("/vendor/tesseract-lang", express.static(desde("./node_modules/@tesseract.js-data/spa/4.0.0_best_int"), { maxAge: "7d" }));
 
 // Sin clave de la API de Anthropic (o con LECTURA=local) la foto se lee en el propio celular.
-let iaApagada = null; // motivo, si la IA falló por saldo o clave; se reintenta al reiniciar el servidor
-const modoLectura = () =>
-  process.env.LECTURA === "local" || !process.env.ANTHROPIC_API_KEY || iaApagada ? "local" : "ia";
+let iaApagada = null; // motivo, si la IA falló por clave o saldo; se reintenta al reiniciar el servidor
+let iaPausada = null; // { motivo, hasta }: cuota agotada; se vuelve a intentar pasado un rato
+const PAUSA_MS = 30 * 60 * 1000;
+const motivoSinIA = () => iaApagada ?? (iaPausada && iaPausada.hasta > Date.now() ? iaPausada.motivo : null);
+const modoLectura = () => (!proveedor() || motivoSinIA() ? "local" : "ia");
 app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura() }));
 
 app.get("/salud", (_req, res) => res.send("ok"));
@@ -42,7 +44,7 @@ function imagenDe(cuerpo) {
 
 // Lee la foto y devuelve los datos para que el usuario los revise. No guarda nada.
 app.post("/api/extraer", async (req, res) => {
-  if (modoLectura() === "local") return res.status(409).json({ error: iaApagada ?? "La lectura con IA está desactivada en este servidor", sin_ia: true });
+  if (modoLectura() === "local") return res.status(409).json({ error: motivoSinIA() ?? "La lectura con IA está desactivada en este servidor", sin_ia: true });
   const { imagen, mime } = imagenDe(req.body);
   const datos = await extraerHoja(imagen, mime);
   const existente = await hojaExistente(datos.numero_orden, datos.seccion);
@@ -79,7 +81,12 @@ app.use((err, _req, res, _next) => {
   if (err instanceof ErrorDeDatos) return res.status(400).json({ error: err.message });
   if (err.type === "entity.too.large") return res.status(413).json({ error: "La imagen es demasiado grande" });
   console.error(err);
-  // Errores de la API de lectura, explicados para quien usa la aplicación.
+  if (err instanceof ErrorDeLectura) {
+    if (err.apagar) iaApagada = err.message;
+    if (err.pausar) iaPausada = { motivo: err.message, hasta: Date.now() + PAUSA_MS };
+    return res.status(500).json({ error: err.message, sin_ia: err.apagar || err.pausar });
+  }
+  // Errores de la API de Anthropic, explicados para quien usa la aplicación.
   const mensaje =
     err.status === 401 ? "La clave de la API de Anthropic no es válida o fue revocada (ANTHROPIC_API_KEY)"
     : err.status === 429 ? "La API de Anthropic está saturada o sin cupo. Intenta de nuevo en un momento."

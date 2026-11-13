@@ -144,3 +144,20 @@ test("catálogo: aprende al guardar y corrige la lectura", async () => {
     ["0944", "BANDEJA HOJA #2", "108", "FLORAL AZUL"], ["0248", "JARRO PACIFICO", "924", "BLUE FISH"], ["5555", "PIEZA NUEVA", "", ""]]);
   assert.ok(datos.dudas.some((x) => /se leyó 0242 y en el catálogo es 0248/.test(x)));
 });
+
+test("lectura con IA: elige el proveedor según las claves", async () => {
+  const { proveedor, ESQUEMA_JSON } = await import("../extraer.js");
+  const antes = { ...process.env };
+  try {
+    for (const k of ["LECTURA", "GEMINI_API_KEY", "ANTHROPIC_API_KEY"]) delete process.env[k];
+    assert.equal(proveedor(), null);
+    process.env.ANTHROPIC_API_KEY = "x"; assert.equal(proveedor(), "claude");
+    process.env.GEMINI_API_KEY = "y"; assert.equal(proveedor(), "gemini");
+    process.env.LECTURA = "claude"; assert.equal(proveedor(), "claude");
+    process.env.LECTURA = "local"; assert.equal(proveedor(), null);
+  } finally {
+    for (const k of ["LECTURA", "GEMINI_API_KEY", "ANTHROPIC_API_KEY"]) antes[k] === undefined ? delete process.env[k] : (process.env[k] = antes[k]);
+  }
+  assert.ok(!JSON.stringify(ESQUEMA_JSON).includes("anyOf"));
+  assert.deepEqual(ESQUEMA_JSON.properties.numero_orden.type, ["string", "null"]);
+});

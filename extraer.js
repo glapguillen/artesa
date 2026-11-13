@@ -36,6 +36,23 @@ export const HojaSchema = z.object({
   dudas: z.array(z.string()).describe("Campos que no se leen con seguridad, cada uno en una frase corta en español"),
 });
 
+// El mismo esquema en JSON Schema, para Gemini. Los campos que pueden faltar van como
+// ["tipo", "null"], la forma más admitida.
+export const ESQUEMA_JSON = (() => {
+  const limpiar = (n) => {
+    if (Array.isArray(n)) return n.map(limpiar);
+    if (!n || typeof n !== "object") return n;
+    if (n.anyOf && n.anyOf.length === 2 && n.anyOf.some((x) => x.type === "null")) {
+      const otro = n.anyOf.find((x) => x.type !== "null");
+      return limpiar({ ...otro, type: [otro.type, "null"], ...(n.description ? { description: n.description } : {}) });
+    }
+    const r = {};
+    for (const [k, v] of Object.entries(n)) if (k !== "$schema" && k !== "additionalProperties") r[k] = limpiar(v);
+    return r;
+  };
+  return limpiar(z.toJSONSchema(HojaSchema));
+})();
+
 const INSTRUCCIONES = `Vas a transcribir una "Hoja de Producción Diaria" de un taller de cerámica a partir de una foto tomada con el celular. La foto puede venir girada, inclinada, algo movida o con la hoja encima de un montón de otras hojas; transcribe solo la hoja de arriba, en su orientación correcta.
 
 La hoja tiene datos impresos (orden, sección, fecha de emisión, cliente, observaciones y uno o varios artículos, cada uno con un código de dos grupos de dígitos ("0944 626": el primero identifica el bizcocho, que es la pieza, y el segundo la decoración), el nombre del bizcocho a continuación, el nombre de la decoración en la línea de abajo, cantidad a producir, tiempo y ruta) y datos escritos a mano por el operario:
@@ -73,9 +90,82 @@ export function verificar(d) {
   return avisos;
 }
 
-let cliente;
+// Proveedor de lectura con IA: LECTURA=gemini|claude|local lo fija; si no, se usa el que tenga
+// clave, con Gemini primero (tiene nivel gratuito). Sin ninguna, la lectura es la local del celular.
+export function proveedor() {
+  const elegido = (process.env.LECTURA || "").toLowerCase();
+  if (elegido === "local") return null;
+  if (elegido === "gemini") return process.env.GEMINI_API_KEY ? "gemini" : null;
+  if (elegido === "claude") return process.env.ANTHROPIC_API_KEY ? "claude" : null;
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  if (process.env.ANTHROPIC_API_KEY) return "claude";
+  return null;
+}
+
+// Error de la API traducido para quien usa la aplicación. `apagar`: la IA no volverá a funcionar
+// sola (clave o saldo); `pausar`: cuota agotada, vuelve a intentarse más tarde.
+export class ErrorDeLectura extends Error {
+  constructor(mensaje, { apagar = false, pausar = false } = {}) {
+    super(mensaje);
+    this.apagar = apagar;
+    this.pausar = pausar;
+  }
+}
 
 export async function extraerHoja(imagenBase64, mime) {
+  const p = proveedor();
+  const datos = p === "gemini" ? await conGemini(imagenBase64, mime) : await conClaude(imagenBase64, mime);
+  datos.dudas = [...(datos.dudas ?? []), ...verificar(datos)];
+  return datos;
+}
+
+let gemini;
+const PEDIDO = "Transcribe esta hoja. Responde solo con el JSON pedido.";
+
+async function conGemini(imagenBase64, mime) {
+  const { GoogleGenAI, ApiError } = await import("@google/genai");
+  gemini ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const pedir = (conEsquema) =>
+    gemini.models.generateContent({
+      model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
+      contents: [{ role: "user", parts: [{ inlineData: { mimeType: mime, data: imagenBase64 } }, { text: PEDIDO }] }],
+      config: {
+        systemInstruction: conEsquema ? INSTRUCCIONES : INSTRUCCIONES + "\n\nEl JSON sigue este esquema:\n" + JSON.stringify(ESQUEMA_JSON),
+        responseMimeType: "application/json",
+        ...(conEsquema ? { responseJsonSchema: ESQUEMA_JSON } : {}),
+        temperature: 0,
+      },
+    });
+  let respuesta;
+  try {
+    try {
+      respuesta = await pedir(true);
+    } catch (err) {
+      // Si el modelo no admite alguna parte del esquema, se pide el JSON sin él y se valida aquí.
+      if (!(err instanceof ApiError) || err.status !== 400 || !/schema/i.test(err.message)) throw err;
+      respuesta = await pedir(false);
+    }
+  } catch (err) {
+    if (!(err instanceof ApiError)) throw err;
+    if (err.status === 429)
+      throw new ErrorDeLectura("Se agotó la cuota gratuita de Gemini por ahora", { pausar: true });
+    if (err.status === 400 && /api.?key/i.test(err.message) || err.status === 401 || err.status === 403)
+      throw new ErrorDeLectura("La clave de Gemini no es válida o no tiene permiso (GEMINI_API_KEY)", { apagar: true });
+    if (err.status >= 500) throw new ErrorDeLectura("Gemini no responde en este momento. Intenta de nuevo en un momento.");
+    throw new ErrorDeLectura("Gemini rechazó la foto: " + err.message.slice(0, 200));
+  }
+  let datos;
+  try {
+    datos = HojaSchema.parse(JSON.parse(respuesta.text ?? ""));
+  } catch {
+    throw new ErrorDeLectura("Gemini no pudo leer la imagen (respuesta incompleta). Prueba con otra foto.");
+  }
+  return datos;
+}
+
+let cliente;
+
+async function conClaude(imagenBase64, mime) {
   cliente ??= new Anthropic();
   const respuesta = await cliente.beta.messages.parse({
     model: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
@@ -99,7 +189,5 @@ export async function extraerHoja(imagenBase64, mime) {
   if (respuesta.stop_reason === "refusal" || !respuesta.parsed_output) {
     throw new Error("El modelo no pudo leer la imagen (" + respuesta.stop_reason + ")");
   }
-  const datos = respuesta.parsed_output;
-  datos.dudas = [...datos.dudas, ...verificar(datos)];
-  return datos;
+  return respuesta.parsed_output;
 }

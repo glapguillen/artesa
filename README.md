@@ -8,8 +8,11 @@ Aplicación web para registrar las Hojas de Producción Diaria a partir de una f
      artículos) con un lector de texto gratuito. Si la orden ya está en la base por otra
      sección, cliente y artículos se toman de ahí. Lo manuscrito (operarios, fechas,
      cantidades, horas) se escribe a mano.
-   - **Con la API de Claude**: el servidor lee también lo manuscrito. Se activa poniendo
-     `ANTHROPIC_API_KEY`; sin ella, o con `LECTURA=local`, se usa el modo gratuito.
+   - **Con IA**: el servidor lee también lo manuscrito, con Gemini (`GEMINI_API_KEY`, tiene
+     nivel gratuito) o con la API de Claude (`ANTHROPIC_API_KEY`). Si hay las dos se usa
+     Gemini; `LECTURA=gemini|claude|local` lo fija. Sin clave se usa el modo gratuito, y si la
+     cuota gratuita de Gemini se agota, la aplicación pasa sola al modo gratuito durante media
+     hora y luego vuelve a intentarlo.
 3. El usuario revisa y corrige lo leído.
 4. Se guarda en PostgreSQL, junto con la foto.
 
