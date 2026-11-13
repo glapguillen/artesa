@@ -151,9 +151,9 @@ test("lectura con IA: elige el proveedor según las claves", async () => {
   try {
     for (const k of ["LECTURA", "GEMINI_API_KEY", "ANTHROPIC_API_KEY"]) delete process.env[k];
     assert.equal(proveedor(), null);
-    process.env.ANTHROPIC_API_KEY = "x"; assert.equal(proveedor(), "claude");
     process.env.GEMINI_API_KEY = "y"; assert.equal(proveedor(), "gemini");
-    process.env.LECTURA = "claude"; assert.equal(proveedor(), "claude");
+    process.env.ANTHROPIC_API_KEY = "x"; assert.equal(proveedor(), "claude", "con las dos claves, Claude primero");
+    process.env.LECTURA = "gemini"; assert.equal(proveedor(), "gemini");
     process.env.LECTURA = "local"; assert.equal(proveedor(), null);
   } finally {
     for (const k of ["LECTURA", "GEMINI_API_KEY", "ANTHROPIC_API_KEY"]) antes[k] === undefined ? delete process.env[k] : (process.env[k] = antes[k]);

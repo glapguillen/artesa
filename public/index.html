@@ -336,7 +336,7 @@ let avisoSinIA = false;
 let modoHasta = 0;
 let motivoLocal = null; // por qué la página pasó a la lectura gratuita, si fue por un fallo de Gemini
 const config = () => {
-  if (Date.now() > modoHasta) { modo = null; motivoLocal = null; } // se vuelve a preguntar cada minuto: Gemini puede volver tras una pausa
+  if (Date.now() > modoHasta) { modo = null; motivoLocal = null; } // se vuelve a preguntar cada minuto: la IA puede volver tras una pausa
   return (modo ??= (modoHasta = Date.now() + 60_000,
     api("/api/config").then((c) => c.lectura).catch(() => { modo = null; return "local"; })));
 };
@@ -464,7 +464,7 @@ async function leer(f) {
     f.motivo = motivoLocal = err.message;
     if (!avisoSinIA) {
       avisoSinIA = true;
-      mensaje("aviso", `${esc(err.message)}. Mientras tanto se usa la lectura gratuita (lo manuscrito se escribe a mano); se vuelve a Gemini sola cuando pase.`);
+      mensaje("aviso", `${esc(err.message)}. Mientras tanto se usa la lectura gratuita (lo manuscrito se escribe a mano); se vuelve a la lectura con IA sola cuando pase.`);
     }
     return leerLocal(f);
   }
@@ -530,7 +530,7 @@ function pintarCola() {
       : base;
     const detalle = f.segundos != null && f.estado !== "error"
       ? `<span class="tenue">${esc(f.lector)} · ${f.segundos} s</span>` +
-        (f.lector === "lectura gratuita" && f.motivo ? `<span class="tenue" style="display:block">Sin Gemini: ${esc(f.motivo)}. Toca Releer en un rato para leer lo manuscrito.</span>` : "")
+        (f.lector === "lectura gratuita" && f.motivo ? `<span class="tenue" style="display:block">Sin IA: ${esc(f.motivo)}. Toca Releer en un rato para leer lo manuscrito.</span>` : "")
       : "";
     const d = f.datos;
     const titulo = d?.numero_orden ? `Orden ${esc(d.numero_orden)} · ${esc(d.seccion ?? "")}` : `Foto ${f.id}`;
@@ -554,7 +554,7 @@ $("#cola").onclick = (e) => {
   if (accion === "abrir") abrir(id, true);
   if (accion === "reintentar") {
     f.estado = "pendiente"; f.motivo = null; f.segundos = null;
-    modo = null; motivoLocal = null; // pregunta de nuevo si Gemini ya está disponible
+    modo = null; motivoLocal = null; // pregunta de nuevo si la IA ya está disponible
     procesar();
   }
   if (accion === "quitar") {

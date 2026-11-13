@@ -90,17 +90,30 @@ export function verificar(d) {
   return avisos;
 }
 
-// Proveedor de lectura con IA: LECTURA=gemini|claude|local lo fija; si no, se usa el que tenga
-// clave, con Gemini primero (tiene nivel gratuito). Sin ninguna, la lectura es la local del celular.
-export function proveedor() {
+// Proveedores de lectura con IA, en orden de preferencia: Claude (el que mejor lee la letra a
+// mano en las pruebas) y luego Gemini. LECTURA=claude|gemini pone uno primero; LECTURA=local
+// desactiva la IA. Si un proveedor falla por clave, saldo o cuota, la foto pasa al siguiente,
+// y solo sin ninguno disponible se usa la lectura gratuita del celular.
+const CLAVES = { claude: "ANTHROPIC_API_KEY", gemini: "GEMINI_API_KEY" };
+const NOMBRES = { claude: "Claude", gemini: "Gemini" };
+
+export function proveedores() {
   const elegido = (process.env.LECTURA || "").toLowerCase();
-  if (elegido === "local") return null;
-  if (elegido === "gemini") return process.env.GEMINI_API_KEY ? "gemini" : null;
-  if (elegido === "claude") return process.env.ANTHROPIC_API_KEY ? "claude" : null;
-  if (process.env.GEMINI_API_KEY) return "gemini";
-  if (process.env.ANTHROPIC_API_KEY) return "claude";
-  return null;
+  if (elegido === "local") return [];
+  const orden = elegido === "gemini" ? ["gemini", "claude"] : ["claude", "gemini"];
+  return orden.filter((p) => process.env[CLAVES[p]]);
 }
+
+// Estado de cada proveedor en este servidor: apagado (clave o saldo; hasta reiniciar) o en pausa.
+const estado = { claude: {}, gemini: {} };
+const disponible = (p) => !estado[p].apagado && !(estado[p].pausaHasta > Date.now());
+export const proveedor = () => proveedores().find(disponible) ?? null;
+export function motivoSinIA() {
+  const lista = proveedores();
+  if (!lista.length || lista.some(disponible)) return null;
+  return lista.map((p) => estado[p].apagado ?? estado[p].motivo).join(" · ");
+}
+export function reiniciarEstado() { for (const p of Object.keys(estado)) estado[p] = {}; }
 
 // Error de la API traducido para quien usa la aplicación. `apagar`: la IA no volverá a funcionar
 // sola (clave o saldo); `pausar`: cuota agotada, vuelve a intentarse más tarde.
@@ -114,13 +127,27 @@ export class ErrorDeLectura extends Error {
 }
 
 export async function extraerHoja(imagenBase64, mime) {
-  const p = proveedor();
-  const inicio = Date.now();
-  const datos = p === "gemini" ? await conGemini(imagenBase64, mime) : await conClaude(imagenBase64, mime);
-  console.log(`Lectura con ${p}: ${((Date.now() - inicio) / 1000).toFixed(1)} s, orden ${datos.numero_orden ?? "?"}`);
-  datos.lector = p === "gemini" ? "Gemini" : "Claude";
-  datos.dudas = [...(datos.dudas ?? []), ...verificar(datos)];
-  return datos;
+  const lista = proveedores().filter(disponible);
+  if (!lista.length) throw new ErrorDeLectura(motivoSinIA() ?? "La lectura con IA está desactivada en este servidor", { pausar: true });
+  let ultimo;
+  for (const p of lista) {
+    const inicio = Date.now();
+    try {
+      const datos = p === "gemini" ? await conGemini(imagenBase64, mime) : await conClaude(imagenBase64, mime);
+      console.log(`Lectura con ${p}: ${((Date.now() - inicio) / 1000).toFixed(1)} s, orden ${datos.numero_orden ?? "?"}`);
+      datos.lector = NOMBRES[p];
+      if (ultimo) datos.dudas = [...(datos.dudas ?? []), `Leída con ${NOMBRES[p]} porque ${NOMBRES[lista[0]]} no estaba disponible: ${ultimo.message}.`];
+      datos.dudas = [...(datos.dudas ?? []), ...verificar(datos)];
+      return datos;
+    } catch (err) {
+      if (!(err instanceof ErrorDeLectura) || !(err.apagar || err.pausar)) throw err;
+      console.error(`${NOMBRES[p]} no disponible: ${err.message}`);
+      if (err.apagar) estado[p].apagado = err.message;
+      if (err.pausar) Object.assign(estado[p], { pausaHasta: Date.now() + err.minutos * 60 * 1000, motivo: err.message });
+      ultimo = err;
+    }
+  }
+  throw ultimo;
 }
 
 let gemini;
@@ -227,7 +254,28 @@ let cliente;
 
 async function conClaude(imagenBase64, mime) {
   cliente ??= new Anthropic();
-  const respuesta = await cliente.beta.messages.parse({
+  let respuesta;
+  try {
+    respuesta = await pedirAClaude(imagenBase64, mime);
+  } catch (err) {
+    if (!(err instanceof Anthropic.APIError) || err.status == null) throw err;
+    const texto = String(err.message ?? "");
+    if (err.status === 401 || err.status === 403)
+      throw new ErrorDeLectura("La clave de la API de Anthropic no es válida o fue revocada (ANTHROPIC_API_KEY)", { apagar: true });
+    if (err.status === 400 && /credit|billing|balance/i.test(texto))
+      throw new ErrorDeLectura("La cuenta de Anthropic no tiene saldo", { apagar: true });
+    if (err.status === 429) throw new ErrorDeLectura("La API de Anthropic llegó a su límite de uso por ahora", { pausar: true, minutos: 2 });
+    if (err.status >= 500) throw new ErrorDeLectura("La API de Anthropic no responde en este momento", { pausar: true, minutos: 5 });
+    throw new ErrorDeLectura("Claude rechazó la foto: " + texto.slice(0, 200));
+  }
+  if (respuesta.stop_reason === "refusal" || !respuesta.parsed_output) {
+    throw new ErrorDeLectura("Claude no pudo leer la imagen (" + respuesta.stop_reason + "). Prueba con otra foto.");
+  }
+  return respuesta.parsed_output;
+}
+
+function pedirAClaude(imagenBase64, mime) {
+  return cliente.beta.messages.parse({
     model: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
     max_tokens: 16000,
     output_config: { effort: "high", format: zodOutputFormat(HojaSchema) },
@@ -245,9 +293,4 @@ async function conClaude(imagenBase64, mime) {
       },
     ],
   });
-
-  if (respuesta.stop_reason === "refusal" || !respuesta.parsed_output) {
-    throw new Error("El modelo no pudo leer la imagen (" + respuesta.stop_reason + ")");
-  }
-  return respuesta.parsed_output;
 }

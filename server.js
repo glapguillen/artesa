@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { accesoActivo, entrar, estado, exigirSesion, salir } from "./acceso.js";
-import { ErrorDeLectura, extraerHoja, proveedor } from "./extraer.js";
+import { ErrorDeLectura, extraerHoja, motivoSinIA, proveedor, proveedores } from "./extraer.js";
 import { ErrorDeDatos, catalogo, detalleOrden, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
 
 const MIMES = ["image/jpeg", "image/png", "image/webp"];
@@ -22,11 +22,9 @@ app.use("/vendor/tesseract-core", express.static(desde("./node_modules/tesseract
 app.use("/vendor/tesseract-lang", express.static(desde("./node_modules/@tesseract.js-data/spa/4.0.0_best_int"), { maxAge: "7d" }));
 
 // Sin clave de la API de Anthropic (o con LECTURA=local) la foto se lee en el propio celular.
-let iaApagada = null; // motivo, si la IA falló por clave o saldo; se reintenta al reiniciar el servidor
-let iaPausada = null; // { motivo, hasta }: cuota agotada; se vuelve a intentar pasado un rato
-const motivoSinIA = () => iaApagada ?? (iaPausada && iaPausada.hasta > Date.now() ? iaPausada.motivo : null);
-const modoLectura = () => (!proveedor() || motivoSinIA() ? "local" : "ia");
-app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura(), motivo: proveedor() ? motivoSinIA() : null }));
+// El estado de cada proveedor (apagado, en pausa) lo lleva extraer.js.
+const modoLectura = () => (proveedor() ? "ia" : "local");
+app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura(), motivo: proveedores().length ? motivoSinIA() : null }));
 
 app.get("/salud", (_req, res) => res.send("ok"));
 app.get("/api/sesion", estado);
@@ -81,22 +79,11 @@ app.use((err, _req, res, _next) => {
   if (err.type === "entity.too.large") return res.status(413).json({ error: "La imagen es demasiado grande" });
   console.error(err);
   if (err instanceof ErrorDeLectura) {
-    if (err.apagar) iaApagada = err.message;
-    if (err.pausar) iaPausada = { motivo: err.message, hasta: Date.now() + err.minutos * 60 * 1000 };
-    return res.status(500).json({ error: err.message, sin_ia: err.apagar || err.pausar });
+    // sin_ia: ningún proveedor quedó disponible; el celular sigue con la lectura gratuita.
+    return res.status(500).json({ error: err.message, sin_ia: !proveedor() });
   }
-  // Errores de la API de Anthropic, explicados para quien usa la aplicación.
-  const mensaje =
-    err.status === 401 ? "La clave de la API de Anthropic no es válida o fue revocada (ANTHROPIC_API_KEY)"
-    : err.status === 429 ? "La API de Anthropic está saturada o sin cupo. Intenta de nuevo en un momento."
-    : err.status === 400 && /credit|billing/i.test(err.message ?? "") ? "La cuenta de Anthropic no tiene saldo"
-    : /apiKey|authToken/i.test(err.message ?? "") ? "El servidor no tiene configurada la clave de la API de Anthropic (ANTHROPIC_API_KEY)"
-    : "Error del servidor: " + (err.message ?? "desconocido");
-  // Sin saldo o sin clave válida, la IA no volverá a funcionar hasta que alguien lo arregle:
-  // se apaga para todo el servidor y el celular pasa a la lectura gratuita.
-  const sinIA = err.status === 401 || err.status === 403 || /saldo|clave/.test(mensaje);
-  if (sinIA) iaApagada = mensaje;
-  res.status(500).json({ error: mensaje, sin_ia: sinIA });
+  // Cualquier otro fallo (los de las API de lectura ya llegan traducidos como ErrorDeLectura).
+  res.status(500).json({ error: "Error del servidor: " + (err.message ?? "desconocido") });
 });
 
 // Un error suelto en segundo plano no debe tumbar el servidor (Render respondería 502).
