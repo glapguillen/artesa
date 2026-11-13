@@ -115,7 +115,10 @@ export class ErrorDeLectura extends Error {
 
 export async function extraerHoja(imagenBase64, mime) {
   const p = proveedor();
+  const inicio = Date.now();
   const datos = p === "gemini" ? await conGemini(imagenBase64, mime) : await conClaude(imagenBase64, mime);
+  console.log(`Lectura con ${p}: ${((Date.now() - inicio) / 1000).toFixed(1)} s, orden ${datos.numero_orden ?? "?"}`);
+  datos.lector = p === "gemini" ? "Gemini" : "Claude";
   datos.dudas = [...(datos.dudas ?? []), ...verificar(datos)];
   return datos;
 }
@@ -133,6 +136,7 @@ const PEDIDO = "Transcribe esta hoja. Responde solo con el JSON pedido.";
 async function conGemini(imagenBase64, mime) {
   const { GoogleGenAI, ApiError } = await import("@google/genai");
   gemini ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  let pensar = true;
   const pedir = (conEsquema) =>
     gemini.models.generateContent({
       model: modeloGemini(),
@@ -142,6 +146,10 @@ async function conGemini(imagenBase64, mime) {
         responseMimeType: "application/json",
         ...(conEsquema ? { responseJsonSchema: ESQUEMA_JSON } : {}),
         temperature: 0,
+        // Transcribir no necesita razonar a fondo: el nivel bajo responde bastante más rápido.
+        ...(pensar ? { thinkingConfig: { thinkingLevel: (process.env.GEMINI_PENSAR || "LOW").toUpperCase() } } : {}),
+        // Una llamada colgada no debe dejar la foto esperando para siempre.
+        httpOptions: { timeout: 90_000 },
       },
     });
   let respuesta;
@@ -156,6 +164,8 @@ async function conGemini(imagenBase64, mime) {
         if (!(err instanceof ApiError)) throw err;
         // Si el modelo no admite alguna parte del esquema, se pide el JSON sin él y se valida aquí.
         if (conEsquema && err.status === 400 && /schema/i.test(err.message)) { conEsquema = false; continue; }
+        // Modelos que no admiten el nivel de razonamiento: se pide sin él.
+        if (pensar && err.status === 400 && /think/i.test(err.message)) { pensar = false; continue; }
         // Saturación o fallo pasajero de Google: hasta tres intentos con espera creciente.
         if ((err.status >= 500 || err.status === 429 && /overload|unavailable|try again/i.test(err.message)) && intento < 3) {
           await espera(intento * 2500);
@@ -167,7 +177,11 @@ async function conGemini(imagenBase64, mime) {
       }
     }
   } catch (err) {
-    if (!(err instanceof ApiError)) throw err;
+    if (!(err instanceof ApiError)) {
+      if (/abort|timeout|timed out/i.test(`${err.name} ${err.message}`))
+        throw new ErrorDeLectura("Gemini tardó demasiado en responder. Toca Reintentar.");
+      throw err;
+    }
     console.error(`Gemini ${err.status}: ${err.message}`);
     const detalle = ` (código ${err.status}: ${resumen(err.message)})`;
     if (err.status === 404)
