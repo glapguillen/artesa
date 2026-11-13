@@ -98,3 +98,45 @@ ALTER TABLE orden_articulos ADD COLUMN IF NOT EXISTS codigo_decoracion TEXT NOT 
 UPDATE orden_articulos
    SET codigo_bizcocho = split_part(codigo, ' ', 1), codigo_decoracion = split_part(codigo, ' ', 2)
  WHERE codigo_bizcocho = '' AND codigo_decoracion = '' AND codigo ~ '^[0-9]{4} [0-9]{3}$';
+
+-- Catálogo de códigos: los 4 primeros dígitos del artículo son el bizcocho y los 3 siguientes la
+-- decoración. Se alimenta solo con cada hoja guardada (gana el último nombre revisado) y se puede
+-- corregir desde la pestaña Catálogo.
+CREATE TABLE IF NOT EXISTS bizcochos (
+  codigo       TEXT PRIMARY KEY CHECK (codigo ~ '^[0-9]{4}$'),
+  nombre       TEXT NOT NULL,
+  actualizado  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS decoraciones (
+  codigo       TEXT PRIMARY KEY CHECK (codigo ~ '^[0-9]{3}$'),
+  nombre       TEXT NOT NULL,
+  actualizado  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Lo que ya estaba guardado en las órdenes.
+INSERT INTO bizcochos (codigo, nombre)
+SELECT DISTINCT ON (codigo_bizcocho) codigo_bizcocho, bizcocho FROM orden_articulos
+ WHERE codigo_bizcocho ~ '^[0-9]{4}$' AND bizcocho <> '' ORDER BY codigo_bizcocho, id DESC
+ON CONFLICT DO NOTHING;
+INSERT INTO decoraciones (codigo, nombre)
+SELECT DISTINCT ON (codigo_decoracion) codigo_decoracion, decoracion FROM orden_articulos
+ WHERE codigo_decoracion ~ '^[0-9]{3}$' AND decoracion <> '' ORDER BY codigo_decoracion, id DESC
+ON CONFLICT DO NOTHING;
+
+-- Punto de partida: los códigos de las hojas de ejemplo de octubre-noviembre de 2026.
+INSERT INTO bizcochos (codigo, nombre) VALUES
+  ('0944', 'BANDEJA HOJA #2'), ('0559', 'ENSALADERA 22.5 CM'), ('1142', 'JARRO ORGANICO'),
+  ('1217', 'PLATO TENDIDO PIEDRA'), ('1143', 'PLATO HONDO ORGANICO'), ('0208', 'FRASCO CON CUCHARA'),
+  ('0699', 'FUENTE OVALADA 40.5 CM'), ('0248', 'JARRO PACIFICO'), ('0709', 'JARRO CLUB JUMBO'),
+  ('0196', 'FLORERO PERA'), ('0646', 'JARRO NORUEGO'), ('1012', 'BANDEJA ORIENTAL C #1'),
+  ('0233', 'JARRA AMERICANA'), ('0495', 'TAZA TE'), ('0707', 'JARRO ALFARERO JUMBO'),
+  ('0884', 'CREMERA GUALACEO'), ('0876', 'FUENTE REDONDA CHORDELEG'), ('0907', 'MANTEQUILLERO CHORDELEG'),
+  ('0883', 'TAPA TETERA GUALACEO'), ('0899', 'DULCERO / CEVICHERO CHORDELEG'), ('0246', 'JARRO CLUB'),
+  ('0890', 'PLATO HONDO CHORDELEG'), ('0887', 'PLATO POSTRE CHORDELEG')
+ON CONFLICT DO NOTHING;
+INSERT INTO decoraciones (codigo, nombre) VALUES
+  ('626', 'GIRASOL AZUL'), ('477', 'PERSONALIZADO'), ('796', 'TRANSPARENTE MATE'), ('028', 'CARRARA GRIS'),
+  ('031', 'CARRARA BEIGE'), ('149', 'MARGARITAS'), ('924', 'BLUE FISH'), ('625', 'JUNCOS'),
+  ('943', 'WINDFLOWER'), ('462', 'FLORES DEL CAMPO'), ('105', 'PRIMAVERA ROJA'), ('108', 'FLORAL AZUL'),
+  ('459', 'PAJARO AZUL MT')
+ON CONFLICT DO NOTHING;

@@ -148,3 +148,48 @@ export function combinar(entera, ampliada) {
   d.es_hoja_produccion = entera.es_hoja_produccion || ampliada.es_hoja_produccion;
   return conDudas(d);
 }
+
+const parecido = (a, b) => {
+  const x = soloLetras(a), y = soloLetras(b);
+  if (!x || !y) return 0;
+  return 1 - distancia(x, y) / Math.max(x.length, y.length);
+};
+
+// Completa y corrige los artículos con el catálogo de códigos. Por código: pone el nombre del
+// catálogo. Si el código no existe pero el nombre leído se parece a uno del catálogo, corrige el
+// código (un dígito mal leído es más probable que un artículo nuevo con casi el mismo nombre).
+export function aplicarCatalogo(datos, cat) {
+  const avisos = [];
+  const repasar = (a, lista, campoCodigo, campoNombre, etiqueta) => {
+    const codigo = (a[campoCodigo] ?? "").trim(), nombre = (a[campoNombre] ?? "").trim();
+    const porCodigo = lista.find((x) => x.codigo === codigo);
+    if (porCodigo) {
+      if (nombre && parecido(nombre, porCodigo.nombre) < 0.5)
+        avisos.push(`${etiqueta} ${codigo}: en la foto se leyó "${nombre}" y en el catálogo es "${porCodigo.nombre}". Se puso el del catálogo; revísalo.`);
+      a[campoNombre] = porCodigo.nombre;
+      return true;
+    }
+    if (nombre.replace(/[^A-ZÑ]/gi, "").length < 4) return false;
+    let mejor = null;
+    for (const x of lista) { const p = parecido(nombre, x.nombre); if (!mejor || p > mejor.p) mejor = { p, x }; }
+    if (mejor && mejor.p >= 0.75) {
+      if (codigo && codigo !== mejor.x.codigo)
+        avisos.push(`${etiqueta} "${mejor.x.nombre}": el código se leyó ${codigo} y en el catálogo es ${mejor.x.codigo}. Se puso el del catálogo; revísalo.`);
+      a[campoCodigo] = mejor.x.codigo;
+      a[campoNombre] = mejor.x.nombre;
+      return true;
+    }
+    return false;
+  };
+  let completados = 0;
+  for (const a of datos.articulos) {
+    completados += repasar(a, cat.bizcochos, "codigo_bizcocho", "bizcocho", "Bizcocho");
+    completados += repasar(a, cat.decoraciones, "codigo_decoracion", "decoracion", "Decoración");
+  }
+  if (completados) {
+    datos.dudas = datos.dudas.map((x) => x.replace("Los nombres y cantidades de los artículos leídos de la foto son aproximados", "Las cantidades y tiempos de los artículos leídos de la foto son aproximados"));
+    datos.dudas.unshift("Nombres de bizcocho y decoración completados con el catálogo de códigos.");
+  }
+  datos.dudas.push(...avisos);
+  return datos;
+}

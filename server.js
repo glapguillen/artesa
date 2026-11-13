@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { accesoActivo, entrar, estado, exigirSesion, salir } from "./acceso.js";
 import { extraerHoja } from "./extraer.js";
-import { ErrorDeDatos, detalleOrden, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
+import { ErrorDeDatos, catalogo, detalleOrden, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
 
 const MIMES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -56,6 +56,10 @@ app.post("/api/hojas", async (req, res) => {
   const foto = imagen ? Buffer.from(imagenDe(req.body).imagen, "base64") : null;
   res.json(await guardarHoja({ datos, extraccion, foto, fotoMime: foto ? mime : null }));
 });
+
+app.get("/api/catalogo", async (_req, res) => res.json(await catalogo()));
+app.put("/api/catalogo/:tipo/:codigo", async (req, res) =>
+  res.json(await guardarEnCatalogo(req.params.tipo, req.params.codigo, req.body?.nombre)));
 
 app.get("/api/ordenes", async (_req, res) => res.json(await listarOrdenes()));
 

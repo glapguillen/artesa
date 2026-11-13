@@ -151,6 +151,23 @@ export async function guardarHoja({ datos, extraccion, foto, fotoMime }) {
       }
     }
 
+    // Lo revisado alimenta el catálogo de códigos. Un nombre que es parte del que ya hay (foto
+    // cortada: "SOL AZUL" frente a "GIRASOL AZUL") no lo reemplaza; para eso está la pestaña Catálogo.
+    for (const a of datos.articulos) {
+      if (/^\d{4}$/.test(texto(a.codigo_bizcocho)) && texto(a.bizcocho))
+        await db.query(
+          `INSERT INTO bizcochos (codigo, nombre) VALUES ($1, $2)
+           ON CONFLICT (codigo) DO UPDATE SET nombre = EXCLUDED.nombre, actualizado = now()
+           WHERE bizcochos.nombre <> EXCLUDED.nombre AND strpos(bizcochos.nombre, EXCLUDED.nombre) = 0`,
+          [texto(a.codigo_bizcocho), texto(a.bizcocho)]);
+      if (/^\d{3}$/.test(texto(a.codigo_decoracion)) && texto(a.decoracion))
+        await db.query(
+          `INSERT INTO decoraciones (codigo, nombre) VALUES ($1, $2)
+           ON CONFLICT (codigo) DO UPDATE SET nombre = EXCLUDED.nombre, actualizado = now()
+           WHERE decoraciones.nombre <> EXCLUDED.nombre AND strpos(decoraciones.nombre, EXCLUDED.nombre) = 0`,
+          [texto(a.codigo_decoracion), texto(a.decoracion)]);
+    }
+
     await db.query("COMMIT");
     return { orden: numeroOrden, hoja_id: hojaId };
   } catch (e) {
@@ -159,6 +176,31 @@ export async function guardarHoja({ datos, extraccion, foto, fotoMime }) {
   } finally {
     db.release();
   }
+}
+
+const TABLAS_CATALOGO = { bizcochos: /^\d{4}$/, decoraciones: /^\d{3}$/ };
+
+export async function catalogo() {
+  const [b, d] = await Promise.all([
+    pool.query("SELECT codigo, nombre FROM bizcochos ORDER BY codigo"),
+    pool.query("SELECT codigo, nombre FROM decoraciones ORDER BY codigo"),
+  ]);
+  return { bizcochos: b.rows, decoraciones: d.rows };
+}
+
+export async function guardarEnCatalogo(tipo, codigo, nombre) {
+  const formato = TABLAS_CATALOGO[tipo];
+  if (!formato) throw new ErrorDeDatos("Catálogo desconocido");
+  if (!formato.test(texto(codigo))) throw new ErrorDeDatos(tipo === "bizcochos" ? "El código de bizcocho tiene 4 dígitos" : "El código de decoración tiene 3 dígitos");
+  const n = normalizar(nombre).replace(/\s+/g, " ");
+  if (!n) {
+    await pool.query(`DELETE FROM ${tipo} WHERE codigo = $1`, [texto(codigo)]);
+    return { borrado: true };
+  }
+  await pool.query(
+    `INSERT INTO ${tipo} (codigo, nombre) VALUES ($1, $2) ON CONFLICT (codigo) DO UPDATE SET nombre = EXCLUDED.nombre, actualizado = now()`,
+    [texto(codigo), texto(nombre).toUpperCase()]);
+  return { ok: true };
 }
 
 export async function listarOrdenes() {

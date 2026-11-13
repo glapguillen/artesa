@@ -69,6 +69,8 @@ test("reconoce el artículo aunque la foto corte el código o la decoración", a
     [["0944 626", "0944", "BANDEJA HOJA #2", "626", "GIRASOL AZUL"]]);
   const esmalt = o.hojas.find((h) => h.seccion === "ESMALT");
   assert.deepEqual([esmalt.operario1, esmalt.operario2], ["Sonia", "Tania"]);
+  const { catalogo } = await import("../db.js");
+  assert.equal((await catalogo()).decoraciones.find((x) => x.codigo === "626").nombre, "GIRASOL AZUL", "un nombre cortado no reemplaza al completo");
 });
 
 test("varios artículos con registros en bloques distintos y rutas cortas", async () => {
@@ -116,4 +118,29 @@ test("lectura gratuita: combina la foto entera con la zona ampliada", async () =
   const d = combinar(entera, ampliada);
   assert.deepEqual([d.numero_orden, d.seccion, d.fecha_emision, d.cliente, d.articulos.length], ["0076662", "DECORADO", "2026-09-14", "ANDRADE PATRICIO", 1]);
   assert.ok(!d.dudas.some((x) => /No se pudo leer/.test(x)));
+});
+
+test("catálogo: aprende al guardar y corrige la lectura", async () => {
+  const { aplicarCatalogo } = await import("../public/lectura-local.js");
+  const { catalogo, guardarEnCatalogo } = await import("../db.js");
+  // la hoja guardada en las pruebas anteriores dejó 0907 y 0883 en el catálogo
+  let cat = await catalogo();
+  assert.equal(cat.bizcochos.find((b) => b.codigo === "0907")?.nombre, "MANTEQUILLERO CHORDELEG");
+  await guardarEnCatalogo("bizcochos", "9999", "pieza de prueba");
+  cat = await catalogo();
+  assert.equal(cat.bizcochos.find((b) => b.codigo === "9999")?.nombre, "PIEZA DE PRUEBA");
+  await assert.rejects(guardarEnCatalogo("decoraciones", "12", "X"), /3 dígitos/);
+  await guardarEnCatalogo("bizcochos", "9999", "");
+  assert.ok(!(await catalogo()).bizcochos.some((b) => b.codigo === "9999"));
+
+  const datos = { dudas: [], articulos: [
+    { codigo_bizcocho: "0944", bizcocho: "BANDEJA 42", codigo_decoracion: "108", decoracion: "" },          // por código
+    { codigo_bizcocho: "0242", bizcocho: "JARRO PACIFICO", codigo_decoracion: "924", decoracion: "BLUE FISH" }, // código mal leído
+    { codigo_bizcocho: "5555", bizcocho: "PIEZA NUEVA", codigo_decoracion: "", decoracion: "" },              // desconocido
+  ] };
+  aplicarCatalogo(datos, { bizcochos: [{ codigo: "0944", nombre: "BANDEJA HOJA #2" }, { codigo: "0248", nombre: "JARRO PACIFICO" }],
+    decoraciones: [{ codigo: "108", nombre: "FLORAL AZUL" }, { codigo: "924", nombre: "BLUE FISH" }] });
+  assert.deepEqual(datos.articulos.map((a) => [a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion]), [
+    ["0944", "BANDEJA HOJA #2", "108", "FLORAL AZUL"], ["0248", "JARRO PACIFICO", "924", "BLUE FISH"], ["5555", "PIEZA NUEVA", "", ""]]);
+  assert.ok(datos.dudas.some((x) => /se leyó 0242 y en el catálogo es 0248/.test(x)));
 });

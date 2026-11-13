@@ -56,6 +56,18 @@ El archivo `render.yaml` describe el servicio web y la base PostgreSQL:
 | `hojas` | Una por orden y sección: estado, operario 1 y 2, foto, lectura original |
 | `hoja_articulos` | Piezas malas por artículo en cada hoja |
 | `registros` | Cada bloque manuscrito: fecha, cantidad, hora de inicio y fin, personas |
+| `bizcochos`, `decoraciones` | Catálogo de códigos (4 y 3 dígitos) con su nombre |
+
+## Catálogo de códigos
+
+En el código de artículo "0944 626", los cuatro primeros dígitos son el bizcocho y los tres
+siguientes la decoración. El catálogo guarda el nombre de cada código: se alimenta solo al
+guardar cada hoja revisada y se corrige en la pestaña **Catálogo** (un nombre vacío borra el
+código). Viene precargado con los códigos de las hojas de ejemplo.
+
+La lectura gratuita lo usa para completar los nombres a partir del código y para corregir
+un código mal leído cuando el nombre coincide con uno del catálogo; en ambos casos lo avisa
+en la revisión. Un nombre que es parte del que ya hay (foto cortada) no lo reemplaza.
 
 ## Pruebas
 

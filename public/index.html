@@ -83,6 +83,7 @@
     <nav role="tablist">
       <button role="tab" id="tab-capturar" aria-selected="true">Capturar</button>
       <button role="tab" id="tab-ordenes" aria-selected="false">Órdenes</button>
+      <button role="tab" id="tab-catalogo" aria-selected="false">Catálogo</button>
     </nav>
   </div>
 </header>
@@ -112,6 +113,7 @@
   </section>
 
   <section id="ordenes" hidden></section>
+  <section id="catalogo" hidden></section>
 </main>
 
 <script>
@@ -124,8 +126,8 @@ let actual = null;  // foto abierta en la revisión
 let leyendo = 0;
 let serie = 0;
 
-async function api(ruta, cuerpo) {
-  const r = await fetch(ruta, cuerpo ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
+async function api(ruta, cuerpo, metodo = "POST") {
+  const r = await fetch(ruta, cuerpo ? { method: metodo, headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
   const datos = await r.json().catch(() => ({}));
   if (r.status === 401 && ruta !== "/api/entrar") pedirClave();
   if (!r.ok) throw Object.assign(new Error(datos.error || "Error " + r.status), { sinIA: Boolean(datos.sin_ia) });
@@ -159,14 +161,16 @@ api("/api/sesion").then((s) => { if (!s.dentro) pedirClave(); }).catch(() => {})
 // ---------- Pestañas ----------
 function mostrar(pestana) {
   if (!$("#acceso").hidden) return;
-  for (const p of ["capturar", "ordenes"]) {
+  for (const p of ["capturar", "ordenes", "catalogo"]) {
     $("#" + p).hidden = p !== pestana;
     $("#tab-" + p).setAttribute("aria-selected", p === pestana);
   }
   if (pestana === "ordenes") listarOrdenes();
+  if (pestana === "catalogo") pintarCatalogo();
 }
 $("#tab-capturar").onclick = () => mostrar("capturar");
 $("#tab-ordenes").onclick = () => mostrar("ordenes");
+$("#tab-catalogo").onclick = () => mostrar("catalogo");
 
 // ---------- Captura ----------
 $("#tomar").onclick = () => $("#camara").click();
@@ -259,6 +263,52 @@ async function agregar(archivos) {
 }
 
 // Lee hasta tres fotos a la vez.
+// ---------- Catálogo ----------
+let catalogoCache = null;
+const cargarCatalogo = () => (catalogoCache ??= api("/api/catalogo").catch(() => { catalogoCache = null; return { bizcochos: [], decoraciones: [] }; }));
+
+async function pintarCatalogo() {
+  const cont = $("#catalogo");
+  cont.innerHTML = `<p class="tenue">Cargando…</p>`;
+  catalogoCache = null;
+  try {
+    const cat = await cargarCatalogo();
+    const tabla = (tipo, titulo, digitos, filas) => `
+      <div class="panel">
+        <h2>${titulo} <span class="tenue">(${filas.length})</span></h2>
+        <p class="tenue" style="margin:0 0 8px">Código de ${digitos} dígitos. Se completa solo al guardar hojas; aquí puedes corregir un nombre o dejarlo vacío para borrarlo.</p>
+        <div class="tabla"><table class="lectura">
+          <thead><tr><th>Código</th><th>Nombre</th><th></th></tr></thead>
+          <tbody>${filas.map((f) => `<tr data-tipo="${tipo}" data-codigo="${esc(f.codigo)}">
+            <td>${esc(f.codigo)}</td><td><input value="${esc(f.nombre)}" aria-label="Nombre ${esc(f.codigo)}"></td>
+            <td><button type="button" class="boton mini" data-a="guardar">Guardar</button></td></tr>`).join("")}
+            <tr data-tipo="${tipo}" class="nuevo"><td><input inputmode="numeric" maxlength="${digitos}" placeholder="${"0".repeat(digitos)}" aria-label="Código nuevo"></td>
+            <td><input placeholder="Nombre" aria-label="Nombre nuevo"></td>
+            <td><button type="button" class="boton mini" data-a="guardar">Añadir</button></td></tr>
+          </tbody>
+        </table></div>
+      </div>`;
+    cont.innerHTML = `<div id="catalogo-msg"></div>` + tabla("bizcochos", "Bizcochos", 4, cat.bizcochos) + tabla("decoraciones", "Decoraciones", 3, cat.decoraciones);
+  } catch (err) {
+    cont.innerHTML = `<div class="nota error">${esc(err.message)}</div>`;
+  }
+}
+
+$("#catalogo").onclick = async (e) => {
+  if (e.target.dataset.a !== "guardar") return;
+  const fila = e.target.closest("tr");
+  const inputs = fila.querySelectorAll("input");
+  const codigo = fila.classList.contains("nuevo") ? inputs[0].value.trim() : fila.dataset.codigo;
+  const nombre = inputs[inputs.length - 1].value;
+  try {
+    const r = await api(`/api/catalogo/${fila.dataset.tipo}/${encodeURIComponent(codigo)}`, { nombre }, "PUT");
+    await pintarCatalogo();
+    $("#catalogo-msg").innerHTML = `<div class="nota exito" role="status">${r.borrado ? `Código ${esc(codigo)} borrado.` : `Código ${esc(codigo)} guardado.`}</div>`;
+  } catch (err) {
+    $("#catalogo-msg").innerHTML = `<div class="nota error" role="alert">${esc(err.message)}</div>`;
+  }
+};
+
 // ---------- Lectura ----------
 // "ia": el servidor lee la foto con la API de Claude. "local": el celular lee lo impreso con un OCR gratuito
 // y lo manuscrito se escribe a mano.
@@ -342,7 +392,7 @@ async function leerLocal(f) {
   const { interpretar, combinar } = await import("/lectura-local.js");
   const { entera, ampliada } = await ocr(f);
   const d = ampliada ? combinar(interpretar(entera), interpretar(ampliada)) : interpretar(entera);
-  let yaRegistrada = null;
+  let yaRegistrada = null, deLaBase = false;
   // Si la orden ya está en la base (por otra sección), sus datos revisados valen más que lo leído.
   if (d.numero_orden) {
     const o = await api("/api/ordenes/" + encodeURIComponent(d.numero_orden)).catch(() => null);
@@ -357,9 +407,14 @@ async function leerLocal(f) {
         }));
         d.dudas = d.dudas.filter((x) => !/artículos/.test(x) && !/fecha de emisión|cliente/.test(x));
         d.dudas.unshift("Orden ya conocida: cliente y artículos se tomaron de la base de datos.");
+        deLaBase = true;
       }
       yaRegistrada = o.hojas.find((h) => h.estado === "registrada" && h.seccion === d.seccion)?.registrada_en ?? null;
     }
+  }
+  if (!deLaBase && d.articulos.length) {
+    const { aplicarCatalogo } = await import("/lectura-local.js");
+    aplicarCatalogo(d, await cargarCatalogo());
   }
   if (!d.articulos.length)
     d.articulos = [{ codigo_bizcocho: "", bizcocho: "", codigo_decoracion: "", decoracion: "", cantidad_producir: null, tiempo_estandar: null, ruta: null, malas: null, registros: [] }];
@@ -560,6 +615,7 @@ $("#revision").onsubmit = async (e) => {
     const datos = leerRevision();
     await api("/api/hojas", { datos, extraccion: f.extraccion, imagen: f.imagen, mime: f.mime });
     f.estado = "guardada";
+    catalogoCache = null; // la hoja guardada puede haber añadido códigos
     f.datos = { ...f.datos, ...datos };
     f.imagen = null;
     cerrarRevision();
