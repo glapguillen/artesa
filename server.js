@@ -24,7 +24,6 @@ app.use("/vendor/tesseract-lang", express.static(desde("./node_modules/@tesserac
 // Sin clave de la API de Anthropic (o con LECTURA=local) la foto se lee en el propio celular.
 let iaApagada = null; // motivo, si la IA falló por clave o saldo; se reintenta al reiniciar el servidor
 let iaPausada = null; // { motivo, hasta }: cuota agotada; se vuelve a intentar pasado un rato
-const PAUSA_MS = 30 * 60 * 1000;
 const motivoSinIA = () => iaApagada ?? (iaPausada && iaPausada.hasta > Date.now() ? iaPausada.motivo : null);
 const modoLectura = () => (!proveedor() || motivoSinIA() ? "local" : "ia");
 app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura() }));
@@ -83,7 +82,7 @@ app.use((err, _req, res, _next) => {
   console.error(err);
   if (err instanceof ErrorDeLectura) {
     if (err.apagar) iaApagada = err.message;
-    if (err.pausar) iaPausada = { motivo: err.message, hasta: Date.now() + PAUSA_MS };
+    if (err.pausar) iaPausada = { motivo: err.message, hasta: Date.now() + err.minutos * 60 * 1000 };
     return res.status(500).json({ error: err.message, sin_ia: err.apagar || err.pausar });
   }
   // Errores de la API de Anthropic, explicados para quien usa la aplicación.

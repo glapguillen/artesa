@@ -105,10 +105,11 @@ export function proveedor() {
 // Error de la API traducido para quien usa la aplicación. `apagar`: la IA no volverá a funcionar
 // sola (clave o saldo); `pausar`: cuota agotada, vuelve a intentarse más tarde.
 export class ErrorDeLectura extends Error {
-  constructor(mensaje, { apagar = false, pausar = false } = {}) {
+  constructor(mensaje, { apagar = false, pausar = false, minutos = 30 } = {}) {
     super(mensaje);
     this.apagar = apagar;
     this.pausar = pausar;
+    this.minutos = minutos;
   }
 }
 
@@ -120,6 +121,13 @@ export async function extraerHoja(imagenBase64, mime) {
 }
 
 let gemini;
+const modeloGemini = () => process.env.GEMINI_MODEL || "gemini-3.8-flash";
+// El mensaje de error de Google viene a veces como JSON; se deja solo el texto, corto.
+function resumen(mensaje) {
+  let m = String(mensaje ?? "");
+  try { m = JSON.parse(m.slice(m.indexOf("{"))).error?.message ?? m; } catch {}
+  return m.replace(/\s+/g, " ").slice(0, 160);
+}
 const PEDIDO = "Transcribe esta hoja. Responde solo con el JSON pedido.";
 
 async function conGemini(imagenBase64, mime) {
@@ -127,7 +135,7 @@ async function conGemini(imagenBase64, mime) {
   gemini ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const pedir = (conEsquema) =>
     gemini.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
+      model: modeloGemini(),
       contents: [{ role: "user", parts: [{ inlineData: { mimeType: mime, data: imagenBase64 } }, { text: PEDIDO }] }],
       config: {
         systemInstruction: conEsquema ? INSTRUCCIONES : INSTRUCCIONES + "\n\nEl JSON sigue este esquema:\n" + JSON.stringify(ESQUEMA_JSON),
@@ -137,22 +145,41 @@ async function conGemini(imagenBase64, mime) {
       },
     });
   let respuesta;
+  const espera = (ms) => new Promise((ok) => setTimeout(ok, ms));
   try {
-    try {
-      respuesta = await pedir(true);
-    } catch (err) {
-      // Si el modelo no admite alguna parte del esquema, se pide el JSON sin él y se valida aquí.
-      if (!(err instanceof ApiError) || err.status !== 400 || !/schema/i.test(err.message)) throw err;
-      respuesta = await pedir(false);
+    let conEsquema = true;
+    for (let intento = 1; ; intento++) {
+      try {
+        respuesta = await pedir(conEsquema);
+        break;
+      } catch (err) {
+        if (!(err instanceof ApiError)) throw err;
+        // Si el modelo no admite alguna parte del esquema, se pide el JSON sin él y se valida aquí.
+        if (conEsquema && err.status === 400 && /schema/i.test(err.message)) { conEsquema = false; continue; }
+        // Saturación o fallo pasajero de Google: hasta tres intentos con espera creciente.
+        if ((err.status >= 500 || err.status === 429 && /overload|unavailable|try again/i.test(err.message)) && intento < 3) {
+          await espera(intento * 2500);
+          // Gemini responde a veces con error 500 ante esquemas grandes: el último intento va sin él.
+          if (intento === 2 && err.status >= 500) conEsquema = false;
+          continue;
+        }
+        throw err;
+      }
     }
   } catch (err) {
     if (!(err instanceof ApiError)) throw err;
+    console.error(`Gemini ${err.status}: ${err.message}`);
+    const detalle = ` (código ${err.status}: ${resumen(err.message)})`;
+    if (err.status === 404)
+      throw new ErrorDeLectura(`El modelo de Gemini "${modeloGemini()}" no existe para esta clave; pon en GEMINI_MODEL uno de los que lista Google AI Studio` + detalle, { apagar: true });
     if (err.status === 429)
       throw new ErrorDeLectura("Se agotó la cuota gratuita de Gemini por ahora", { pausar: true });
     if (err.status === 400 && /api.?key/i.test(err.message) || err.status === 401 || err.status === 403)
       throw new ErrorDeLectura("La clave de Gemini no es válida o no tiene permiso (GEMINI_API_KEY)", { apagar: true });
-    if (err.status >= 500) throw new ErrorDeLectura("Gemini no responde en este momento. Intenta de nuevo en un momento.");
-    throw new ErrorDeLectura("Gemini rechazó la foto: " + err.message.slice(0, 200));
+    // Tras tres intentos fallidos se pasa unos minutos a la lectura local, en vez de dejar fotos en error.
+    if (err.status >= 500)
+      throw new ErrorDeLectura("Gemini no responde en este momento" + detalle, { pausar: true, minutos: 5 });
+    throw new ErrorDeLectura("Gemini rechazó la foto" + detalle);
   }
   let datos;
   try {
