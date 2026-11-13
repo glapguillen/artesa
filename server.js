@@ -15,6 +15,17 @@ app.use(express.static(new URL("./public", import.meta.url).pathname));
 app.get("/vendor/heic-to.js", (_req, res) =>
   res.sendFile(new URL("./node_modules/heic-to/dist/iife/heic-to.js", import.meta.url).pathname, { maxAge: "7d" }));
 
+// Lector gratuito (OCR) que corre en el navegador, servido desde aquí para no depender de otros sitios.
+const desde = (ruta) => new URL(ruta, import.meta.url).pathname;
+app.use("/vendor/tesseract", express.static(desde("./node_modules/tesseract.js/dist"), { maxAge: "7d" }));
+app.use("/vendor/tesseract-core", express.static(desde("./node_modules/tesseract.js-core"), { maxAge: "7d" }));
+app.use("/vendor/tesseract-lang", express.static(desde("./node_modules/@tesseract.js-data/spa/4.0.0_best_int"), { maxAge: "7d" }));
+
+// Sin clave de la API de Anthropic (o con LECTURA=local) la foto se lee en el propio celular.
+const modoLectura = () =>
+  process.env.LECTURA === "local" || !process.env.ANTHROPIC_API_KEY ? "local" : "ia";
+app.get("/api/config", (_req, res) => res.json({ lectura: modoLectura() }));
+
 app.get("/salud", (_req, res) => res.send("ok"));
 app.get("/api/sesion", estado);
 app.post("/api/entrar", entrar);
@@ -30,6 +41,7 @@ function imagenDe(cuerpo) {
 
 // Lee la foto y devuelve los datos para que el usuario los revise. No guarda nada.
 app.post("/api/extraer", async (req, res) => {
+  if (modoLectura() === "local") return res.status(409).json({ error: "La lectura con IA está desactivada en este servidor" });
   const { imagen, mime } = imagenDe(req.body);
   const datos = await extraerHoja(imagen, mime);
   const existente = await hojaExistente(datos.numero_orden, datos.seccion);

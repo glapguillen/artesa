@@ -259,13 +259,102 @@ async function agregar(archivos) {
 }
 
 // Lee hasta tres fotos a la vez.
-function procesar() {
-  while (leyendo < 3) {
+// ---------- Lectura ----------
+// "ia": el servidor lee la foto con la API de Claude. "local": el celular lee lo impreso con un OCR gratuito
+// y lo manuscrito se escribe a mano.
+let modo = null;
+const config = () => (modo ??= api("/api/config").then((c) => c.lectura).catch(() => { modo = null; return "local"; }));
+
+let lector;
+function crearLector() {
+  lector ??= (async () => {
+    await new Promise((ok, mal) => {
+      const s = document.createElement("script");
+      s.src = "/vendor/tesseract/tesseract.min.js";
+      s.onload = ok;
+      s.onerror = () => mal(new Error("no se pudo descargar el lector de fotos"));
+      document.head.append(s);
+    });
+    return Tesseract.createWorker("spa", 1, {
+      workerPath: "/vendor/tesseract/worker.min.js",
+      corePath: "/vendor/tesseract-core",
+      langPath: "/vendor/tesseract-lang",
+      gzip: true,
+    });
+  })().catch((err) => { lector = null; throw err; });
+  return lector;
+}
+
+async function girada(url, grados) {
+  const img = await comoImg(url);
+  const lienzo = document.createElement("canvas");
+  const lado = grados % 180 !== 0;
+  lienzo.width = lado ? img.naturalHeight : img.naturalWidth;
+  lienzo.height = lado ? img.naturalWidth : img.naturalHeight;
+  const c = lienzo.getContext("2d");
+  c.translate(lienzo.width / 2, lienzo.height / 2);
+  c.rotate((grados * Math.PI) / 180);
+  c.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+  return lienzo;
+}
+
+// Prueba los cuatro giros hasta dar con la cabecera de la hoja.
+async function ocr(f) {
+  const lector = await crearLector();
+  let mejor = null;
+  for (const grados of [0, 270, 90, 180]) {
+    f.paso = `Leyendo… (giro ${grados}°)`;
+    pintarCola();
+    const { data } = await lector.recognize(await girada(f.url, grados));
+    const puntos = (/PRODUC/i.test(data.text) ? 2 : 0) + (/ORDEN|SECCI/i.test(data.text) ? 1 : 0);
+    if (!mejor || puntos > mejor.puntos || (puntos === mejor.puntos && data.confidence > mejor.c)) mejor = { puntos, c: data.confidence, texto: data.text };
+    if (puntos >= 3) break;
+  }
+  return mejor.texto;
+}
+
+async function leerLocal(f) {
+  const { interpretar } = await import("/lectura-local.js");
+  const d = interpretar(await ocr(f));
+  let yaRegistrada = null;
+  // Si la orden ya está en la base (por otra sección), sus datos revisados valen más que lo leído.
+  if (d.numero_orden) {
+    const o = await api("/api/ordenes/" + encodeURIComponent(d.numero_orden)).catch(() => null);
+    if (o) {
+      d.fecha_emision = o.fecha_emision ?? d.fecha_emision;
+      d.cliente = o.cliente ?? d.cliente;
+      d.observaciones = o.observaciones ?? d.observaciones;
+      if (o.articulos.length) {
+        d.articulos = o.articulos.map((a) => ({
+          codigo_bizcocho: a.codigo_bizcocho, bizcocho: a.bizcocho, codigo_decoracion: a.codigo_decoracion, decoracion: a.decoracion,
+          cantidad_producir: a.cantidad_producir, tiempo_estandar: a.tiempo_estandar, ruta: a.ruta, malas: null, registros: [],
+        }));
+        d.dudas = d.dudas.filter((x) => !/artículos/.test(x) && !/fecha de emisión|cliente/.test(x));
+        d.dudas.unshift("Orden ya conocida: cliente y artículos se tomaron de la base de datos.");
+      }
+      yaRegistrada = o.hojas.find((h) => h.estado === "registrada" && h.seccion === d.seccion)?.registrada_en ?? null;
+    }
+  }
+  if (!d.articulos.length)
+    d.articulos = [{ codigo_bizcocho: "", bizcocho: "", codigo_decoracion: "", decoracion: "", cantidad_producir: null, tiempo_estandar: null, ruta: null, malas: null, registros: [] }];
+  for (const a of d.articulos) a.registros = [{}];
+  d.dudas.push("Escribe a mano los operarios y, por cada día, la fecha, cantidad, horas y personas.");
+  return { datos: d, ya_registrada: yaRegistrada };
+}
+
+async function leer(f) {
+  return (await config()) === "local" ? leerLocal(f) : api("/api/extraer", { imagen: f.imagen, mime: f.mime });
+}
+
+// Con IA lee hasta tres fotos a la vez; el lector local, de una en una.
+async function procesar() {
+  const limite = (await config()) === "local" ? 1 : 3;
+  while (leyendo < limite) {
     const f = cola.find((x) => x.estado === "pendiente");
     if (!f) return;
     f.estado = "leyendo";
     leyendo++;
-    api("/api/extraer", { imagen: f.imagen, mime: f.mime })
+    leer(f)
       .then((r) => {
         f.extraccion = r.datos;
         f.datos = r.datos;
@@ -275,6 +364,7 @@ function procesar() {
       .catch((err) => { f.estado = "error"; f.error = err.message; })
       .finally(() => {
         leyendo--;
+        f.paso = null;
         pintarCola();
         if (!actual && f.estado === "lista") abrir(f.id, false);
         procesar();
@@ -291,7 +381,8 @@ const ESTADOS = {
 function pintarCola() {
   const porRevisar = cola.filter((f) => f.estado === "lista").length;
   $("#cola").innerHTML = cola.map((f) => {
-    const [texto, clase] = ESTADOS[f.estado];
+    const [base, clase] = ESTADOS[f.estado];
+    const texto = f.estado === "leyendo" && f.paso ? f.paso : base;
     const d = f.datos;
     const titulo = d?.numero_orden ? `Orden ${esc(d.numero_orden)} · ${esc(d.seccion ?? "")}` : `Foto ${f.id}`;
     return `<li class="${actual === f.id ? "abierta" : ""}" data-id="${f.id}">

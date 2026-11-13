@@ -3,7 +3,13 @@
 Aplicación web para registrar las Hojas de Producción Diaria a partir de una foto:
 
 1. Se toma la foto de la hoja desde el celular o la computadora.
-2. El servidor lee la foto (datos impresos y manuscritos) con la API de Claude.
+2. La foto se lee de una de dos formas:
+   - **Sin API (gratis)**: el propio celular lee lo impreso (orden, sección, fecha, cliente,
+     artículos) con un lector de texto gratuito. Si la orden ya está en la base por otra
+     sección, cliente y artículos se toman de ahí. Lo manuscrito (operarios, fechas,
+     cantidades, horas) se escribe a mano.
+   - **Con la API de Claude**: el servidor lee también lo manuscrito. Se activa poniendo
+     `ANTHROPIC_API_KEY`; sin ella, o con `LECTURA=local`, se usa el modo gratuito.
 3. El usuario revisa y corrige lo leído.
 4. Se guarda en PostgreSQL, junto con la foto.
 
@@ -18,7 +24,7 @@ Requiere Node 20+ y PostgreSQL.
 
 ```bash
 createdb artesa                # o la base que se indique en DATABASE_URL
-cp .env.example .env           # completar DATABASE_URL y ANTHROPIC_API_KEY
+cp .env.example .env           # completar DATABASE_URL y APP_PASSWORD (ANTHROPIC_API_KEY es opcional)
 npm install
 npm start                      # http://localhost:3000
 ```
@@ -36,7 +42,8 @@ El archivo `render.yaml` describe el servicio web y la base PostgreSQL:
 
 1. En Render: **New → Blueprint** y elegir este repositorio y rama.
 2. Render pide dos valores, que se escriben ahí mismo y no se guardan en el repositorio:
-   `ANTHROPIC_API_KEY` (clave de la API de Anthropic) y `APP_PASSWORD` (contraseña de acceso).
+   `APP_PASSWORD` (contraseña de acceso) y `ANTHROPIC_API_KEY` (opcional: déjala vacía para
+   el modo gratuito).
 3. Aplicar. `DATABASE_URL` se conecta sola a la base creada.
 
 ## Tablas

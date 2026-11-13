@@ -92,3 +92,19 @@ test("varios artículos con registros en bloques distintos y rutas cortas", asyn
   assert.deepEqual(o.hojas.map((h) => [h.seccion, h.estado]), [["DECORADO", "registrada"], ["ESMALT", "pendiente"]]);
   assert.deepEqual(o.hojas[0].articulos.map((a) => a.registros.length), [2, 1]);
 });
+
+test("lectura gratuita: extrae lo impreso del texto del lector", async () => {
+  const { interpretar } = await import("../public/lectura-local.js");
+  const texto = `Te y GRUPO: 14-09-2026
+, RN CLIENTE: ANDRADE PATRICIO MES: September 2026 o
+ARTES OESERVACIONES: MARCA VEGA wi dba Seccion DECORADO -
+Vhalue - Dsceuai? ORDEN 4 0076660 —
+0699 626 PUENTE OVALADA 40.5 CM 7 168,00 | Y e '
+GIRASOL AZUL ruta STDE malas`;
+  const d = interpretar(texto);
+  assert.deepEqual([d.numero_orden, d.seccion, d.fecha_emision, d.cliente], ["0076660", "DECORADO", "2026-09-14", "ANDRADE PATRICIO"]);
+  assert.deepEqual(d.articulos.map((a) => [a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion, a.cantidad_producir, a.tiempo_estandar, a.ruta]),
+    [["0699", "PUENTE OVALADA 40.5 CM", "626", "GIRASOL AZUL", 7, 168, "STDE"]]);
+  assert.equal(interpretar("Seccion EsMaA LT\nORDEN % 0076582\n24-08-2006").seccion, "ESMALT");
+  assert.equal(interpretar("Seccion EsMaA LT\nORDEN % 0076582\n24-08-2006").fecha_emision, null);
+});

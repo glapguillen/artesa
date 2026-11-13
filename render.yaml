@@ -16,7 +16,7 @@ services:
           name: artesa-db
           property: connectionString
       - key: ANTHROPIC_API_KEY
-        sync: false   # se escribe en el panel de Render
+        sync: false   # opcional: vacía = lectura gratuita en el celular
       - key: APP_PASSWORD
         sync: false   # se escribe en el panel de Render
 
