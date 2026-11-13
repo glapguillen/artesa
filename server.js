@@ -99,6 +99,9 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: mensaje, sin_ia: sinIA });
 });
 
+// Un error suelto en segundo plano no debe tumbar el servidor (Render respondería 502).
+process.on("unhandledRejection", (err) => console.error("Error no atendido:", err));
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (!accesoActivo()) {
     if (process.env.NODE_ENV === "production") {

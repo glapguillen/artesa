@@ -126,8 +126,27 @@ let actual = null;  // foto abierta en la revisión
 let leyendo = 0;
 let serie = 0;
 
+// 502, 503 y 504 los da Render cuando la aplicación se está reiniciando o despertando: se reintenta solo.
 async function api(ruta, cuerpo, metodo = "POST") {
-  const r = await fetch(ruta, cuerpo ? { method: metodo, headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
+  for (let intento = 1; ; intento++) {
+    try {
+      return await llamar(ruta, cuerpo, metodo);
+    } catch (err) {
+      if (!err.reintentable || intento >= 3) throw err;
+      await new Promise((ok) => setTimeout(ok, intento * 8000));
+    }
+  }
+}
+
+async function llamar(ruta, cuerpo, metodo) {
+  let r;
+  try {
+    r = await fetch(ruta, cuerpo ? { method: metodo, headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
+  } catch {
+    throw Object.assign(new Error("Sin conexión con el servidor. Revisa la señal e intenta de nuevo."), { reintentable: true });
+  }
+  if ([502, 503, 504].includes(r.status))
+    throw Object.assign(new Error("El servidor se está reiniciando o despertando. Toca Reintentar en un minuto."), { reintentable: true });
   const datos = await r.json().catch(() => ({}));
   if (r.status === 401 && ruta !== "/api/entrar") pedirClave();
   if (!r.ok) throw Object.assign(new Error(datos.error || "Error " + r.status), { sinIA: Boolean(datos.sin_ia) });
