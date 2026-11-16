@@ -53,6 +53,7 @@
   <div id="resultado"></div>
   <div class="panel" id="gasto"><h2>Gasto en lecturas</h2><p class="tenue">Cargando…</p></div>
 </main>
+<script src="/fotos.js"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -81,14 +82,17 @@ async function api(ruta, cuerpo) {
 let foto = null;
 $("#foto").onchange = async (e) => {
   const archivo = e.target.files[0]; if (!archivo) return;
-  // Misma preparación que la pantalla de captura: lado mayor de 2000 px, JPEG.
-  const bmp = await createImageBitmap(archivo);
-  const k = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
-  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
-  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
-  const url = c.toDataURL("image/jpeg", 0.85);
-  foto = { imagen: url.split(",")[1], mime: "image/jpeg" };
-  $("#vista").src = url; $("#vista").hidden = false; $("#probar").disabled = false;
+  // Misma preparación que la pantalla de captura (fotos.js): HEIC a JPEG, lado mayor de 2000 px.
+  $("#mensaje").innerHTML = esHeic(archivo) ? `<div class="nota aviso">Convirtiendo la foto HEIC…</div>` : "";
+  $("#probar").disabled = true; foto = null;
+  try {
+    const p = await preparar(archivo);
+    foto = { imagen: p.imagen, mime: p.mime };
+    $("#vista").src = p.url; $("#vista").hidden = false; $("#probar").disabled = false;
+    $("#mensaje").innerHTML = "";
+  } catch (err) {
+    $("#mensaje").innerHTML = `<div class="nota error">No se pudo abrir la foto: ${esc(err.message)}</div>`;
+  }
 };
 
 // ---- Comparación campo por campo ----
