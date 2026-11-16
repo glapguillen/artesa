@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artesa · Comparar modelos</title>
+<style>
+  :root { --fondo: #f6f1ea; --panel: #fffdf9; --tinta: #2a2420; --tenue: #7a6f66; --linea: #e2d9cd; --acento: #1f5c7a; --acento-tinta: #fff;
+          --ok: #2f7d4f; --ok-fondo: #e2f1e7; --mal: #a3302a; --mal-fondo: #fbe4e1; --aviso: #8a5a00; --aviso-fondo: #fcefcf; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fondo: #1b1816; --panel: #25211e; --tinta: #efe8df; --tenue: #a69a8e; --linea: #3a342f; --acento: #6db4d6; --acento-tinta: #10222c;
+            --ok: #7fd0a0; --ok-fondo: #1f3a2b; --mal: #f19a93; --mal-fondo: #43221f; --aviso: #f0c66a; --aviso-fondo: #3d3118; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 900px; margin: auto; padding: 16px; }
+  a { color: var(--acento); }
+  .panel { background: var(--panel); border: 1px solid var(--linea); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  h1 { font-size: 20px; margin: 0 0 4px; } h2 { font-size: 16px; margin: 0 0 10px; }
+  .tenue { color: var(--tenue); font-size: 14px; }
+  .boton { min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--acento); background: var(--acento); color: var(--acento-tinta); font: inherit; font-weight: 600; cursor: pointer; }
+  .boton:disabled { opacity: .55; }
+  .opciones { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 10px 0; }
+  label { display: flex; gap: 6px; align-items: center; }
+  .tabla { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+  th { text-align: left; color: var(--tenue); font-size: 12px; font-weight: 600; padding: 6px; white-space: nowrap; }
+  td { padding: 7px 6px; border-top: 1px solid var(--linea); vertical-align: top; }
+  .mejor td { background: var(--ok-fondo); }
+  .nota { border-radius: 8px; padding: 10px 12px; margin: 0 0 12px; font-size: 14px; }
+  .error { background: var(--mal-fondo); color: var(--mal); } .aviso { background: var(--aviso-fondo); color: var(--aviso); }
+  details { margin-top: 4px; } summary { cursor: pointer; color: var(--acento); }
+  ul { margin: 4px 0 0; padding-left: 18px; }
+  #vista { max-width: 100%; max-height: 220px; border-radius: 8px; display: block; margin-top: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="panel">
+    <h1>Comparar modelos de lectura</h1>
+    <p class="tenue" style="margin:0">Carga la foto de una hoja <strong>ya guardada y revisada</strong>. Se lee con cada modelo elegido y cada lectura se compara campo por campo con lo guardado. <a href="/">Volver</a></p>
+  </div>
+  <div id="mensaje"></div>
+  <div class="panel">
+    <h2>1. Modelos a probar</h2>
+    <div class="opciones" id="configs"></div>
+    <p class="tenue" id="estimado"></p>
+    <h2 style="margin-top:14px">2. Foto</h2>
+    <input type="file" id="foto" accept="image/*">
+    <img id="vista" hidden alt="">
+    <div style="margin-top:12px"><button class="boton" id="probar" disabled>Comparar</button></div>
+  </div>
+  <div id="resultado"></div>
+  <div class="panel" id="gasto"><h2>Gasto en lecturas</h2><p class="tenue">Cargando…</p></div>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// Coste aproximado por foto, de las pruebas con lecturas de ejemplo: sirve para avisar antes de gastar.
+const OPCIONES = [
+  ["haiku:low", "Haiku · bajo", 0.002], ["haiku:medium", "Haiku · medio", 0.003], ["haiku:high", "Haiku · alto", 0.005],
+  ["sonnet:medium", "Sonnet · medio", 0.04], ["opus:medium", "Opus · medio", 0.08], ["opus:high", "Opus · alto", 0.13],
+];
+const marcadas = new Set(["haiku:low", "haiku:medium", "sonnet:medium", "opus:medium"]);
+$("#configs").innerHTML = OPCIONES.map(([v, t]) => `<label><input type="checkbox" value="${v}" ${marcadas.has(v) ? "checked" : ""}>${t}</label>`).join("");
+const elegidas = () => [...document.querySelectorAll("#configs input:checked")].map((i) => i.value);
+const estimar = () => {
+  const total = OPCIONES.filter(([v]) => elegidas().includes(v)).reduce((s, o) => s + o[2], 0);
+  $("#estimado").textContent = `Coste aproximado de cada comparación: unos $${total.toFixed(2)} (la suma de las lecturas elegidas).`;
+};
+$("#configs").onchange = estimar; estimar();
+
+async function api(ruta, cuerpo) {
+  const r = await fetch(ruta, cuerpo ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : undefined);
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) location.href = "/";
+  if (!r.ok) throw new Error(d.error || "Error " + r.status);
+  return d;
+}
+
+let foto = null;
+$("#foto").onchange = async (e) => {
+  const archivo = e.target.files[0]; if (!archivo) return;
+  // Misma preparación que la pantalla de captura: lado mayor de 2000 px, JPEG.
+  const bmp = await createImageBitmap(archivo);
+  const k = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  const url = c.toDataURL("image/jpeg", 0.85);
+  foto = { imagen: url.split(",")[1], mime: "image/jpeg" };
+  $("#vista").src = url; $("#vista").hidden = false; $("#probar").disabled = false;
+};
+
+// ---- Comparación campo por campo ----
+const norm = (v) => String(v ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
+const hora = (v) => { const m = String(v ?? "").match(/^(\d{1,2}):(\d{2})/); return m ? m[1].padStart(2, "0") + ":" + m[2] : ""; };
+const num = (v) => (v === null || v === undefined || v === "" ? "" : String(Number(v)));
+
+// Convierte una hoja (lectura o guardada) en una lista de campos comparables.
+function campos(h) {
+  const c = { "Orden": norm(h.numero_orden), "Sección": norm(h.seccion).replace(/^ESMALTADO$/, "ESMALT").replace(/^SENALADO$/, "SEÑALADO"),
+    "Operario 1": norm(h.operario1), "Operario 2": norm(h.operario2) };
+  (h.articulos ?? []).forEach((a, i) => {
+    const art = `Art. ${a.codigo_bizcocho || i + 1}`;
+    c[`${art} · cód. decoración`] = norm(a.codigo_decoracion);
+    c[`${art} · producir`] = num(a.cantidad_producir);
+    c[`${art} · malas`] = num(a.malas);
+    const regs = [...(a.registros ?? [])].sort((x, y) => String(x.fecha).localeCompare(String(y.fecha)));
+    regs.forEach((r, j) => {
+      const d = `${art} · día ${j + 1}`;
+      c[`${d} · fecha`] = String(r.fecha ?? "").slice(0, 10);
+      c[`${d} · cantidad`] = num(r.cantidad);
+      c[`${d} · inicio`] = hora(r.hora_inicio);
+      c[`${d} · fin`] = hora(r.hora_fin);
+      c[`${d} · personas`] = num(r.personas);
+    });
+  });
+  return c;
+}
+
+// Compara contra la referencia; los campos vacíos en ambas cuentan como acierto.
+function puntuar(ref, leida) {
+  const r = campos(ref), l = campos(leida);
+  const claves = Object.keys(r);
+  const fallos = claves.filter((k) => (l[k] ?? "") !== r[k]).map((k) => `${k}: leyó «${l[k] || "vacío"}», es «${r[k] || "vacío"}»`);
+  for (const k of Object.keys(l)) if (!(k in r) && l[k]) fallos.push(`${k}: leyó «${l[k]}», no está en lo guardado`);
+  const total = claves.length + Object.keys(l).filter((k) => !(k in r) && l[k]).length;
+  return { aciertos: total - fallos.length, total, fallos };
+}
+
+// La hoja guardada en la base, en la misma forma que una lectura.
+async function referencia(orden, seccion) {
+  const o = await api("/api/ordenes/" + encodeURIComponent(orden)).catch(() => null);
+  const h = o?.hojas.find((x) => x.estado === "registrada" && norm(x.seccion).startsWith(norm(seccion).slice(0, 5)));
+  if (!h) return null;
+  return {
+    numero_orden: o.numero, seccion: h.seccion, operario1: h.operario1, operario2: h.operario2,
+    articulos: o.articulos.map((a) => {
+      const de = h.articulos.find((x) => x.articulo_id === a.id) ?? { registros: [] };
+      return { codigo_bizcocho: a.codigo_bizcocho, codigo_decoracion: a.codigo_decoracion, cantidad_producir: a.cantidad_producir, malas: de.malas, registros: de.registros };
+    }),
+  };
+}
+
+$("#probar").onclick = async () => {
+  const configs = elegidas();
+  if (!configs.length) return;
+  $("#probar").disabled = true; $("#probar").textContent = "Leyendo con " + configs.length + " modelos…";
+  $("#mensaje").innerHTML = ""; $("#resultado").innerHTML = "";
+  try {
+    const { resultados } = await api("/api/comparar", { ...foto, configs });
+    const leida = resultados.find((r) => r.datos)?.datos;
+    let ref = leida && (await referencia(leida.numero_orden, leida.seccion));
+    let origen = "la hoja guardada y revisada";
+    if (!ref) {
+      // Sin hoja guardada se compara con la lectura más cara, que no es una verdad comprobada.
+      const cara = [...resultados].filter((r) => r.datos).sort((a, b) => b.uso.costo - a.uso.costo)[0];
+      ref = cara?.datos; origen = `la lectura de ${cara?.config} (no hay hoja guardada de esa orden y sección; guárdala revisada para una comparación fiable)`;
+    }
+    const filas = resultados.map((r) => ({ ...r, p: r.datos && ref ? puntuar(ref, r.datos) : null }));
+    const mejorCosto = filas.filter((f) => f.p).sort((a, b) => b.p.aciertos / b.p.total - a.p.aciertos / a.p.total || a.uso.costo - b.uso.costo)[0];
+    $("#resultado").innerHTML = `<div class="panel">
+      <h2>Resultado</h2>
+      <p class="tenue">Comparado con ${esc(origen)}.</p>
+      <div class="tabla"><table>
+        <thead><tr><th>Modelo</th><th>Aciertos</th><th>Coste</th><th>Tokens (entrada / salida)</th><th>Tiempo</th></tr></thead>
+        <tbody>${filas.map((f) => `<tr class="${f === mejorCosto ? "mejor" : ""}">
+          <td>${esc(f.config)}</td>
+          <td>${f.p ? `${f.p.aciertos}/${f.p.total} (${Math.round((100 * f.p.aciertos) / f.p.total)} %)` : esc(f.error)}
+            ${f.p?.fallos.length ? `<details><summary>${f.p.fallos.length} diferencias</summary><ul>${f.p.fallos.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></details>` : ""}</td>
+          <td>${f.uso ? "$" + f.uso.costo.toFixed(4) : "—"}</td>
+          <td>${f.uso ? `${f.uso.entrada} / ${f.uso.salida}` : "—"}</td>
+          <td>${f.segundos.toFixed(1)} s</td></tr>`).join("")}</tbody>
+      </table></div>
+      <p class="tenue">En verde, el que más acierta y, a igualdad, el más barato. Una sola hoja no basta para decidir: compara varias, sobre todo las de letra difícil.</p>
+    </div>`;
+  } catch (err) {
+    $("#mensaje").innerHTML = `<div class="nota error">${esc(err.message)}</div>`;
+  } finally {
+    $("#probar").disabled = false; $("#probar").textContent = "Comparar";
+  }
+};
+
+api("/api/costos").then((meses) => {
+  $("#gasto").innerHTML = `<h2>Gasto en lecturas con Claude</h2>` + (meses.length
+    ? `<div class="tabla"><table><thead><tr><th>Mes</th><th>Hojas</th><th>Coste estimado</th><th>Por hoja</th></tr></thead><tbody>${meses.map((m) =>
+        `<tr><td>${esc(m.mes)}</td><td>${m.hojas}</td><td>$${(m.costo ?? 0).toFixed(m.costo >= 1 ? 2 : 3)}</td><td>$${((m.costo ?? 0) / m.hojas).toFixed(4)}</td></tr>`).join("")}</tbody></table></div>`
+    : `<p class="tenue">Aún no hay hojas guardadas leídas con Claude.</p>`) + `<p class="tenue">No incluye las comparaciones de esta página.</p>`;
+}).catch((e) => ($("#gasto").innerHTML = `<div class="nota error">${esc(e.message)}</div>`));
+</script>
+</body>
+</html>

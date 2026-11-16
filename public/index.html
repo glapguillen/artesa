@@ -307,7 +307,8 @@ async function pintarCatalogo() {
           </tbody>
         </table></div>
       </div>`;
-    cont.innerHTML = `<div id="catalogo-msg"></div>` + tabla("bizcochos", "Bizcochos", 4, cat.bizcochos) + tabla("decoraciones", "Decoraciones", 3, cat.decoraciones);
+    cont.innerHTML = `<div id="catalogo-msg"></div>` + tabla("bizcochos", "Bizcochos", 4, cat.bizcochos) + tabla("decoraciones", "Decoraciones", 3, cat.decoraciones) +
+      `<p class="tenue">¿Qué modelo lee mejor por menos dinero? <a href="/comparar.html">Comparar modelos de lectura y ver el gasto</a></p>`;
   } catch (err) {
     cont.innerHTML = `<div class="nota error">${esc(err.message)}</div>`;
   }
@@ -494,6 +495,7 @@ async function procesar() {
       .then((r) => {
         f.segundos = Math.round((Date.now() - f.inicio) / 1000);
         f.lector = r.datos.lector ?? "lectura gratuita";
+        f.costo = r.datos.uso?.costo ?? null;
         f.extraccion = r.datos;
         f.datos = r.datos;
         f.yaRegistrada = r.ya_registrada;
@@ -529,7 +531,7 @@ function pintarCola() {
       ? `${f.paso ?? base} ${Math.round((Date.now() - f.inicio) / 1000)} s`
       : base;
     const detalle = f.segundos != null && f.estado !== "error"
-      ? `<span class="tenue">${esc(f.lector)} · ${f.segundos} s</span>` +
+      ? `<span class="tenue">${esc(f.lector)} · ${f.segundos} s${f.costo != null ? ` · $${f.costo.toFixed(3)}` : ""}</span>` +
         (f.lector === "lectura gratuita" && f.motivo ? `<span class="tenue" style="display:block">Sin IA: ${esc(f.motivo)}. Toca Releer en un rato para leer lo manuscrito.</span>` : "")
       : "";
     const d = f.datos;

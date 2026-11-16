@@ -13,6 +13,24 @@ Aplicación web para registrar las Hojas de Producción Diaria a partir de una f
      Si Claude falla por clave, saldo o límite de uso, la foto pasa a Gemini; si fallan los dos,
      a la lectura gratuita, y la aplicación vuelve a la IA sola cuando pasa la pausa.
      `LECTURA=gemini` pone Gemini primero y `LECTURA=local` desactiva la IA.
+
+### Coste de la lectura con Claude
+
+Cada foto la lee primero **Claude Haiku 5.5** (unos $0,002 por hoja) y solo se relee con
+**Claude Opus 5.5** (unos $0,10) cuando la lectura de Haiku tiene fallos que no dependen de
+la opinión del modelo: falta la orden o la sección, no hay artículos ni registros, una hora
+de fin anterior a la de inicio, una fecha anterior a la emisión o más piezas que las pedidas.
+También pasa a Opus si Haiku declina la foto.
+
+| Variable | Valor por defecto | Para qué |
+|---|---|---|
+| `CLAUDE_LECTURA` | `haiku:medium` | Modelo y esfuerzo de la primera lectura (`haiku`, `sonnet` u `opus`; `low`, `medium` o `high`) |
+| `CLAUDE_RELEER` | `opus:medium` | Modelo de la relectura; `no` la desactiva |
+
+La página `/comparar.html` (enlace al final de la pestaña Catálogo) lee la foto de una hoja ya
+guardada y revisada con varios modelos y compara cada lectura con lo guardado, campo por campo,
+con su coste y tiempo. Sirve para elegir estas variables con tus propias hojas. También muestra
+el gasto estimado por mes; el coste de cada lectura se guarda con la hoja.
 3. El usuario revisa y corrige lo leído.
 4. Se guarda en PostgreSQL, junto con la foto.
 

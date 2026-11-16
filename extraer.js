@@ -135,7 +135,7 @@ export async function extraerHoja(imagenBase64, mime) {
     try {
       const datos = p === "gemini" ? await conGemini(imagenBase64, mime) : await conClaude(imagenBase64, mime);
       console.log(`Lectura con ${p}: ${((Date.now() - inicio) / 1000).toFixed(1)} s, orden ${datos.numero_orden ?? "?"}`);
-      datos.lector = NOMBRES[p];
+      datos.lector ??= NOMBRES[p];
       if (ultimo) datos.dudas = [...(datos.dudas ?? []), `Leída con ${NOMBRES[p]} porque ${NOMBRES[lista[0]]} no estaba disponible: ${ultimo.message}.`];
       datos.dudas = [...(datos.dudas ?? []), ...verificar(datos)];
       return datos;
@@ -252,11 +252,80 @@ async function conGemini(imagenBase64, mime) {
 
 let cliente;
 
+// Modelos de Claude y su precio en dólares por millón de tokens (entrada, salida), para estimar
+// el coste de cada foto. La salida incluye el razonamiento del modelo.
+export const MODELOS = { haiku: "claude-haiku-5-5", sonnet: "claude-sonnet-5-5", opus: "claude-opus-5-5" };
+const PRECIOS = { "claude-haiku-5-5": [0.1, 0.5], "claude-sonnet-5-5": [2, 10], "claude-opus-5-5": [4, 20] };
+const NOMBRE_MODELO = { "claude-haiku-5-5": "Haiku", "claude-sonnet-5-5": "Sonnet", "claude-opus-5-5": "Opus" };
+const ESFUERZOS = ["low", "medium", "high"];
+
+// "haiku:medium" → { modelo: "claude-haiku-5-5", esfuerzo: "medium" }
+export function configClaude(texto) {
+  const [m, e] = String(texto ?? "").toLowerCase().split(":");
+  const modelo = MODELOS[m];
+  const esfuerzo = ESFUERZOS.includes(e) ? e : "medium";
+  return modelo ? { modelo, esfuerzo, etiqueta: `${m}:${esfuerzo}` } : null;
+}
+
+// Por defecto lee Haiku (barato) y solo se relee con Opus cuando la lectura de Haiku tiene fallos
+// objetivos. CLAUDE_LECTURA y CLAUDE_RELEER lo cambian; CLAUDE_RELEER=no lo desactiva.
+const principal = () => configClaude(process.env.CLAUDE_LECTURA || "haiku:medium") ?? configClaude("haiku:medium");
+const releer = () => (process.env.CLAUDE_RELEER === "no" ? null : configClaude(process.env.CLAUDE_RELEER || "opus:medium"));
+
+// Fallos que no dependen de la opinión del modelo: si aparecen, vale la pena una segunda lectura.
+export function motivosParaReleer(d) {
+  const motivos = [];
+  if (!d.numero_orden) motivos.push("no leyó el número de orden");
+  if (!d.seccion) motivos.push("no leyó la sección");
+  if (!d.articulos?.length) motivos.push("no encontró artículos");
+  if (d.articulos?.length && !d.articulos.some((a) => a.registros?.length)) motivos.push("no encontró registros manuscritos");
+  motivos.push(...verificar(d));
+  return motivos;
+}
+
 async function conClaude(imagenBase64, mime) {
+  const p = principal(), r = releer();
+  let primera;
+  try {
+    primera = await leerConClaude(imagenBase64, mime, p);
+  } catch (err) {
+    // Si el modelo barato declina o no responde bien, se intenta una vez con el de relectura.
+    if (!r || r.modelo === p.modelo || (err instanceof ErrorDeLectura && err.apagar)) throw err;
+    console.error(`Claude ${p.etiqueta} falló (${err.message}); se relee con ${r.etiqueta}.`);
+    const segunda = await leerConClaude(imagenBase64, mime, r);
+    segunda.datos.dudas = [...(segunda.datos.dudas ?? []), `Leída con ${NOMBRE_MODELO[r.modelo]} porque ${NOMBRE_MODELO[p.modelo]} no pudo: ${err.message.replace(/\.+$/, "")}.`];
+    return conUso(segunda.datos, [segunda.uso]);
+  }
+  const motivos = r && r.modelo !== p.modelo ? motivosParaReleer(primera.datos) : [];
+  if (!motivos.length) return conUso(primera.datos, [primera.uso]);
+  console.log(`Claude ${p.etiqueta}: ${motivos.join("; ")}. Se relee con ${r.etiqueta}.`);
+  try {
+    const segunda = await leerConClaude(imagenBase64, mime, r);
+    segunda.datos.dudas = [...(segunda.datos.dudas ?? []), `Releída con ${NOMBRE_MODELO[r.modelo]} porque la primera lectura ${motivos[0].charAt(0).toLowerCase() + motivos[0].slice(1)}.`];
+    return conUso(segunda.datos, [primera.uso, segunda.uso]);
+  } catch (err) {
+    console.error(`La relectura con ${r.etiqueta} falló: ${err.message}`);
+    return conUso(primera.datos, [primera.uso]);
+  }
+}
+
+function conUso(datos, usos) {
+  datos.uso = {
+    modelos: usos.map((u) => u.etiqueta).join(" → "),
+    entrada: usos.reduce((s, u) => s + u.entrada, 0),
+    salida: usos.reduce((s, u) => s + u.salida, 0),
+    costo: Number(usos.reduce((s, u) => s + u.costo, 0).toFixed(5)),
+  };
+  datos.lector = "Claude " + usos.map((u) => NOMBRE_MODELO[u.modelo]).join(" → ");
+  return datos;
+}
+
+// Una lectura con un modelo y esfuerzo concretos. Devuelve los datos y lo que costó.
+export async function leerConClaude(imagenBase64, mime, cfg) {
   cliente ??= new Anthropic();
   let respuesta;
   try {
-    respuesta = await pedirAClaude(imagenBase64, mime);
+    respuesta = await pedirAClaude(imagenBase64, mime, cfg);
   } catch (err) {
     if (!(err instanceof Anthropic.APIError) || err.status == null) throw err;
     const texto = String(err.message ?? "");
@@ -271,17 +340,23 @@ async function conClaude(imagenBase64, mime) {
   if (respuesta.stop_reason === "refusal" || !respuesta.parsed_output) {
     throw new ErrorDeLectura("Claude no pudo leer la imagen (" + respuesta.stop_reason + "). Prueba con otra foto.");
   }
-  return respuesta.parsed_output;
+  const [pe, ps] = PRECIOS[cfg.modelo];
+  const entrada = respuesta.usage.input_tokens + (respuesta.usage.cache_read_input_tokens ?? 0) + (respuesta.usage.cache_creation_input_tokens ?? 0);
+  const salida = respuesta.usage.output_tokens;
+  return {
+    datos: respuesta.parsed_output,
+    uso: { etiqueta: cfg.etiqueta, modelo: cfg.modelo, entrada, salida, costo: (entrada * pe + salida * ps) / 1e6 },
+  };
 }
 
-function pedirAClaude(imagenBase64, mime) {
+function pedirAClaude(imagenBase64, mime, cfg) {
+  // Haiku 5.5 no tiene respaldo en el servidor; Sonnet y Opus sí, por si declinan la foto.
+  const respaldo = cfg.modelo === MODELOS.haiku ? {} : { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" };
   return cliente.beta.messages.parse({
-    model: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
+    model: cfg.modelo,
     max_tokens: 16000,
-    output_config: { effort: "high", format: zodOutputFormat(HojaSchema) },
-    // Si el modelo principal declina la petición, la API la reintenta en el modelo de respaldo.
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
+    output_config: { effort: cfg.esfuerzo, format: zodOutputFormat(HojaSchema) },
+    ...respaldo,
     system: INSTRUCCIONES,
     messages: [
       {

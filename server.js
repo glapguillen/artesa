@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { accesoActivo, entrar, estado, exigirSesion, salir } from "./acceso.js";
-import { ErrorDeLectura, extraerHoja, motivoSinIA, proveedor, proveedores } from "./extraer.js";
+import { ErrorDeLectura, configClaude, extraerHoja, leerConClaude, motivoSinIA, proveedor, proveedores } from "./extraer.js";
 import { ErrorDeDatos, catalogo, detalleOrden, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
 
 const MIMES = ["image/jpeg", "image/png", "image/webp"];
@@ -46,6 +46,35 @@ app.post("/api/extraer", async (req, res) => {
   const datos = await extraerHoja(imagen, mime);
   const existente = await hojaExistente(datos.numero_orden, datos.seccion);
   res.json({ datos, ya_registrada: existente?.registrada_en ?? null });
+});
+
+// Comparación de modelos: lee la misma foto con cada configuración pedida ("haiku:low", ...).
+// Cuesta lo que sumen las lecturas, por eso solo admite hasta seis configuraciones conocidas.
+app.post("/api/comparar", async (req, res) => {
+  if (!process.env.ANTHROPIC_API_KEY) throw new ErrorDeDatos("Falta ANTHROPIC_API_KEY en el servidor");
+  const { imagen, mime } = imagenDe(req.body);
+  const configs = [...new Set(req.body.configs ?? [])].map(configClaude).filter(Boolean).slice(0, 6);
+  if (!configs.length) throw new ErrorDeDatos("Elige al menos un modelo");
+  const resultados = await Promise.all(configs.map(async (cfg) => {
+    const inicio = Date.now();
+    try {
+      const { datos, uso } = await leerConClaude(imagen, mime, cfg);
+      return { config: cfg.etiqueta, datos, uso, segundos: (Date.now() - inicio) / 1000 };
+    } catch (err) {
+      return { config: cfg.etiqueta, error: err.message, segundos: (Date.now() - inicio) / 1000 };
+    }
+  }));
+  res.json({ resultados });
+});
+
+// Gasto estimado en lecturas con Claude, por mes (del coste guardado con cada hoja).
+app.get("/api/costos", async (_req, res) => {
+  const { rows } = await pool.query(`
+    SELECT to_char(registrada_en, 'YYYY-MM') AS mes, count(*)::int AS hojas,
+           round(sum((extraccion->'uso'->>'costo')::numeric), 4)::float AS costo
+      FROM hojas WHERE extraccion ? 'uso' AND registrada_en IS NOT NULL
+     GROUP BY 1 ORDER BY 1 DESC LIMIT 12`);
+  res.json(rows);
 });
 
 // Guarda la hoja revisada (con la foto, si se envía).
