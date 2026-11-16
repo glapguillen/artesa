@@ -267,9 +267,10 @@ export function configClaude(texto) {
   return modelo ? { modelo, esfuerzo, etiqueta: `${m}:${esfuerzo}` } : null;
 }
 
-// Por defecto lee Haiku (barato) y solo se relee con Opus cuando la lectura de Haiku tiene fallos
+// Por defecto lee Sonnet medio (en la comparación con hojas reales acertó lo mismo que Opus por
+// menos de la mitad) y solo se relee con Opus cuando la primera lectura tiene fallos
 // objetivos. CLAUDE_LECTURA y CLAUDE_RELEER lo cambian; CLAUDE_RELEER=no lo desactiva.
-const principal = () => configClaude(process.env.CLAUDE_LECTURA || "haiku:medium") ?? configClaude("haiku:medium");
+const principal = () => configClaude(process.env.CLAUDE_LECTURA || "sonnet:medium") ?? configClaude("sonnet:medium");
 const releer = () => (process.env.CLAUDE_RELEER === "no" ? null : configClaude(process.env.CLAUDE_RELEER || "opus:medium"));
 
 // Fallos que no dependen de la opinión del modelo: si aparecen, vale la pena una segunda lectura.
