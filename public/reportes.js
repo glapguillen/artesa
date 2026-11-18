@@ -124,7 +124,7 @@ function definirTabla(id, columnas, filas, vacia) {
 const barraH = (v, max) => `<div class="hbarra"><span style="min-width:2ch">${fmt.n(v)}</span><div class="pista"><div class="lleno" style="width:${max ? (100 * v) / max : 0}%"></div></div></div>`;
 
 // ---------- Exportar a CSV ----------
-function exportarCSV(m) {
+function exportarCSV(m, nombre = "registros") {
   const cols = ["fecha", "orden", "cliente", "seccion", "equipo", "codigo_bizcocho", "bizcocho", "codigo_decoracion", "decoracion",
     "cantidad", "hora_inicio", "hora_fin", "personas", "horas_persona", "minutos_estandar_pieza"];
   const celda = (v) => { const s = v == null ? "" : String(v); return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -133,7 +133,7 @@ function exportarCSV(m) {
   const blob = new Blob(["﻿" + [cols.join(","), ...filas].join("\n")], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `artesa-registros-${periodo.desde}-a-${periodo.hasta}.csv`;
+  a.download = `artesa-${nombre}-${periodo.desde}-a-${periodo.hasta}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
@@ -155,6 +155,7 @@ async function pintarReportes() {
       <div class="kpi"><div class="valor">${fmt.n(k.hojasRegistradas)}</div><div class="etq">hojas registradas en el período</div></div>
     </div>
     <div class="panel"><h2>Piezas producidas por día</h2><div class="grafico" id="g-dias"></div></div>
+    <div class="panel" id="detalle-articulo"></div>
     <div class="panel"><h2>Por sección</h2>
       <p class="tenue" style="margin-top:0">"Esperando": órdenes cuya sección anterior ya entregó. "Bloqueadas": les falta una sección anterior.</p>
       ${definirTabla("secciones", [
@@ -201,6 +202,80 @@ async function pintarReportes() {
   ordenable(cont);
   $("#csv").onclick = () => exportarCSV(m);
   graficoDias($("#g-dias"), m.porDia);
+  await pintarDetalleArticulo(m, datos);
+}
+
+// ---------- Detalle por artículo ----------
+async function pintarDetalleArticulo(m, datos) {
+  const cont = $("#detalle-articulo");
+  const { articulosDelPeriodo, detalleArticulo } = await import("/metricas.js");
+  const lista = articulosDelPeriodo(m);
+  if (!lista.length) { cont.innerHTML = `<h2>Detalle por artículo</h2><p class="tenue">Sin registros en el período.</p>`; return; }
+  if (!lista.some((a) => a.clave === periodo.articulo)) periodo.articulo = lista[0].clave;
+  const d = detalleArticulo(m, datos, periodo.articulo);
+  const r = d.resumen;
+  const min = (x) => (x == null ? "—" : fmt.n(x, 1) + " min");
+  cont.innerHTML = `<h2>Detalle por artículo</h2>
+    <label>Artículo<select id="sel-articulo">${lista.map((a) =>
+      `<option value="${esc(a.clave)}" ${a.clave === periodo.articulo ? "selected" : ""}>${esc(a.codigo)} · ${esc(a.articulo)} (${fmt.n(a.piezas)} pzs)</option>`).join("")}</select></label>
+    <div class="kpis" style="margin-top:12px">
+      <div class="kpi"><div class="valor">${fmt.n(r.piezas)}</div><div class="etq">piezas en ${fmt.n(d.ordenes.length)} ${d.ordenes.length === 1 ? "orden" : "órdenes"}</div></div>
+      <div class="kpi"><div class="valor">${fmt.n(r.horasPersona, 1)}</div><div class="etq">horas-persona</div></div>
+      <div class="kpi"><div class="valor">${min(r.minPiezaRuta)}</div><div class="etq">por pieza, sumando ${r.seccionesConMinutos.length === 1 ? "su sección" : `sus ${r.seccionesConMinutos.length} secciones`}</div></div>
+      <div class="kpi"><div class="valor">${fmt.n(r.piezasHora, 1)}</div><div class="etq">piezas por hora-persona</div></div>
+      <div class="kpi"><div class="valor">${fmt.pct(r.tasaMalas)}</div><div class="etq">piezas malas (${fmt.n(r.malas)})</div></div>
+      <div class="kpi"><div class="valor">${fmt.n(r.dias)}</div><div class="etq">días con trabajo · ${fmt.fecha(r.desde)} a ${fmt.fecha(r.hasta)}</div></div>
+    </div>
+    <p class="tenue" style="margin-top:0">TIEMPO impreso en la hoja: ${d.tiempoImpreso.length ? d.tiempoImpreso.map((t) => fmt.n(t, 2)).join(", ") : "—"}.
+      ${r.sinHoras ? `${fmt.n(r.sinHoras)} registro(s) sin horas válidas no cuentan en horas ni minutos por pieza.` : ""}</p>
+    <h3>Por sección</h3>
+    ${definirTabla("art-secciones", [
+      { t: "Sección", v: (s) => s.seccion },
+      { t: "Piezas", v: (s) => s.piezas, num: true, f: (s) => fmt.n(s.piezas) },
+      { t: "Horas-persona", v: (s) => s.horasPersona, num: true, f: (s) => fmt.n(s.horasPersona, 1) },
+      { t: "Min/pieza", v: (s) => s.minPieza, num: true, f: (s) => min(s.minPieza) },
+      { t: "Pzs/hora", v: (s) => s.piezasHora, num: true, f: (s) => fmt.n(s.piezasHora, 1) },
+      { t: "Días", v: (s) => s.dias, num: true, f: (s) => fmt.n(s.dias) },
+      { t: "Malas", v: (s) => s.tasaMalas, num: true, f: (s) => `${fmt.n(s.malas)} (${fmt.pct(s.tasaMalas)})` },
+      { t: "Operarios", v: (s) => s.operarios },
+    ], d.porSeccion)}
+    <h3>Por operario</h3>
+    ${definirTabla("art-operarios", [
+      { t: "Operario(s)", v: (e) => e.equipo },
+      { t: "Sección", v: (e) => e.seccion },
+      { t: "Piezas", v: (e) => e.piezas, num: true, f: (e) => fmt.n(e.piezas) },
+      { t: "Horas-persona", v: (e) => e.horasPersona, num: true, f: (e) => fmt.n(e.horasPersona, 1) },
+      { t: "Min/pieza", v: (e) => e.minPieza, num: true, f: (e) => min(e.minPieza) },
+      { t: "Pzs/hora", v: (e) => e.piezasHora, num: true, f: (e) => fmt.n(e.piezasHora, 1) },
+      { t: "Días", v: (e) => e.dias, num: true, f: (e) => fmt.n(e.dias) },
+    ], d.porOperario)}
+    <h3>Por orden</h3>
+    ${definirTabla("art-ordenes", [
+      { t: "Orden", v: (o) => o.orden },
+      { t: "Cliente", v: (o) => o.cliente ?? "" },
+      { t: "Producir", v: (o) => o.producir, num: true, f: (o) => fmt.n(o.producir) },
+      { t: "Piezas registradas", v: (o) => o.piezas, num: true, f: (o) => fmt.n(o.piezas) },
+      { t: "Horas-persona", v: (o) => o.horasPersona, num: true, f: (o) => fmt.n(o.horasPersona, 1) },
+      { t: "Min/pieza", v: (o) => o.minPieza, num: true, f: (o) => min(o.minPieza) },
+      { t: "Secciones", v: (o) => o.secciones },
+    ], d.porOrden)}
+    <h3>Todos los registros</h3>
+    ${definirTabla("art-registros", [
+      { t: "Fecha", v: (x) => x.fecha, f: (x) => fmt.fecha(x.fecha) },
+      { t: "Orden", v: (x) => x.orden },
+      { t: "Sección", v: (x) => x.seccion },
+      { t: "Operario(s)", v: (x) => x.equipo },
+      { t: "Cant.", v: (x) => x.cantidad, num: true, f: (x) => fmt.n(x.cantidad) },
+      { t: "Inicio", v: (x) => x.hora_inicio ?? "", f: (x) => esc(x.hora_inicio ?? "—") },
+      { t: "Fin", v: (x) => x.hora_fin ?? "", f: (x) => esc(x.hora_fin ?? "—") + (x.horasValidas ? "" : ` <span class="tenue" title="Hora de fin vacía o anterior al inicio">⚠</span>`) },
+      { t: "Pers.", v: (x) => x.personas, num: true, f: (x) => fmt.n(x.personas ?? 1) },
+      { t: "Horas-persona", v: (x) => x.hp, num: true, f: (x) => fmt.n(x.hp, 2) },
+      { t: "Min/pieza", v: (x) => x.minPieza, num: true, f: (x) => min(x.minPieza) },
+    ], d.registros)}
+    <button class="boton mini" id="csv-articulo" type="button" style="margin-top:12px">Exportar este artículo (CSV)</button>`;
+  ordenable(cont);
+  $("#sel-articulo").onchange = (e) => { periodo.articulo = e.target.value; pintarDetalleArticulo(m, datos); };
+  $("#csv-articulo").onclick = () => exportarCSV({ regs: d.registros }, `articulo-${d.codigo || "sin-codigo"}`);
 }
 
 // ---------- Pestaña Insights ----------
@@ -219,7 +294,7 @@ async function pintarInsights() {
   let m, datos;
   try { ({ m, datos } = await metricas()); } catch (err) { cont.innerHTML = `<div class="nota error">${esc(err.message)}</div>`; return; }
   const { insights } = await import("/metricas.js");
-  const clave = JSON.stringify(periodo);
+  const clave = JSON.stringify({ ...periodo, articulo: undefined }); // cambiar de artículo no invalida el análisis
   const ia = analisisIA?.clave === clave ? analisisIA.resultado : null;
   cont.innerHTML = filtrosHTML(datos) + `
     <p class="tenue">Hallazgos calculados con reglas fijas sobre las hojas guardadas del período. No tienen coste.</p>

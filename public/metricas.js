@@ -146,6 +146,57 @@ export function calcular(datos, filtros = {}, hoy = new Date().toISOString().sli
   return { filtros, desde: datos.desde, hasta: datos.hasta, hoy, kpis, porDia, porSeccion, porEquipo, porArticulo, abiertas, regs };
 }
 
+// ---- Detalle por artículo ----
+// Un artículo es su código de bizcocho + decoración ("0944 626"); sin códigos, su nombre.
+export const claveArticulo = (x) => [x.codigo_bizcocho, x.codigo_decoracion].filter(Boolean).join(" ") || claveNombre(nombreArticulo(x));
+
+// Lista de artículos del período (para el selector), de más a menos piezas.
+export function articulosDelPeriodo(m) {
+  const mapa = new Map();
+  for (const r of m.regs) {
+    const k = claveArticulo(r);
+    if (!mapa.has(k)) mapa.set(k, { clave: k, codigo: [r.codigo_bizcocho, r.codigo_decoracion].filter(Boolean).join(" "), articulo: nombreArticulo(r), piezas: 0 });
+    mapa.get(k).piezas += r.cantidad;
+  }
+  return [...mapa.values()].sort((a, b) => b.piezas - a.piezas);
+}
+
+// Minutos reales por pieza = minutos-persona / piezas, solo con registros de horas válidas.
+const minPieza = (regs) => { const v = regs.filter((r) => r.horasValidas); return div(sumar(v, (r) => r.hp * 60), sumar(v, (r) => r.cantidad)); };
+
+export function detalleArticulo(m, datos, clave) {
+  const regs = m.regs.filter((r) => claveArticulo(r) === clave)
+    .map((r) => ({ ...r, minPieza: r.horasValidas && r.cantidad > 0 ? (r.hp * 60) / r.cantidad : null }))
+    .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)) || ordenSeccion(a.seccion) - ordenSeccion(b.seccion));
+  if (!regs.length) return null;
+  const malas = datos.malas.filter((x) => claveArticulo(x) === clave && (!m.filtros.seccion || x.seccion === m.filtros.seccion)
+    && (!m.filtros.cliente || x.cliente === m.filtros.cliente) && x.fecha && dia(x.fecha) >= m.desde && dia(x.fecha) <= m.hasta);
+  const ordenes = [...new Set(regs.map((r) => r.orden))];
+  const agrupar = (clave, extra) => {
+    const g = new Map();
+    for (const r of regs) { const k = clave(r); if (!g.has(k)) g.set(k, []); g.get(k).push(r); }
+    return [...g.entries()].map(([k, rs]) => ({ ...extra(k, rs), ...productividad(rs), minPieza: minPieza(rs), dias: new Set(rs.map((r) => r.fecha)).size }));
+  };
+  const malasDe = (filtro) => { const ms = malas.filter(filtro); return { malas: sumar(ms, (x) => x.malas), tasaMalas: div(sumar(ms, (x) => x.malas), sumar(ms, (x) => x.producidas)) }; };
+  const primero = regs[0];
+  const porSeccion = agrupar((r) => r.seccion, (s, rs) => ({ seccion: s, operarios: [...new Set(rs.map((r) => r.equipo))].join(", "), ...malasDe((x) => x.seccion === s) }))
+    .sort((a, b) => ordenSeccion(a.seccion) - ordenSeccion(b.seccion));
+  // Lo que cuesta una pieza en todo su recorrido: los minutos por pieza de cada sección, sumados.
+  const conMin = porSeccion.filter((s) => s.minPieza != null);
+  const minPiezaRuta = conMin.length ? sumar(conMin, (s) => s.minPieza) : null;
+  return {
+    clave, codigo: [primero.codigo_bizcocho, primero.codigo_decoracion].filter(Boolean).join(" "), articulo: nombreArticulo(primero),
+    ordenes, tiempoImpreso: [...new Set(regs.map((r) => r.tiempo_estandar).filter((x) => x != null))],
+    resumen: { ...productividad(regs), minPiezaRuta, seccionesConMinutos: conMin.map((s) => s.seccion), ...malasDe(() => true), dias: new Set(regs.map((r) => r.fecha)).size,
+      desde: primero.fecha, hasta: regs.at(-1).fecha, sinHoras: regs.filter((r) => !r.horasValidas).length },
+    porSeccion,
+    porOperario: agrupar((r) => claveNombre(r.equipo) + "|" + r.seccion, (_k, rs) => ({ equipo: rs[0].equipo, seccion: rs[0].seccion }))
+      .sort((a, b) => ordenSeccion(a.seccion) - ordenSeccion(b.seccion) || b.piezas - a.piezas),
+    porOrden: agrupar((r) => r.orden, (o, rs) => ({ orden: o, cliente: rs[0].cliente, producir: rs[0].cantidad_producir, secciones: [...new Set(rs.map((r) => r.seccion))].join(", ") })),
+    registros: regs,
+  };
+}
+
 const pct = (x) => Math.round(x * 100) + " %";
 
 // Hallazgos calculados con reglas fijas: gratis, reproducibles y con el dato que los sostiene.

@@ -106,6 +106,10 @@ Las dos pestañas comparten el período y los filtros (sección, cliente). Los c
   abiertas y completas; piezas por día; por sección, las órdenes **esperando** (su sección
   anterior en la ruta ya entregó) y **bloqueadas** (falta una anterior); órdenes abiertas por
   antigüedad; operarios por sección; calidad por artículo. Exporta los registros a CSV.
+- **Detalle por artículo** (dentro de Reportes): eliges un artículo y ves sus piezas,
+  horas-persona, minutos por pieza sumando todas sus secciones, piezas malas y días de trabajo;
+  el desglose por sección, por operario y por orden; y todos sus registros con fecha, horas,
+  personas, horas-persona y minutos por pieza. Se exporta a CSV.
 - **Insights**: hallazgos con reglas fijas y sin coste (cuello de botella, órdenes detenidas una
   semana o más, cambio de producción semanal, secciones y artículos con más piezas malas,
   diferencias grandes entre operarios de una sección, registros sin horas válidas). El botón

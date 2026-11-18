@@ -208,6 +208,19 @@ test("reportes: cola por sección, productividad, calidad e insights", async () 
   assert.ok(ins.some((i) => /sin avanzar/.test(i.titulo)));
   assert.ok(JSON.stringify(resumenParaIA(m)).length < 20_000);
   assert.equal(calcular(datos, { cliente: "OTRO CLIENTE" }).kpis.piezas, 0);
+  const { articulosDelPeriodo, detalleArticulo } = await import("../public/metricas.js");
+  const arts = articulosDelPeriodo(m);
+  assert.deepEqual(arts.map((a) => [a.clave, a.piezas]), [["0944 626", 24]]);
+  const d = detalleArticulo(m, { ...datos, malas: solo(datos.malas) }, "0944 626");
+  assert.equal(d.registros.length, 3);
+  assert.deepEqual(d.porSeccion.map((s) => s.seccion), ["SEÑALADO", "TRAZADO"]);
+  // Señalado: 12 piezas en 14 min con 1 persona → 1,17 min/pieza; Trazado: 6 piezas en 120 min-persona → 20.
+  assert.equal(d.porSeccion[0].minPieza.toFixed(2), "1.17");
+  assert.equal(d.porSeccion[1].minPieza, 20);
+  assert.equal(d.resumen.minPiezaRuta.toFixed(2), "21.17"); // 1,17 + 20 minutos por pieza
+  assert.equal(d.resumen.sinHoras, 1);
+  assert.equal(d.resumen.malas, 1);
+  assert.deepEqual(d.tiempoImpreso, [240]);
   const { claveNombre } = await import("../public/metricas.js");
   assert.equal(claveNombre("Ana Pérez"), claveNombre(" ana  perez "));
 });
