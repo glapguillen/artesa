@@ -138,7 +138,16 @@ export async function guardarHoja({ datos, extraccion, foto, fotoMime }) {
     // Volver a guardar la misma orden y sección reemplaza lo anterior.
     await db.query("DELETE FROM registros WHERE hoja_id = $1", [hojaId]);
     await db.query("DELETE FROM hoja_articulos WHERE hoja_id = $1", [hojaId]);
+    // Si dos artículos de la hoja son el mismo de la orden (p. ej. el día anotado fuera de la tabla
+    // llegó como un artículo aparte con el mismo código), sus registros y malas se juntan en uno.
+    const porId = new Map();
     for (const a of articulos) {
+      const previo = porId.get(a.id);
+      if (!previo) { porId.set(a.id, { ...a, registros: [...(a.registros ?? [])] }); continue; }
+      previo.registros.push(...(a.registros ?? []));
+      if (entero(a.malas) != null) previo.malas = (entero(previo.malas) ?? 0) + entero(a.malas);
+    }
+    for (const a of porId.values()) {
       await db.query("INSERT INTO hoja_articulos (hoja_id, articulo_id, malas) VALUES ($1, $2, $3)", [hojaId, a.id, entero(a.malas)]);
       for (const r of a.registros ?? []) {
         const vacio = [r.fecha, r.cantidad, r.hora_inicio, r.hora_fin, r.personas].every((v) => !texto(v));

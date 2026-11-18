@@ -54,6 +54,18 @@ test("volver a guardar la misma sección reemplaza los registros", async () => {
   assert.deepEqual(r.map((x) => x.cantidad), [10]);
 });
 
+test("junta los registros cuando la hoja trae dos veces el mismo artículo", async () => {
+  const datos = hoja("TRAZADO", "Ana Perez", [{ fecha: "2026-09-14", cantidad: 8, hora_inicio: "15:00", hora_fin: "16:00" }]);
+  // el cuarto día, fuera de la tabla, leído como otro artículo con el mismo código
+  datos.articulos.push(articulo([{ fecha: "2026-09-15", cantidad: 4, hora_inicio: "07:00", hora_fin: "08:00" }], "1"));
+  await guardarHoja({ datos });
+  const o = await detalleOrden(ORDEN);
+  assert.equal(o.articulos.length, 1);
+  const h = o.hojas.find((x) => x.seccion === "TRAZADO").articulos[0];
+  assert.deepEqual(h.registros.map((r) => [r.fecha, r.cantidad]), [["2026-09-14", 8], ["2026-09-15", 4]]);
+  assert.equal(h.malas, 1);
+});
+
 test("rechaza hojas sin orden o sin sección", async () => {
   await assert.rejects(guardarHoja({ datos: { ...hoja("TRAZADO", "", []), numero_orden: " " } }), /orden/);
   await assert.rejects(guardarHoja({ datos: { ...hoja("", "", []) } }), /sección/);
