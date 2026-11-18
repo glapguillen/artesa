@@ -15,8 +15,37 @@
       --fondo: #1b1816; --panel: #25211e; --tinta: #efe8df; --tenue: #a69a8e; --linea: #3a342f;
       --acento: #6db4d6; --acento-tinta: #10222c; --ok: #7fd0a0; --ok-fondo: #1f3a2b;
       --pend-fondo: #322c27; --aviso: #f0c66a; --aviso-fondo: #3d3118; --error: #f19a93; --error-fondo: #43221f;
+      --serie: #3987e5; --rejilla: #34302c;
     }
   }
+  :root { --serie: #2a78d6; --rejilla: #ece5da; }
+  @media (prefers-color-scheme: dark) { :root { --serie: #3987e5; --rejilla: #34302c; } }
+  nav { overflow-x: auto; scrollbar-width: none; }
+  nav button { white-space: nowrap; }
+  .filtros { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+  .filtros label { min-width: 140px; flex: 1; }
+  .filtros select { width: 100%; min-height: 40px; padding: 6px 9px; border: 1px solid var(--linea); border-radius: 6px; background: var(--fondo); color: var(--tinta); font: inherit; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kpi { background: var(--panel); border: 1px solid var(--linea); border-radius: 10px; padding: 12px 14px; }
+  .kpi .valor { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .kpi .etq { font-size: 13px; color: var(--tenue); }
+  .grafico { position: relative; }
+  .grafico svg { display: block; width: 100%; overflow: visible; }
+  .grafico .eje { fill: var(--tenue); font-size: 11px; }
+  .grafico .rejilla { stroke: var(--rejilla); stroke-width: 1; }
+  .grafico .barra { fill: var(--serie); }
+  .grafico .zona:hover + .barra, .grafico .barra.activa { opacity: .8; }
+  .tip { position: absolute; pointer-events: none; background: var(--tinta); color: var(--panel); font-size: 13px; padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -110%); }
+  .hbarra { display: flex; align-items: center; gap: 8px; }
+  .hbarra .pista { flex: 1; background: var(--rejilla); border-radius: 4px; height: 10px; min-width: 60px; }
+  .hbarra .lleno { background: var(--serie); height: 100%; border-radius: 4px; }
+  th.ordenable { cursor: pointer; } th.ordenable::after { content: " ↕"; opacity: .5; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .insight { border-left: 4px solid var(--linea); }
+  .insight.alta { border-left-color: var(--error); } .insight.media { border-left-color: var(--aviso); } .insight.baja { border-left-color: var(--ok); }
+  .prioridad { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .prioridad.alta { color: var(--error); } .prioridad.media { color: var(--aviso); } .prioridad.baja { color: var(--ok); }
+  .accion { margin-top: 6px; font-size: 14px; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--fondo); color: var(--tinta); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
   header { position: sticky; top: 0; z-index: 2; background: var(--panel); border-bottom: 1px solid var(--linea); }
@@ -83,6 +112,8 @@
     <nav role="tablist">
       <button role="tab" id="tab-capturar" aria-selected="true">Capturar</button>
       <button role="tab" id="tab-ordenes" aria-selected="false">Órdenes</button>
+      <button role="tab" id="tab-reportes" aria-selected="false">Reportes</button>
+      <button role="tab" id="tab-insights" aria-selected="false">Insights</button>
       <button role="tab" id="tab-catalogo" aria-selected="false">Catálogo</button>
     </nav>
   </div>
@@ -113,10 +144,13 @@
   </section>
 
   <section id="ordenes" hidden></section>
+  <section id="reportes" hidden></section>
+  <section id="insights" hidden></section>
   <section id="catalogo" hidden></section>
 </main>
 
 <script src="/fotos.js"></script>
+<script src="/reportes.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -181,13 +215,17 @@ api("/api/sesion").then((s) => { if (!s.dentro) pedirClave(); }).catch(() => {})
 // ---------- Pestañas ----------
 function mostrar(pestana) {
   if (!$("#acceso").hidden) return;
-  for (const p of ["capturar", "ordenes", "catalogo"]) {
+  for (const p of ["capturar", "ordenes", "reportes", "insights", "catalogo"]) {
     $("#" + p).hidden = p !== pestana;
     $("#tab-" + p).setAttribute("aria-selected", p === pestana);
   }
   if (pestana === "ordenes") listarOrdenes();
+  if (pestana === "reportes") pintarReportes();
+  if (pestana === "insights") pintarInsights();
   if (pestana === "catalogo") pintarCatalogo();
 }
+$("#tab-reportes").onclick = () => mostrar("reportes");
+$("#tab-insights").onclick = () => mostrar("insights");
 $("#tab-capturar").onclick = () => mostrar("capturar");
 $("#tab-ordenes").onclick = () => mostrar("ordenes");
 $("#tab-catalogo").onclick = () => mostrar("catalogo");

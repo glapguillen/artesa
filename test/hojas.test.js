@@ -173,3 +173,41 @@ test("lectura con IA: elige el proveedor según las claves", async () => {
   assert.ok(!JSON.stringify(ESQUEMA_JSON).includes("anyOf"));
   assert.deepEqual(ESQUEMA_JSON.properties.numero_orden.type, ["string", "null"]);
 });
+
+test("reportes: cola por sección, productividad, calidad e insights", async () => {
+  const { datosReportes } = await import("../db.js");
+  const { calcular, insights, resumenParaIA } = await import("../public/metricas.js");
+  await limpiar();
+  // Señalado y Trazado entregados; Decorado pendiente (espera) y Esmalt pendiente (bloqueada).
+  const s = hoja("SEÑALADO", "Ana Perez", [{ fecha: "2026-09-14", cantidad: 12, hora_inicio: "15:38", hora_fin: "15:52" }]);
+  s.articulos[0].malas = "1";
+  await guardarHoja({ datos: s });
+  await guardarHoja({ datos: hoja("TRAZADO", "Ana Perez", [
+    { fecha: "2026-09-14", cantidad: 6, hora_inicio: "15:00", hora_fin: "16:00", personas: 2 },
+    { fecha: "2026-09-16", cantidad: 6, hora_inicio: "10:00", hora_fin: "09:00" }, // hora imposible: no cuenta para horas
+  ]) });
+  const datos = await datosReportes("2026-09-01", "2026-09-30");
+  const solo = (xs) => xs.filter((x) => x.orden === ORDEN); // la base puede tener otras órdenes
+  const m = calcular({ ...datos, registros: solo(datos.registros), hojas: solo(datos.hojas), malas: solo(datos.malas) }, {}, "2026-09-30");
+
+  assert.equal(m.kpis.piezas, 24);
+  assert.equal(m.kpis.registrosSinHoras, 1);
+  assert.deepEqual(m.porDia.map((d) => [d.fecha, d.piezas]), [["2026-09-14", 18], ["2026-09-15", 0], ["2026-09-16", 6]]);
+  const tr = m.porSeccion.find((x) => x.seccion === "TRAZADO");
+  assert.equal(tr.horasPersona, 2);          // 1 h × 2 personas; el registro imposible no suma
+  assert.equal(tr.piezasHora, 3);            // 6 piezas / 2 horas-persona
+  assert.equal(Math.round(tr.eficiencia * 100), 100); // 6 piezas × 20 min estándar = 120 min reales
+  const sen = m.porSeccion.find((x) => x.seccion === "SEÑALADO");
+  assert.equal(Math.round(sen.tasaMalas * 1000), 83); // 1 mala de 12
+  assert.equal(m.porSeccion.find((x) => x.seccion === "DECORADO").esperando, 1);
+  assert.equal(m.porSeccion.find((x) => x.seccion === "ESMALT").bloqueadas, 1);
+  assert.deepEqual(m.abiertas.map((o) => [o.orden, o.siguiente, o.hechas, o.total, o.diasSinActividad]), [[ORDEN, "DECORADO", 2, 4, 14]]);
+
+  const ins = insights(m);
+  assert.ok(ins.some((i) => /Cuello de botella en DECORADO/.test(i.titulo)));
+  assert.ok(ins.some((i) => /sin avanzar/.test(i.titulo)));
+  assert.ok(JSON.stringify(resumenParaIA(m)).length < 20_000);
+  assert.equal(calcular(datos, { cliente: "OTRO CLIENTE" }).kpis.piezas, 0);
+  const { claveNombre } = await import("../public/metricas.js");
+  assert.equal(claveNombre("Ana Pérez"), claveNombre(" ana  perez "));
+});

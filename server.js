@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { accesoActivo, entrar, estado, exigirSesion, salir } from "./acceso.js";
 import { ErrorDeLectura, configClaude, extraerHoja, leerConClaude, motivoSinIA, proveedor, proveedores } from "./extraer.js";
-import { ErrorDeDatos, catalogo, detalleOrden, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
+import { ErrorDeDatos, catalogo, datosReportes, detalleOrden, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
 
 const MIMES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -90,6 +90,26 @@ app.put("/api/catalogo/:tipo/:codigo", async (req, res) =>
   res.json(await guardarEnCatalogo(req.params.tipo, req.params.codigo, req.body?.nombre)));
 
 app.get("/api/ordenes", async (_req, res) => res.json(await listarOrdenes()));
+
+app.get("/api/reportes", async (req, res) => res.json(await datosReportes(req.query.desde, req.query.hasta)));
+
+// Insights redactados por Claude a partir del resumen numérico de la pestaña (sin fotos).
+app.post("/api/insights-ia", async (req, res) => {
+  if (!process.env.ANTHROPIC_API_KEY) throw new ErrorDeDatos("El análisis con Claude necesita ANTHROPIC_API_KEY en el servidor");
+  const resumen = req.body?.resumen;
+  if (!resumen || typeof resumen !== "object") throw new ErrorDeDatos("Falta el resumen del período");
+  if (JSON.stringify(resumen).length > 60_000) throw new ErrorDeDatos("El resumen es demasiado grande; acorta el período");
+  const { analizarConClaude } = await import("./analisis.js");
+  try {
+    res.json(await analizarConClaude(resumen));
+  } catch (err) {
+    const msg = err.status === 401 ? "La clave de la API de Anthropic no es válida"
+      : err.status === 400 && /credit|billing|balance/i.test(err.message ?? "") ? "La cuenta de Anthropic no tiene saldo"
+      : err.status === 429 ? "La API de Anthropic llegó a su límite de uso; prueba en un momento"
+      : "No se pudo hacer el análisis: " + String(err.message ?? err).slice(0, 200);
+    res.status(500).json({ error: msg }); // 500, no 502: la página reintenta sola los 502 de Render
+  }
+});
 
 app.get("/api/ordenes/:numero", async (req, res) => {
   const orden = await detalleOrden(req.params.numero);

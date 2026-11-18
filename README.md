@@ -96,3 +96,23 @@ en la revisión. Un nombre que es parte del que ya hay (foto cortada) no lo reem
 ```bash
 npm test    # usa la base de DATABASE_URL
 ```
+
+## Reportes e Insights
+
+Las dos pestañas comparten el período y los filtros (sección, cliente). Los cálculos están en
+`public/metricas.js` y se hacen en el navegador con las filas de `/api/reportes`.
+
+- **Reportes**: piezas producidas, piezas por hora-persona, % de piezas malas, órdenes
+  abiertas y completas; piezas por día; por sección, las órdenes **esperando** (su sección
+  anterior en la ruta ya entregó) y **bloqueadas** (falta una anterior); órdenes abiertas por
+  antigüedad; operarios por sección; calidad por artículo. Exporta los registros a CSV.
+- **Insights**: hallazgos con reglas fijas y sin coste (cuello de botella, órdenes detenidas una
+  semana o más, cambio de producción semanal, secciones y artículos con más piezas malas,
+  diferencias grandes entre operarios de una sección, registros sin horas válidas). El botón
+  **Analizar con Claude** envía solo el resumen numérico, sin fotos, y cuesta en torno a un
+  céntimo; el modelo se elige con `INSIGHTS_MODELO` (por defecto `sonnet:medium`).
+
+Horas-persona = (fin − inicio) × personas; un registro con la hora de fin igual o anterior a
+la de inicio no cuenta para productividad. Los operarios se agrupan sin distinguir tildes ni
+mayúsculas. La eficiencia frente al TIEMPO impreso no se muestra: ese número es el mismo en
+las hojas de todas las secciones, así que no es el tiempo estándar de cada una.

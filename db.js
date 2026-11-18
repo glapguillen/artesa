@@ -212,6 +212,47 @@ export async function guardarEnCatalogo(tipo, codigo, nombre) {
   return { ok: true };
 }
 
+// Datos para Reportes e Insights, en filas planas: el navegador agrupa y filtra sin volver a pedir.
+// Fechas de registro entre `desde` y `hasta` (incluidas); las hojas y órdenes van todas, para ver
+// lo pendiente aunque no tenga registros en el rango.
+export async function datosReportes(desde, hasta) {
+  const d = fecha(desde) ?? "1900-01-01", h = fecha(hasta) ?? "2999-12-31";
+  const [registros, hojas, malas] = await Promise.all([
+    pool.query(
+      `SELECT r.fecha, s.nombre AS seccion, o.numero AS orden, o.cliente, o.fecha_emision,
+              a.id AS articulo_id, a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion,
+              a.cantidad_producir, a.tiempo_estandar,
+              h.operario1, h.operario2, r.cantidad, r.hora_inicio, r.hora_fin, r.personas
+         FROM registros r
+         JOIN hojas h ON h.id = r.hoja_id
+         JOIN secciones s ON s.id = h.seccion_id
+         JOIN ordenes o ON o.id = h.orden_id
+         JOIN orden_articulos a ON a.id = r.articulo_id
+        WHERE r.fecha BETWEEN $1 AND $2
+        ORDER BY r.fecha`,
+      [d, h],
+    ),
+    pool.query(
+      `SELECT o.numero AS orden, o.cliente, o.fecha_emision, s.nombre AS seccion, s.letra, h.estado,
+              h.registrada_en::date AS registrada_en, h.operario1, h.operario2,
+              (SELECT max(r.fecha) FROM registros r WHERE r.hoja_id = h.id) AS ultimo_registro,
+              (SELECT max(a.ruta) FROM orden_articulos a WHERE a.orden_id = o.id) AS ruta
+         FROM hojas h JOIN ordenes o ON o.id = h.orden_id JOIN secciones s ON s.id = h.seccion_id`,
+    ),
+    pool.query(
+      `SELECT s.nombre AS seccion, o.numero AS orden, o.cliente, a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion,
+              h.operario1, h.operario2, ha.malas,
+              (SELECT coalesce(sum(r.cantidad), 0) FROM registros r WHERE r.hoja_id = h.id AND r.articulo_id = a.id)::int AS producidas,
+              (SELECT max(r.fecha) FROM registros r WHERE r.hoja_id = h.id AND r.articulo_id = a.id) AS fecha
+         FROM hoja_articulos ha
+         JOIN hojas h ON h.id = ha.hoja_id JOIN secciones s ON s.id = h.seccion_id
+         JOIN ordenes o ON o.id = h.orden_id JOIN orden_articulos a ON a.id = ha.articulo_id
+        WHERE h.estado = 'registrada'`,
+    ),
+  ]);
+  return { desde: d, hasta: h, registros: registros.rows, hojas: hojas.rows, malas: malas.rows };
+}
+
 export async function listarOrdenes() {
   const { rows } = await pool.query(
     `SELECT o.numero, o.fecha_emision, o.cliente, o.observaciones,
