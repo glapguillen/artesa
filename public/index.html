@@ -47,6 +47,10 @@
   .prioridad.alta { color: var(--error); } .prioridad.media { color: var(--aviso); } .prioridad.baja { color: var(--ok); }
   .accion { margin-top: 6px; font-size: 14px; }
   #detalle-articulo h3 { margin-top: 18px; }
+  .chip-boton { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--linea); background: var(--panel); color: var(--tinta); cursor: pointer; }
+  .chip-boton.activo { border-color: var(--acento); background: var(--acento); color: var(--acento-tinta); }
+  .chip-boton.activo .tenue { color: inherit; opacity: .8; }
+  a.boton { text-decoration: none; }
   #detalle-articulo select { width: 100%; min-height: 40px; padding: 6px 9px; border: 1px solid var(--linea); border-radius: 6px; background: var(--fondo); color: var(--tinta); font: inherit; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--fondo); color: var(--tinta); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -117,6 +121,7 @@
       <button role="tab" id="tab-reportes" aria-selected="false">Reportes</button>
       <button role="tab" id="tab-insights" aria-selected="false">Insights</button>
       <button role="tab" id="tab-catalogo" aria-selected="false">Catálogo</button>
+      <button role="tab" id="tab-base" aria-selected="false">Base de datos</button>
     </nav>
   </div>
 </header>
@@ -149,10 +154,12 @@
   <section id="reportes" hidden></section>
   <section id="insights" hidden></section>
   <section id="catalogo" hidden></section>
+  <section id="base" hidden></section>
 </main>
 
 <script src="/fotos.js"></script>
 <script src="/reportes.js"></script>
+<script src="/base.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -217,7 +224,7 @@ api("/api/sesion").then((s) => { if (!s.dentro) pedirClave(); }).catch(() => {})
 // ---------- Pestañas ----------
 function mostrar(pestana) {
   if (!$("#acceso").hidden) return;
-  for (const p of ["capturar", "ordenes", "reportes", "insights", "catalogo"]) {
+  for (const p of ["capturar", "ordenes", "reportes", "insights", "catalogo", "base"]) {
     $("#" + p).hidden = p !== pestana;
     $("#tab-" + p).setAttribute("aria-selected", p === pestana);
   }
@@ -225,7 +232,9 @@ function mostrar(pestana) {
   if (pestana === "reportes") pintarReportes();
   if (pestana === "insights") pintarInsights();
   if (pestana === "catalogo") pintarCatalogo();
+  if (pestana === "base") pintarBase();
 }
+$("#tab-base").onclick = () => mostrar("base");
 $("#tab-reportes").onclick = () => mostrar("reportes");
 $("#tab-insights").onclick = () => mostrar("insights");
 $("#tab-capturar").onclick = () => mostrar("capturar");

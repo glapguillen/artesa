@@ -253,6 +253,113 @@ export async function datosReportes(desde, hasta) {
   return { desde: d, hasta: h, registros: registros.rows, hojas: hojas.rows, malas: malas.rows };
 }
 
+// ---- Base completa: una tabla por hoja de Excel ----
+// Cada entrada: nombre de la hoja, columnas [clave, título, tipo] y la consulta. Tipos: fecha,
+// numero, entero o texto (por defecto); sirven para que Excel reciba fechas y números de verdad.
+const MINUTOS = (c) => `(extract(hour from ${c}) * 60 + extract(minute from ${c}))`;
+export const TABLAS_BASE = [
+  {
+    hoja: "Registros", busca: ["o.numero", "o.cliente", "s.nombre", "h.operario1", "h.operario2", "a.bizcocho", "a.decoracion", "a.codigo"],
+    columnas: [
+      ["fecha", "Fecha", "fecha"], ["orden", "Orden"], ["cliente", "Cliente"], ["seccion", "Sección"],
+      ["operario1", "Operario 1"], ["operario2", "Operario 2"],
+      ["codigo_bizcocho", "Cód. bizcocho"], ["bizcocho", "Bizcocho"], ["codigo_decoracion", "Cód. decoración"], ["decoracion", "Decoración"],
+      ["cantidad", "Cantidad", "entero"], ["hora_inicio", "Hora inicio"], ["hora_fin", "Hora fin"], ["personas", "Personas", "entero"],
+      ["horas_persona", "Horas-persona", "numero"], ["min_pieza", "Min/pieza", "numero"],
+      ["cantidad_producir", "Producir (orden)", "entero"], ["tiempo_estandar", "Tiempo impreso", "numero"], ["ruta", "Ruta"], ["fecha_emision", "Emisión orden", "fecha"],
+    ],
+    sql: `SELECT r.fecha, o.numero AS orden, o.cliente, s.nombre AS seccion, h.operario1, h.operario2,
+            a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion, r.cantidad,
+            to_char(r.hora_inicio, 'HH24:MI') AS hora_inicio, to_char(r.hora_fin, 'HH24:MI') AS hora_fin, r.personas,
+            CASE WHEN r.hora_fin > r.hora_inicio THEN round(((${MINUTOS("r.hora_fin")} - ${MINUTOS("r.hora_inicio")}) / 60.0 * coalesce(nullif(r.personas, 0), 1))::numeric, 2) END AS horas_persona,
+            CASE WHEN r.hora_fin > r.hora_inicio AND r.cantidad > 0 THEN round(((${MINUTOS("r.hora_fin")} - ${MINUTOS("r.hora_inicio")}) * coalesce(nullif(r.personas, 0), 1) / r.cantidad::numeric), 2) END AS min_pieza,
+            a.cantidad_producir, a.tiempo_estandar, a.ruta, o.fecha_emision
+       FROM registros r JOIN hojas h ON h.id = r.hoja_id JOIN secciones s ON s.id = h.seccion_id
+       JOIN ordenes o ON o.id = h.orden_id JOIN orden_articulos a ON a.id = r.articulo_id
+      WHERE $BUSCA ORDER BY r.fecha DESC NULLS LAST, o.numero, s.id`,
+  },
+  {
+    hoja: "Hojas", busca: ["o.numero", "o.cliente", "s.nombre", "h.operario1", "h.operario2", "h.notas"],
+    columnas: [
+      ["orden", "Orden"], ["cliente", "Cliente"], ["seccion", "Sección"], ["estado", "Estado"], ["operario1", "Operario 1"], ["operario2", "Operario 2"],
+      ["piezas", "Piezas registradas", "entero"], ["malas", "Malas", "entero"], ["notas", "Notas"],
+      ["registrada_en", "Guardada el", "fecha"], ["lector", "Leída con"], ["costo_lectura", "Coste lectura (USD)", "numero"],
+    ],
+    sql: `SELECT o.numero AS orden, o.cliente, s.nombre AS seccion, h.estado, h.operario1, h.operario2,
+            (SELECT sum(r.cantidad) FROM registros r WHERE r.hoja_id = h.id) AS piezas,
+            (SELECT sum(ha.malas) FROM hoja_articulos ha WHERE ha.hoja_id = h.id) AS malas,
+            h.notas, h.registrada_en, h.extraccion->>'lector' AS lector, (h.extraccion->'uso'->>'costo')::numeric AS costo_lectura
+       FROM hojas h JOIN ordenes o ON o.id = h.orden_id JOIN secciones s ON s.id = h.seccion_id
+      WHERE $BUSCA ORDER BY o.numero DESC, s.id`,
+  },
+  {
+    hoja: "Órdenes", busca: ["o.numero", "o.cliente", "o.observaciones"],
+    columnas: [
+      ["orden", "Orden"], ["fecha_emision", "Emisión", "fecha"], ["cliente", "Cliente"], ["observaciones", "Observaciones"],
+      ["estado", "Estado"], ["secciones_registradas", "Secciones registradas", "entero"], ["secciones", "Secciones de la ruta", "entero"],
+      ["piezas_producir", "Piezas a producir", "entero"], ["creada", "Creada en la app", "fecha"],
+    ],
+    sql: `SELECT o.numero AS orden, o.fecha_emision, o.cliente, o.observaciones,
+            CASE WHEN bool_and(h.estado = 'registrada') THEN 'completa' ELSE 'abierta' END AS estado,
+            count(*) FILTER (WHERE h.estado = 'registrada') AS secciones_registradas, count(h.id) AS secciones,
+            (SELECT sum(a.cantidad_producir) FROM orden_articulos a WHERE a.orden_id = o.id) AS piezas_producir, o.creado_en AS creada
+       FROM ordenes o LEFT JOIN hojas h ON h.orden_id = o.id
+      WHERE $BUSCA GROUP BY o.id ORDER BY o.numero DESC`,
+  },
+  {
+    hoja: "Artículos", busca: ["o.numero", "a.codigo", "a.bizcocho", "a.decoracion"],
+    columnas: [
+      ["orden", "Orden"], ["codigo_bizcocho", "Cód. bizcocho"], ["bizcocho", "Bizcocho"], ["codigo_decoracion", "Cód. decoración"], ["decoracion", "Decoración"],
+      ["cantidad_producir", "Producir", "entero"], ["tiempo_estandar", "Tiempo impreso", "numero"], ["ruta", "Ruta"],
+    ],
+    sql: `SELECT o.numero AS orden, a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion, a.cantidad_producir, a.tiempo_estandar, a.ruta
+       FROM orden_articulos a JOIN ordenes o ON o.id = a.orden_id WHERE $BUSCA ORDER BY o.numero DESC, a.id`,
+  },
+  {
+    hoja: "Malas", busca: ["o.numero", "s.nombre", "a.bizcocho", "a.decoracion", "h.operario1", "h.operario2"],
+    columnas: [
+      ["orden", "Orden"], ["seccion", "Sección"], ["codigo_bizcocho", "Cód. bizcocho"], ["bizcocho", "Bizcocho"], ["codigo_decoracion", "Cód. decoración"], ["decoracion", "Decoración"],
+      ["operario1", "Operario 1"], ["operario2", "Operario 2"], ["producidas", "Producidas", "entero"], ["malas", "Malas", "entero"],
+    ],
+    sql: `SELECT o.numero AS orden, s.nombre AS seccion, a.codigo_bizcocho, a.bizcocho, a.codigo_decoracion, a.decoracion, h.operario1, h.operario2,
+            (SELECT sum(r.cantidad) FROM registros r WHERE r.hoja_id = h.id AND r.articulo_id = a.id) AS producidas, ha.malas
+       FROM hoja_articulos ha JOIN hojas h ON h.id = ha.hoja_id JOIN secciones s ON s.id = h.seccion_id
+       JOIN ordenes o ON o.id = h.orden_id JOIN orden_articulos a ON a.id = ha.articulo_id
+      WHERE ha.malas IS NOT NULL AND $BUSCA ORDER BY o.numero DESC, s.id`,
+  },
+  {
+    hoja: "Bizcochos", busca: ["codigo", "nombre"],
+    columnas: [["codigo", "Código"], ["nombre", "Nombre"], ["actualizado", "Actualizado", "fecha"]],
+    sql: `SELECT codigo, nombre, actualizado FROM bizcochos WHERE $BUSCA ORDER BY codigo`,
+  },
+  {
+    hoja: "Decoraciones", busca: ["codigo", "nombre"],
+    columnas: [["codigo", "Código"], ["nombre", "Nombre"], ["actualizado", "Actualizado", "fecha"]],
+    sql: `SELECT codigo, nombre, actualizado FROM decoraciones WHERE $BUSCA ORDER BY codigo`,
+  },
+];
+
+// Filas de una tabla, opcionalmente filtradas por texto (sin tildes ni mayúsculas) y limitadas.
+export async function filasBase(tabla, { buscar = "", limite = null } = {}) {
+  const t = TABLAS_BASE.find((x) => x.hoja === tabla);
+  if (!t) throw new ErrorDeDatos("Tabla desconocida");
+  const q = normalizar(buscar);
+  const filtro = q
+    ? "(" + t.busca.map((c) => `translate(upper(coalesce(${c}::text, '')), 'ÁÉÍÓÚÜÑ', 'AEIOUUN') LIKE $1`).join(" OR ") + ")"
+    : "TRUE";
+  const sql = t.sql.replace("$BUSCA", filtro) + (limite ? ` LIMIT ${Number(limite) | 0}` : "");
+  const { rows } = await pool.query(sql, q ? [`%${q.replace(/[%_]/g, "")}%`] : []);
+  return rows;
+}
+
+export async function resumenBase() {
+  const cuentas = await Promise.all(TABLAS_BASE.map(async (t) => {
+    const { rows } = await pool.query(`SELECT count(*)::int AS n FROM (${t.sql.replace("$BUSCA", "TRUE")}) x`);
+    return { hoja: t.hoja, filas: rows[0].n, columnas: t.columnas.map(([clave, titulo, tipo]) => ({ clave, titulo, tipo: tipo ?? "texto" })) };
+  }));
+  return cuentas;
+}
+
 export async function listarOrdenes() {
   const { rows } = await pool.query(
     `SELECT o.numero, o.fecha_emision, o.cliente, o.observaciones,

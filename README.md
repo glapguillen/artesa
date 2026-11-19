@@ -120,3 +120,12 @@ Horas-persona = (fin − inicio) × personas; un registro con la hora de fin igu
 la de inicio no cuenta para productividad. Los operarios se agrupan sin distinguir tildes ni
 mayúsculas. La eficiencia frente al TIEMPO impreso no se muestra: ese número es el mismo en
 las hojas de todas las secciones, así que no es el tiempo estándar de cada una.
+
+## Base de datos
+
+La pestaña **Base de datos** muestra cuántas filas tiene cada tabla, una vista previa de
+hasta 100 filas con búsqueda (sin distinguir tildes ni mayúsculas) y el botón **Descargar
+Excel**: `/api/base.xlsx` genera un archivo con una hoja por tabla (Registros, Hojas, Órdenes,
+Artículos, Malas, Bizcochos, Decoraciones) y una de Información con las definiciones. Cada
+hoja trae el encabezado fijo, filtros, y fechas y números con su tipo. La hoja Registros
+incluye ya calculadas las horas-persona y los minutos por pieza.

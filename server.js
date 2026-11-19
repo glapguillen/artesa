@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { accesoActivo, entrar, estado, exigirSesion, salir } from "./acceso.js";
 import { ErrorDeLectura, configClaude, extraerHoja, leerConClaude, motivoSinIA, proveedor, proveedores } from "./extraer.js";
-import { ErrorDeDatos, catalogo, datosReportes, detalleOrden, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
+import { ErrorDeDatos, TABLAS_BASE, catalogo, datosReportes, detalleOrden, filasBase, resumenBase, guardarEnCatalogo, guardarHoja, hojaExistente, listarOrdenes, migrar, pool } from "./db.js";
 
 const MIMES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -92,6 +92,63 @@ app.put("/api/catalogo/:tipo/:codigo", async (req, res) =>
 app.get("/api/ordenes", async (_req, res) => res.json(await listarOrdenes()));
 
 app.get("/api/reportes", async (req, res) => res.json(await datosReportes(req.query.desde, req.query.hasta)));
+
+// ---- Base completa ----
+app.get("/api/base", async (_req, res) => res.json(await resumenBase()));
+app.get("/api/base/tabla", async (req, res) =>
+  res.json(await filasBase(String(req.query.nombre ?? ""), { buscar: String(req.query.q ?? ""), limite: 100 })));
+
+// Excel con una hoja por tabla, más una de información. Fechas y números van con su tipo.
+app.get("/api/base.xlsx", async (_req, res) => {
+  const { default: ExcelJS } = await import("exceljs");
+  const libro = new ExcelJS.Workbook();
+  libro.creator = "Artesa · Hojas de producción";
+  libro.created = new Date();
+  const info = libro.addWorksheet("Información");
+  info.columns = [{ width: 26 }, { width: 90 }];
+  const filasInfo = [
+    ["Base de datos de Hojas de Producción Diaria"],
+    ["Generado", new Date()],
+    [],
+    ["Registros", "Un bloque manuscrito por fila: fecha, cantidad, horas y personas de un artículo en una sección."],
+    ["Horas-persona", "(hora fin − hora inicio) × personas; vacío si la hora de fin no es posterior a la de inicio."],
+    ["Min/pieza", "Minutos-persona del registro divididos entre la cantidad."],
+    ["Hojas", "Una por orden y sección: registrada (con foto guardada) o pendiente según la ruta."],
+    ["Órdenes", "Completa cuando todas las secciones de su ruta están registradas."],
+    ["Malas", "Piezas malas anotadas por artículo en cada hoja."],
+    ["Bizcochos / Decoraciones", "Catálogo de códigos (4 y 3 dígitos) con su nombre."],
+  ];
+  filasInfo.forEach((f) => info.addRow(f));
+  info.getRow(1).font = { bold: true, size: 14 };
+  info.getCell("B2").numFmt = "dd/mm/yyyy hh:mm";
+  for (const t of TABLAS_BASE) {
+    const filas = await filasBase(t.hoja);
+    const hoja = libro.addWorksheet(t.hoja, { views: [{ state: "frozen", ySplit: 1 }] });
+    hoja.columns = t.columnas.map(([clave, titulo, tipo]) => ({
+      header: titulo, key: clave,
+      width: Math.min(40, Math.max(titulo.length + 2, tipo === "fecha" ? 12 : 10, ...filas.slice(0, 200).map((f) => String(f[clave] ?? "").length + 2))),
+      style: tipo === "fecha" ? { numFmt: "dd/mm/yyyy" } : tipo === "numero" ? { numFmt: "0.00" } : {},
+    }));
+    for (const f of filas) {
+      const fila = {};
+      for (const [clave, , tipo] of t.columnas) {
+        const v = f[clave];
+        fila[clave] = v == null ? null
+          : tipo === "fecha" ? (v instanceof Date ? v : new Date(String(v).slice(0, 10) + "T00:00:00Z"))
+          : tipo === "numero" || tipo === "entero" ? Number(v)
+          : v;
+      }
+      hoja.addRow(fila);
+    }
+    hoja.getRow(1).font = { bold: true };
+    hoja.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: t.columnas.length } };
+  }
+  const hoy = new Date().toISOString().slice(0, 10);
+  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.setHeader("Content-Disposition", `attachment; filename="artesa-base-${hoy}.xlsx"`);
+  await libro.xlsx.write(res);
+  res.end();
+});
 
 // Insights redactados por Claude a partir del resumen numérico de la pestaña (sin fotos).
 app.post("/api/insights-ia", async (req, res) => {

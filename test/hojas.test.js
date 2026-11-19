@@ -224,3 +224,30 @@ test("reportes: cola por sección, productividad, calidad e insights", async () 
   const { claveNombre } = await import("../public/metricas.js");
   assert.equal(claveNombre("Ana Pérez"), claveNombre(" ana  perez "));
 });
+
+test("base completa: tablas, búsqueda y Excel", async () => {
+  const { filasBase, resumenBase, TABLAS_BASE } = await import("../db.js");
+  const resumen = await resumenBase();
+  assert.deepEqual(resumen.map((t) => t.hoja), TABLAS_BASE.map((t) => t.hoja));
+  const regs = await filasBase("Registros", { buscar: "ana pérez" });
+  assert.ok(regs.length >= 1 && regs.every((r) => /ANA PEREZ/i.test(r.operario1.normalize("NFD").replace(/[̀-ͯ]/g, ""))));
+  const trazado = regs.find((r) => r.seccion === "TRAZADO" && r.hora_inicio === "15:00");
+  assert.equal(Number(trazado.horas_persona), 2);   // 1 h × 2 personas
+  assert.equal(Number(trazado.min_pieza), 20);      // 120 min-persona / 6 piezas
+  await assert.rejects(filasBase("NoExiste"), /desconocida/);
+
+  const { app } = await import("../server.js");
+  const srv = app.listen(0);
+  try {
+    const r = await fetch(`http://localhost:${srv.address().port}/api/base.xlsx`);
+    assert.equal(r.status, 200);
+    assert.match(r.headers.get("content-disposition"), /artesa-base-.*\.xlsx/);
+    const { default: ExcelJS } = await import("exceljs");
+    const libro = new ExcelJS.Workbook();
+    await libro.xlsx.load(Buffer.from(await r.arrayBuffer()));
+    assert.deepEqual(libro.worksheets.map((h) => h.name), ["Información", ...TABLAS_BASE.map((t) => t.hoja)]);
+    assert.ok(libro.getWorksheet("Registros").getCell("A2").value instanceof Date);
+  } finally {
+    srv.close();
+  }
+});
