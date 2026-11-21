@@ -1,0 +1,1279 @@
+{
+  "name": "pg-backup · ARTESA / artesa-db → Google Drive",
+  "nodes": [
+    {
+      "id": "a001-pgb",
+      "name": "Programado (domingo 02:00)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * 0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a002-pgb",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "a014-pgb",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a003-pgb",
+              "name": "cliente",
+              "value": "ARTESA",
+              "type": "string"
+            },
+            {
+              "id": "a004-pgb",
+              "name": "db",
+              "value": "artesa-db",
+              "type": "string"
+            },
+            {
+              "id": "a005-pgb",
+              "name": "servicio_url",
+              "value": "http://PROYECTO_pg-backup-artesa:8080",
+              "type": "string"
+            },
+            {
+              "id": "a006-pgb",
+              "name": "carpeta_respaldos_id",
+              "value": "CAMBIAR_ID_CARPETA_RESPALDOS",
+              "type": "string"
+            },
+            {
+              "id": "a007-pgb",
+              "name": "retener",
+              "value": 8,
+              "type": "number"
+            },
+            {
+              "id": "a008-pgb",
+              "name": "hoja_log_id",
+              "value": "CAMBIAR_ID_HOJA_DE_CALCULO",
+              "type": "string"
+            },
+            {
+              "id": "a009-pgb",
+              "name": "hoja_log_pestana",
+              "value": "log",
+              "type": "string"
+            },
+            {
+              "id": "a010-pgb",
+              "name": "correo_alerta",
+              "value": "CAMBIAR@ejemplo.com",
+              "type": "string"
+            },
+            {
+              "id": "a011-pgb",
+              "name": "exigir_cifrado",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "a012-pgb",
+              "name": "tamano_minimo_bytes",
+              "value": 1024,
+              "type": "number"
+            },
+            {
+              "id": "a013-pgb",
+              "name": "timeout_ms",
+              "value": 2400000,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a016-pgb",
+      "name": "¿Viene de un error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a015-pgb",
+              "leftValue": "={{ $('Error Trigger').isExecuted }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a017-pgb",
+      "name": "Pedir respaldo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.servicio_url }}/backup",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {
+          "timeout": "={{ $json.timeout_ms }}",
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": false
+    },
+    {
+      "id": "a018-pgb",
+      "name": "Revisar respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// 1.ª revisión: ¿respondió bien pg-backup? Si no, saca el detalle del JSON de error.\nconst r = $input.first();\nconst status = Number(r.json.statusCode);\nif (status !== 200) {\n  let detalle = r.json.statusMessage || 'respuesta sin detalle';\n  try {\n    const buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n    const j = JSON.parse(buf.toString('utf8').slice(0, 4000));\n    if (j.error) detalle = j.error + (j.etapa ? ' (etapa: ' + j.etapa + ')' : '');\n  } catch (e) {}\n  throw new Error('pg-backup respondió HTTP ' + status + ': ' + detalle);\n}\nif (!r.binary || !r.binary.data) throw new Error('pg-backup respondió 200 pero sin archivo');\nreturn $input.all();"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a019-pgb",
+      "name": "Calcular SHA-256",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        0
+      ],
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "dataPropertyName": "sha256_n8n",
+        "encoding": "hex"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a020-pgb",
+      "name": "Validar respaldo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// 2.ª revisión: nombre, cifrado, tamaño, SHA-256 e índice. Cualquier problema → rama de alerta.\nconst cfg = $('Config').first(0).json;\nconst resp = $('Pedir respaldo').first(0);\nconst h = resp.json.headers || {};\nconst sha256_n8n = $input.first().json.sha256_n8n;\n\nconst esc = (s) => String(s).replace(/[.*+?^$(){}|[\\]\\\\]/g, '\\\\$&');\nconst archivo = h['x-backup-filename'] || '';\nconst patron = new RegExp('^' + esc(cfg.cliente) + '_' + esc(cfg.db) + '_\\\\d{4}-\\\\d{2}-\\\\d{2}_\\\\d{4}\\\\.dump(\\\\.age)?$');\nif (!patron.test(archivo)) throw new Error('Nombre de archivo inesperado: \"' + archivo + '\"');\n\nconst cifrado = archivo.endsWith('.age') && h['x-backup-encrypted'] === 'true';\nif (cfg.exigir_cifrado && !cifrado) {\n  throw new Error('El respaldo llegó SIN cifrar y exigir_cifrado está activo: configura AGE_RECIPIENT en pg-backup.');\n}\n\nconst tamano = Number(h['x-backup-size']);\nif (!Number.isFinite(tamano) || tamano < Number(cfg.tamano_minimo_bytes || 1)) {\n  throw new Error('Tamaño sospechoso: ' + h['x-backup-size'] + ' bytes');\n}\nif (h['content-length'] && Number(h['content-length']) !== tamano) {\n  throw new Error('Content-Length (' + h['content-length'] + ') no coincide con X-Backup-Size (' + tamano + ')');\n}\n\nconst sha = String(h['x-backup-sha256'] || '').toLowerCase();\nif (!/^[0-9a-f]{64}$/.test(sha)) throw new Error('Falta o es inválido X-Backup-Sha256');\nif (sha256_n8n !== sha) {\n  throw new Error('SHA-256 no coincide: el servicio dice ' + sha + ' y n8n recibió ' + sha256_n8n + ' (transferencia corrupta)');\n}\n\nconst toc = Number(h['x-backup-toc-entries'] || 0);\nif (!(toc > 0)) throw new Error('El respaldo no tiene entradas en el índice (pg_restore --list)');\n\nreturn [{\n  json: {\n    archivo,\n    tamano_bytes: tamano,\n    sha256: sha,\n    duracion_ms: Number(h['x-backup-duration-ms'] || 0),\n    cifrado,\n    toc_entradas: toc,\n    servidor: h['x-backup-server-version'] || '',\n    pg_dump: h['x-backup-pg-dump-version'] || '',\n    inicio: h['x-backup-started-at'] || '',\n  },\n  // El nodo Crypto no conserva el binario: se toma el archivo de la respuesta original.\n  binary: resp.binary,\n}];"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a021-pgb",
+      "name": "Buscar carpeta cliente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1580,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=name = '{{ $('Config').first(0).json.cliente }}' and mimeType = 'application/vnd.google-apps.folder' and '{{ $('Config').first(0).json.carpeta_respaldos_id }}' in parents and trashed = false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id,name)"
+            },
+            {
+              "name": "pageSize",
+              "value": "10"
+            },
+            {
+              "name": "supportsAllDrives",
+              "value": "true"
+            },
+            {
+              "name": "includeItemsFromAllDrives",
+              "value": "true"
+            },
+            {
+              "name": "corpora",
+              "value": "allDrives"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a023-pgb",
+      "name": "¿Existe carpeta cliente?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1800,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a022-pgb",
+              "leftValue": "={{ ($json.files || []).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a024-pgb",
+      "name": "Crear carpeta cliente",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2020,
+        120
+      ],
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Config').first(0).json.cliente }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first(0).json.carpeta_respaldos_id }}"
+        },
+        "options": {}
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a026-pgb",
+      "name": "Carpeta cliente",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a025-pgb",
+              "name": "carpeta_id",
+              "value": "={{ $json.files ? $json.files[0].id : $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "a027-pgb",
+      "name": "Buscar carpeta base",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2460,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=name = '{{ $('Config').first(0).json.db }}' and mimeType = 'application/vnd.google-apps.folder' and '{{ $('Carpeta cliente').first(0).json.carpeta_id }}' in parents and trashed = false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id,name)"
+            },
+            {
+              "name": "pageSize",
+              "value": "10"
+            },
+            {
+              "name": "supportsAllDrives",
+              "value": "true"
+            },
+            {
+              "name": "includeItemsFromAllDrives",
+              "value": "true"
+            },
+            {
+              "name": "corpora",
+              "value": "allDrives"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a029-pgb",
+      "name": "¿Existe carpeta base?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2680,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a028-pgb",
+              "leftValue": "={{ ($json.files || []).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a030-pgb",
+      "name": "Crear carpeta base",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2900,
+        120
+      ],
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Config').first(0).json.db }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Carpeta cliente').first(0).json.carpeta_id }}"
+        },
+        "options": {}
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a032-pgb",
+      "name": "Carpeta base",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3120,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a031-pgb",
+              "name": "carpeta_id",
+              "value": "={{ $json.files ? $json.files[0].id : $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "a033-pgb",
+      "name": "Preparar subida",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3340,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Recupera el archivo validado (los nodos de Drive no conservan el binario).\nconst v = $('Validar respaldo').first(0);\nreturn [{ json: { ...v.json, carpeta_db_id: $input.first().json.carpeta_id }, binary: v.binary }];"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a034-pgb",
+      "name": "Subir a Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3560,
+        0
+      ],
+      "parameters": {
+        "name": "={{ $json.archivo }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.carpeta_db_id }}"
+        },
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a035-pgb",
+      "name": "Registrar OK",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3560,
+        -120
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first(0).json.hoja_log_id }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Config').first(0).json.hoja_log_pestana }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha": "={{ $now.setZone('America/Guayaquil').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "cliente": "={{ $('Config').first(0).json.cliente }}",
+            "base": "={{ $('Config').first(0).json.db }}",
+            "archivo": "={{ $('Validar respaldo').first(0).json.archivo }}",
+            "tamaño_bytes": "={{ $('Validar respaldo').first(0).json.tamano_bytes }}",
+            "sha256": "={{ $('Validar respaldo').first(0).json.sha256 }}",
+            "duración_ms": "={{ $('Validar respaldo').first(0).json.duracion_ms }}",
+            "estado": "ok",
+            "detalle": "={{ 'Drive id ' + $('Subir a Drive').first(0).json.id + ' · ' + ($('Validar respaldo').first(0).json.cifrado ? 'cifrado age' : 'SIN cifrar') + ' · ' + $('Validar respaldo').first(0).json.toc_entradas + ' objetos · PostgreSQL ' + $('Validar respaldo').first(0).json.servidor }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cliente",
+              "displayName": "cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "base",
+              "displayName": "base",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "archivo",
+              "displayName": "archivo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tamaño_bytes",
+              "displayName": "tamaño_bytes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sha256",
+              "displayName": "sha256",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duración_ms",
+              "displayName": "duración_ms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "detalle",
+              "displayName": "detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a036-pgb",
+      "name": "Listar respaldos",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3560,
+        120
+      ],
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "trashed = false",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Preparar subida').first(0).json.carpeta_db_id }}"
+          },
+          "whatToSearch": "files"
+        },
+        "options": {
+          "fields": [
+            "id",
+            "name"
+          ]
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a037-pgb",
+      "name": "Elegir los que sobran",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3780,
+        120
+      ],
+      "parameters": {
+        "jsCode": "// Conserva los últimos N respaldos de ESTA base y manda el resto a la papelera de Drive.\n// Solo toca archivos con el nombre exacto que genera pg-backup; nunca el recién subido.\nconst cfg = $('Config').first(0).json;\nconst nuevo = $('Validar respaldo').first(0).json.archivo;\nconst retener = Number(cfg.retener);\nif (!Number.isInteger(retener) || retener < 1) throw new Error('retener debe ser un entero >= 1 (vale ' + cfg.retener + ')');\n\nconst esc = (s) => String(s).replace(/[.*+?^$(){}|[\\]\\\\]/g, '\\\\$&');\nconst patron = new RegExp('^' + esc(cfg.cliente) + '_' + esc(cfg.db) + '_\\\\d{4}-\\\\d{2}-\\\\d{2}_\\\\d{4}\\\\.dump(\\\\.age)?$');\nconst respaldos = $input.all().map((i) => i.json).filter((f) => f && f.id && patron.test(f.name || ''));\n\nif (!respaldos.some((f) => f.name === nuevo)) {\n  throw new Error('El respaldo recién subido (' + nuevo + ') no aparece en la carpeta; por seguridad no se borra nada.');\n}\n// El nombre lleva la fecha (YYYY-MM-DD_HHmm): el orden alfabético es el cronológico.\nrespaldos.sort((a, b) => (a.name < b.name ? 1 : a.name > b.name ? -1 : 0));\nreturn respaldos.slice(retener).filter((f) => f.name !== nuevo).map((f) => ({ json: { id: f.id, name: f.name } }));"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a038-pgb",
+      "name": "Enviar a papelera",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4000,
+        120
+      ],
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {
+          "deletePermanently": false
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "a039-pgb",
+      "name": "Preparar alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// Junta el detalle del fallo, venga de la salida de error de un nodo o del Error Trigger.\nconst cfg = $('Config').first(0).json;\nconst ahora = $now.setZone('America/Guayaquil').toFormat('yyyy-MM-dd HH:mm:ss');\nlet nodo = '', mensaje = '', ejecucion = $execution.id, enlace = '';\n\nif ($('Error Trigger').isExecuted) {\n  const t = $('Error Trigger').first(0).json;\n  nodo = (t.execution && t.execution.lastNodeExecuted) || (t.trigger && 'disparador') || '?';\n  mensaje = (t.execution && t.execution.error && t.execution.error.message) || (t.trigger && t.trigger.error && t.trigger.error.message) || 'sin mensaje';\n  ejecucion = (t.execution && t.execution.id) || '';\n  enlace = (t.execution && t.execution.url) || '';\n} else {\n  const e = $input.first().json || {};\n  nodo = (typeof $prevNode !== 'undefined' && $prevNode.name) || '?';\n  const err = e.error;\n  mensaje = typeof err === 'string' ? err : (err && (err.message || err.description)) || e.message || JSON.stringify(e).slice(0, 1500);\n  if (err && err.description && err.message && err.description !== err.message) mensaje += ' — ' + err.description;\n}\n\nlet previo = {};\n\ntry { previo = $('Validar respaldo').first(0).json; } catch (e) { }\n\nconst lineas = [\n  'Falló el respaldo programado de ' + cfg.cliente + ' / ' + cfg.db + '.',\n  '',\n  'Fecha (Guayaquil): ' + ahora,\n  'Paso que falló:    ' + nodo,\n  'Error:             ' + mensaje,\n  'Ejecución n8n:     ' + ejecucion + (enlace ? ' (' + enlace + ')' : ''),\n];\nif (previo.archivo) lineas.push('Archivo generado:  ' + previo.archivo + ' (' + previo.tamano_bytes + ' bytes, sha256 ' + previo.sha256 + ')');\nlineas.push('', 'Qué revisar: el README de pg-backup, sección \"Diagnóstico\". Mientras no se corrija,', 'el último respaldo bueno sigue en Drive (no se borra nada cuando falla).');\n\nreturn [{ json: {\n  fecha: ahora, nodo, mensaje, ejecucion,\n  archivo: previo.archivo || '', tamano_bytes: previo.tamano_bytes || '', sha256: previo.sha256 || '', duracion_ms: previo.duracion_ms || '',\n  asunto: '[pg-backup] FALLÓ respaldo ' + cfg.cliente + '/' + cfg.db + ' — ' + nodo,\n  cuerpo: lineas.join('\\n'),\n} }];"
+      }
+    },
+    {
+      "id": "a040-pgb",
+      "name": "Enviar alerta (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2460,
+        440
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Config').first(0).json.correo_alerta }}",
+        "subject": "={{ $json.asunto }}",
+        "emailType": "text",
+        "message": "={{ $json.cuerpo }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "a041-pgb",
+      "name": "Registrar error",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2460,
+        640
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first(0).json.hoja_log_id }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Config').first(0).json.hoja_log_pestana }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha": "={{ $('Preparar alerta').first(0).json.fecha }}",
+            "cliente": "={{ $('Config').first(0).json.cliente }}",
+            "base": "={{ $('Config').first(0).json.db }}",
+            "archivo": "={{ $('Preparar alerta').first(0).json.archivo }}",
+            "tamaño_bytes": "={{ $('Preparar alerta').first(0).json.tamano_bytes }}",
+            "sha256": "={{ $('Preparar alerta').first(0).json.sha256 }}",
+            "duración_ms": "={{ $('Preparar alerta').first(0).json.duracion_ms }}",
+            "estado": "error",
+            "detalle": "={{ $('Preparar alerta').first(0).json.nodo + ': ' + $('Preparar alerta').first(0).json.mensaje }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cliente",
+              "displayName": "cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "base",
+              "displayName": "base",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "archivo",
+              "displayName": "archivo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tamaño_bytes",
+              "displayName": "tamaño_bytes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sha256",
+              "displayName": "sha256",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duración_ms",
+              "displayName": "duración_ms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "detalle",
+              "displayName": "detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "a042-pgb",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -420
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 360,
+        "color": 5,
+        "content": "## pg-backup → Google Drive\nAntes de activar (README, sección n8n):\n1. **Config**: cliente, db, servicio_url (nombre interno de EasyPanel), IDs de carpeta y hoja, correo.\n2. **Pedir respaldo**: credencial *Bearer Auth* con el BACKUP_TOKEN (no va en este JSON).\n3. Nodos de Drive, Sheets y Gmail: elige tus credenciales.\n4. Settings → Error workflow → **este mismo workflow** (cubre fallos sin salida de error).\n5. Horario: nodo *Programado* (cron) — zona horaria del workflow: America/Guayaquil.\n\nSi algo falla no se borra ningún respaldo y llega un correo con el detalle."
+      }
+    }
+  ],
+  "connections": {
+    "Programado (domingo 02:00)": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "¿Viene de un error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Viene de un error?": {
+      "main": [
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pedir respaldo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedir respaldo": {
+      "main": [
+        [
+          {
+            "node": "Revisar respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar respuesta": {
+      "main": [
+        [
+          {
+            "node": "Calcular SHA-256",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular SHA-256": {
+      "main": [
+        [
+          {
+            "node": "Validar respaldo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar respaldo": {
+      "main": [
+        [
+          {
+            "node": "Buscar carpeta cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar carpeta cliente": {
+      "main": [
+        [
+          {
+            "node": "¿Existe carpeta cliente?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Existe carpeta cliente?": {
+      "main": [
+        [
+          {
+            "node": "Carpeta cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear carpeta cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear carpeta cliente": {
+      "main": [
+        [
+          {
+            "node": "Carpeta cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Carpeta cliente": {
+      "main": [
+        [
+          {
+            "node": "Buscar carpeta base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar carpeta base": {
+      "main": [
+        [
+          {
+            "node": "¿Existe carpeta base?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Existe carpeta base?": {
+      "main": [
+        [
+          {
+            "node": "Carpeta base",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear carpeta base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear carpeta base": {
+      "main": [
+        [
+          {
+            "node": "Carpeta base",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Carpeta base": {
+      "main": [
+        [
+          {
+            "node": "Preparar subida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar subida": {
+      "main": [
+        [
+          {
+            "node": "Subir a Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subir a Drive": {
+      "main": [
+        [
+          {
+            "node": "Registrar OK",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Listar respaldos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listar respaldos": {
+      "main": [
+        [
+          {
+            "node": "Elegir los que sobran",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Elegir los que sobran": {
+      "main": [
+        [
+          {
+            "node": "Enviar a papelera",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar OK": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar a papelera": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar alerta": {
+      "main": [
+        [
+          {
+            "node": "Enviar alerta (Gmail)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Registrar error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Guayaquil",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": true,
+    "executionTimeout": 3600,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "pinData": {},
+  "active": false,
+  "tags": []
+}
