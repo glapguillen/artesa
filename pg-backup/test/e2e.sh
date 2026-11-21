@@ -44,6 +44,8 @@ paso "Construir la imagen y levantar origen (SSL), destino y pg-backup"
 # shellcheck disable=SC2086
 docker build -q ${DOCKER_BUILD_ARGS:-} --build-arg PG_MAJOR="${PG_MAJOR:-17}" -t "pg-backup:${PG_MAJOR:-17}" . >"$TMP/build.log" 2>&1 || { cat "$TMP/build.log"; exit 1; }
 ok "imagen pg-backup:${PG_MAJOR:-17}"
+# Siempre desde cero: restos de una ejecución anterior (CONSERVAR=1) harían fallar la restauración.
+$COMPOSE down -v --remove-orphans >/dev/null 2>&1 || true
 $COMPOSE up -d --no-build --wait origen destino pg-backup pg-backup-mal >"$TMP/compose.log" 2>&1 || { cat "$TMP/compose.log"; exit 1; }
 for i in $(seq 1 30); do curl -fs "$URL/health" >/dev/null && break; sleep 1; done
 SALUD=$(curl -fs "$URL/health")
