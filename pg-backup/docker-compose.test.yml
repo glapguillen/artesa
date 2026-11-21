@@ -1,0 +1,73 @@
+# Entorno de prueba local. Úsalo con test/e2e.sh, que genera los certificados, la clave age y
+# el token de prueba (nada de eso se guarda en el repositorio).
+#
+#   origen   Postgres con SSL y datos de prueba (el papel de artesa-db)
+#   destino  Postgres vacío donde se restaura el respaldo
+#   pg-backup el servicio, conectado al origen con el rol de solo lectura y sslmode=require
+#   pg-backup-mal el servicio con una contraseña errónea, para probar el camino de error
+#
+# Las contraseñas de aquí son solo de prueba y no existen fuera de este entorno.
+name: pgbackup-test
+
+x-pg: &pg
+  image: postgres:${PG_MAJOR:-17}-alpine
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres -d artesa"]
+    interval: 2s
+    timeout: 3s
+    retries: 30
+
+services:
+  origen:
+    <<: *pg
+    environment:
+      POSTGRES_PASSWORD: clave-de-prueba-origen
+      POSTGRES_DB: artesa
+    command:
+      - postgres
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/certs/server.crt
+      - -c
+      - ssl_key_file=/certs/server.key
+    volumes:
+      - ./test/seed:/docker-entrypoint-initdb.d:ro
+      - ./test/.tmp/certs:/certs:ro
+
+  destino:
+    <<: *pg
+    environment:
+      POSTGRES_PASSWORD: clave-de-prueba-destino
+      POSTGRES_DB: artesa
+
+  pg-backup:
+    build:
+      context: .
+      args:
+        PG_MAJOR: ${PG_MAJOR:-17}
+    image: pg-backup:${PG_MAJOR:-17}
+    depends_on:
+      origen: { condition: service_healthy }
+    environment:
+      CLIENTE: ARTESA
+      DB_NAME: artesa-db
+      DATABASE_URL: postgresql://respaldo:clave-de-prueba-respaldo@origen:5432/artesa
+      BACKUP_TOKEN: ${BACKUP_TOKEN:?genera uno con test/e2e.sh}
+      AGE_RECIPIENT: ${AGE_RECIPIENT:-}
+      DUMP_TIMEOUT_SEC: ${DUMP_TIMEOUT_SEC:-1800}
+    # Solo para la prueba: publicado en 127.0.0.1. En EasyPanel el servicio NO publica puertos.
+    ports:
+      - "127.0.0.1:18080:8080"
+
+  pg-backup-mal:
+    image: pg-backup:${PG_MAJOR:-17}
+    depends_on:
+      pg-backup: { condition: service_started }
+    environment:
+      CLIENTE: ARTESA
+      DB_NAME: artesa-db
+      DATABASE_URL: postgresql://respaldo:clave-equivocada-123@origen:5432/artesa
+      BACKUP_TOKEN: ${BACKUP_TOKEN:?genera uno con test/e2e.sh}
+    ports:
+      - "127.0.0.1:18081:8080"

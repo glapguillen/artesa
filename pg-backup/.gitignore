@@ -1,0 +1,4 @@
+test/.tmp/
+*.dump
+*.dump.age
+.env
